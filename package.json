@@ -8,5 +8,14 @@
   "contributors": [
     "Jan Wirwahn"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "lint": "node_modules/.bin/eslint --fix \"src/**/*.js\""
+  },
+  "devDependencies": {
+    "eslint": "^4.2.0",
+    "eslint-config-prettier": "^2.3.0",
+    "eslint-plugin-prettier": "^2.1.2",
+    "prettier": "^1.5.3"
+  }
 }

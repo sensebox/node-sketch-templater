@@ -3,7 +3,7 @@
 const fs = require('fs'),
   cfg = require('../utils').config;
 
-const appendSensors = function appendSensors (output, box) {
+const appendSensors = function appendSensors(output, box) {
   let customSensorindex = 1;
   for (let i = box.sensors.length - 1; i >= 0; i--) {
     const sensor = box.sensors[i];
@@ -22,13 +22,16 @@ const appendSensors = function appendSensors (output, box) {
     } else if (!box._isCustom && sensor.title === 'UV-Intensität') {
       fs.appendFileSync(output, `#define UVSENSOR_ID "${sensor._id}"\n`);
     } else {
-      fs.appendFileSync(output, `#define SENSOR${customSensorindex}_ID "${sensor._id}" // ${sensor.title}\n`);
+      fs.appendFileSync(
+        output,
+        `#define SENSOR${customSensorindex}_ID "${sensor._id}" // ${sensor.title}\n`
+      );
       customSensorindex++;
     }
   }
 };
 
-module.exports = function processSketchGeneric (templateLines, output, box) {
+module.exports = function processSketchGeneric(templateLines, output, box) {
   for (const line of templateLines) {
     if (line.indexOf('//senseBox ID') !== -1) {
       fs.appendFileSync(output, `${line.toString()}\n`);
@@ -37,7 +40,9 @@ module.exports = function processSketchGeneric (templateLines, output, box) {
       fs.appendFileSync(output, `${line.toString()}\n`);
       appendSensors(output, box);
     } else if (line.indexOf('@@OSEM_POST_DOMAIN@@') !== -1) {
-      const newLine = line.toString().replace('@@OSEM_POST_DOMAIN@@', cfg.api_measurements_post_domain);
+      const newLine = line
+        .toString()
+        .replace('@@OSEM_POST_DOMAIN@@', cfg.api_measurements_post_domain);
       fs.appendFileSync(output, `${newLine}\n`);
     } else {
       fs.appendFileSync(output, `${line.toString()}\n`);
