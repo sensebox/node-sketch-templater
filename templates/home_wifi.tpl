@@ -1,3 +1,4 @@
+{ "processorName": "csvHexIds", "model": "homeWifi" }
 /*
   senseBox Citizen Sensingplatform
   WiFi Version: 1.2
@@ -21,7 +22,7 @@ const char ssid[] = "";       //  your network SSID (name)
 const char pass[] = "";       // your network password
 
 //Network settings
-@-- tmpl postDomain // const char *server = "";
+@-- tmpl postDomain
 uint8_t status = WL_IDLE_STATUS;
 WiFiClient client;
 
@@ -45,8 +46,6 @@ uint8_t sensorsIndex = 0;
 @-- tmpl ctSensors
 
 @-- tmpl IDs
-
-uint8_t contentLength = 0;
 
 float values[NUM_SENSORS];
 

@@ -1,3 +1,4 @@
+{ "processorName": "csvHexIds", "model":"homeEthernet" }
 /*
   senseBox Home - Citizen Sensingplatform
   Version: 2.4
@@ -25,7 +26,6 @@ uint8_t sensorsIndex = 0;
 
 @-- tmpl IDs
 
-uint8_t contentLength = 0;
 float values[NUM_SENSORS];
 
 //Configure static IP setup (only needed if DHCP is disabled)
@@ -36,7 +36,7 @@ IPAddress mySubnet(255, 255, 255, 0);
 
 //Ethernet configuration
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-@-- tmpl postDomain // const char *server = "";
+@-- tmpl postDomain
 EthernetClient client;
 
 //Load sensors

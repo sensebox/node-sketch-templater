@@ -1,61 +1,68 @@
 'use strict';
 
 const fs = require('fs'),
-  { config, Honeybadger } = require('../utils'),
-  processSketchGeneric = require('./processGeneric'),
-  processSketchWifi = require('./processWifi'),
-  log = require('../log');
+  processors = require('./processors');
 
-module.exports = {
-  // generate Arduino sketch
-  generateSketch(box) {
-    const output = `${config.targetFolder}${box._id}.ino`;
-    // remove old script it it exists
-    try {
-      if (fs.statSync(output)) {
-        fs.unlinkSync(output);
-        log.debug(`deleted old sketch. (${output}) bye bye!`);
+const Sketcher = function Sketcher(postDomain) {
+  // pre load templates from templates folder
+  const templates = {};
+
+  // import and prepare templates
+  for (const filename of fs.readdirSync(`${__dirname}/../templates`)) {
+    if (filename.endsWith('.tpl')) {
+      // read filename to array of lines
+      const [configJsonStr, ...templateLines] = fs
+        .readFileSync(`${__dirname}/../templates/${filename}`, 'utf-8')
+        .split('\n');
+
+      // first line has processor information. Extract it and store along with lines
+      let processor, boxModel;
+      try {
+        const { processorName, model } = JSON.parse(configJsonStr);
+
+        processor = processors[processorName];
+        boxModel = model;
+
+        if (!model && model !== '') {
+          throw new Error(
+            `Missing or invalid model declaration in config of file ${filename}`
+          );
+        }
+
+        if (!processor) {
+          throw new Error(
+            `Missing or invalid processorName declaration in config of file ${filename}`
+          );
+        }
+      } catch (err) {
+        if (err instanceof SyntaxError) {
+          throw new Error(
+            `Missing or invalid config declaration in file ${filename}`
+          );
+        }
+
+        throw err;
       }
-    } catch (e) {
-      // don't notify honeybadger on ENOENT. The file isn't there if the script is first generated..
-      if (e.code !== 'ENOENT') {
-        Honeybadger.notify(e);
-      }
-    }
 
-    let filename,
-      sketchProcessor = processSketchGeneric;
-    switch (box.model) {
-      case 'homeEthernet':
-        filename = 'files/template_home/template_home.ino';
-        sketchProcessor = processSketchWifi;
-        break;
-      case 'basicEthernet':
-        filename = 'files/template_basic/template_basic.ino';
-        break;
-      case 'homeWifi':
-        filename = 'files/template_home_wifi/template_home_wifi.ino';
-        sketchProcessor = processSketchWifi;
-        break;
-      case 'homeEthernetFeinstaub':
-        filename = 'files/template_home_feinstaub/template_home_feinstaub.ino';
-        sketchProcessor = processSketchWifi;
-        break;
-      case 'homeWifiFeinstaub':
-        filename =
-          'files/template_home_wifi_feinstaub/template_home_wifi_feinstaub.ino';
-        sketchProcessor = processSketchWifi;
-        break;
-      default:
-        box._isCustom = true;
-        filename = 'files/template_custom_setup/template_custom_setup.ino';
-        break;
+      templates[boxModel] = function(box) {
+        return processor({
+          template: templateLines.join('\r\n'),
+          box,
+          postDomain
+        });
+      };
     }
-
-    sketchProcessor(
-      fs.readFileSync(filename).toString().split('\n'),
-      output,
-      box
-    );
   }
+
+  this._templates = templates;
 };
+
+Sketcher.prototype.generateSketch = function generateSketch(box) {
+  if (this._templates[box.model]) {
+    return this._templates[box.model](box);
+  }
+
+  return `no sketch template availiable for model ${box.model}`;
+};
+
+module.exports = Sketcher;

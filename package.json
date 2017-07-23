@@ -17,5 +17,8 @@
     "eslint-config-prettier": "^2.3.0",
     "eslint-plugin-prettier": "^2.1.2",
     "prettier": "^1.5.3"
+  },
+  "dependencies": {
+    "dedent": "^0.7.0"
   }
 }

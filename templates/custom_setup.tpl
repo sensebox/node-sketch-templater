@@ -1,3 +1,4 @@
+{ "processorName": "generic", "model": "custom" }
 #include <SPI.h>
 #include <Ethernet.h>
 /*
