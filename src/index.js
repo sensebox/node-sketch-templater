@@ -3,7 +3,7 @@
 const fs = require('fs'),
   processors = require('./processors');
 
-const Sketcher = function Sketcher(postDomain) {
+const SketchTemplater = function SketchTemplater(postDomain) {
   // pre load templates from templates folder
   const templates = {};
 
@@ -57,7 +57,7 @@ const Sketcher = function Sketcher(postDomain) {
   this._templates = templates;
 };
 
-Sketcher.prototype.generateSketch = function generateSketch(box) {
+SketchTemplater.prototype.generateSketch = function generateSketch(box) {
   if (this._templates[box.model]) {
     return this._templates[box.model](box);
   }
@@ -65,4 +65,4 @@ Sketcher.prototype.generateSketch = function generateSketch(box) {
   return `no sketch template availiable for model ${box.model}`;
 };
 
-module.exports = Sketcher;
+module.exports = SketchTemplater;
