@@ -52,7 +52,7 @@ module.exports = {
 
           for (const model of models) {
             if (Object.keys(templates).includes(model)) {
-              throw new Error(`Duplicate declatration of model "${model}"`);
+              throw new Error(`Duplicate declaration of model "${model}"`);
             }
 
             templates[model] = templateLines.join('\r\n');
