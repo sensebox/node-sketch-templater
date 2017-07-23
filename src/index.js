@@ -1,68 +1,58 @@
 'use strict';
 
-const fs = require('fs'),
-  processors = require('./processors');
+const transformers = require('./transformers'),
+  { readTemplates } = require('./helpers');
 
-const SketchTemplater = function SketchTemplater(postDomain) {
+const templateFolderPath = `${__dirname}/../templates`;
+
+const SketchTemplater = function SketchTemplater(ingressDomain) {
+  this._ingressDomain = ingressDomain;
   // pre load templates from templates folder
-  const templates = {};
-
-  // import and prepare templates
-  for (const filename of fs.readdirSync(`${__dirname}/../templates`)) {
-    if (filename.endsWith('.tpl')) {
-      // read filename to array of lines
-      const [configJsonStr, ...templateLines] = fs
-        .readFileSync(`${__dirname}/../templates/${filename}`, 'utf-8')
-        .split('\n');
-
-      // first line has processor information. Extract it and store along with lines
-      let processor, boxModel;
-      try {
-        const { processorName, model } = JSON.parse(configJsonStr);
-
-        processor = processors[processorName];
-        boxModel = model;
-
-        if (!model && model !== '') {
-          throw new Error(
-            `Missing or invalid model declaration in config of file ${filename}`
-          );
-        }
-
-        if (!processor) {
-          throw new Error(
-            `Missing or invalid processorName declaration in config of file ${filename}`
-          );
-        }
-      } catch (err) {
-        if (err instanceof SyntaxError) {
-          throw new Error(
-            `Missing or invalid config declaration in file ${filename}`
-          );
-        }
-
-        throw err;
-      }
-
-      templates[boxModel] = function(box) {
-        return processor({
-          template: templateLines.join('\r\n'),
-          box,
-          postDomain
-        });
-      };
-    }
-  }
-
-  this._templates = templates;
+  this._templates = readTemplates(templateFolderPath);
 };
 
 SketchTemplater.prototype.generateSketch = function generateSketch(box) {
   if (this._templates[box.model]) {
-    return this._templates[box.model](box);
+    return this._executeTemplate(box);
   }
 
-  return `no sketch template availiable for model ${box.model}`;
+  return `Error: No sketch template availiable for model ${box.model}`;
+};
+
+SketchTemplater.prototype._cloneBox = function _cloneBox({ _id, sensors }) {
+  return Object.assign(
+    {},
+    {
+      SENSEBOX_ID: _id,
+      SENSOR_IDS: sensors,
+      INGRESS_DOMAIN: this._ingressDomain,
+      NUM_SENSORS: sensors.length
+    }
+  );
+};
+
+SketchTemplater.prototype._executeTemplate = function _executeTemplate(
+  sourceBox
+) {
+  // clone box. We're going to change its properties.
+  // Also appends ingressDomain property
+  const box = this._cloneBox(sourceBox);
+
+  // return the template matching the box model with every occurrence of
+  // @@subTemplateKey@@ replaced with the properties of the box
+  return this._templates[sourceBox.model].replace(/@@(.+)@@/g, function(
+    _,
+    subTemplateKey
+  ) {
+    // check if there is a transformer defined
+    const [key, transformer = 'as-is'] = subTemplateKey.split('|');
+
+    if (transformers[transformer]) {
+      box[key] = transformers[transformer](box[key]);
+    }
+
+    return box[key];
+  });
 };
 
 module.exports = SketchTemplater;

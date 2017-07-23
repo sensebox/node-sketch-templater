@@ -1,8 +1,8 @@
-{ "processorName": "csvHexIds", "model":"homeEthernetFeinstaub" }
+{ "model":"homeEthernetFeinstaub" }
 /*
   senseBox Home - Citizen Sensingplatform
   Version: 2.5
-  Date: 2016-May-24
+  Date: 2017-May-24
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Institute for Geoinformatics, University of Muenster
   Note: Sketch for senseBox:home with dust particle upgrade
@@ -26,9 +26,17 @@ typedef struct sensor {
 
 uint8_t sensorsIndex = 0;
 
-@-- tmpl ctSensors
+// Number of sensors
+static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 
-@-- tmpl IDs
+// senseBox ID
+const uint8_t SENSEBOX_ID[12] = { @@SENSEBOX_ID|toHex@@ };
+
+// sensor IDs
+// Do not change order of sensor IDs
+const sensor sensors[NUM_SENSORS] = {
+@@SENSOR_IDS|toHexArray@@
+};
 
 float values[NUM_SENSORS];
 
@@ -40,7 +48,7 @@ IPAddress mySubnet(255, 255, 255, 0);
 
 //Ethernet configuration
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-@-- tmpl postDomain
+const char *server = "@@INGRESS_DOMAIN@@";
 EthernetClient client;
 
 //Load sensors

@@ -1,4 +1,4 @@
-{ "processorName": "generic", "model": "custom" }
+{ "model": "custom" }
 #include <SPI.h>
 #include <Ethernet.h>
 /*
@@ -6,11 +6,13 @@
 */
 
 //senseBox ID
+#define SENSEBOX_ID "@@SENSEBOX_ID@@"
 
 //Sensor IDs
+@@SENSOR_IDS|toDefine@@
 
 //Ethernet-Parameter
-char server[] = "@@OSEM_POST_DOMAIN@@";
+char server[] = "@@INGRESS_DOMAIN@@";
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 // Diese IP Adresse nutzen falls DHCP nicht möglich
 IPAddress myIP(192, 168, 0, 42);
