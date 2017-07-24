@@ -1,0 +1,11 @@
+language: node_js
+node_js:
+- '6'
+deploy:
+  provider: npm
+  email: ubergesundheit@googlemail.com
+  api_key:
+    secure: cyl0bK4w6fzf3kqTUvpVM0vhpnqEi409b8yDHhAC+1LPZAKOMdDuW02FSUHyj950X/2cFPevU2vlhiuykdI2Dlx3mSrlHtw+HFbUySf9SF/Yd2g+gUQENX8ogN4r93AFvahfoGLM5bVAr1nJHCfQ59JUdJ6A1B4zCNdxYpqFnRL0WaoGodddIewATqIyI/cZ4ezEkeYl/ZJqCRApjz+aqBaZUJB6TGncj+EW8BKXbf3jSmhoCGJSxPdYqE3M/XlIEws038SfKrMjhBedYZueGT4fQBivcGnKT1gSfPaGHHM2OKdRrbPlEDiKEDLYrAMSlfaeNX3wpvaZUcni5oFOCJmBisM3apYSelCmuhNhjik8lqZvwGWE/AwU95zoYxLr0sMJg9Is2Ue3YTy0YnQ2vk4fNqpBv/Z6DDcIDQRGL7tqsfrKP6PA1LHQt2bYjX+phkILQKtIMdVxvj5QzizLJmY+P/6U3SrJ8XZP48/EILipj5sIZHueS5v/awiHHwN25BqLprkNsWOUMLwUqu5cUni/Vg8EZ5mUbK2NGK5PXkoEdp+wS4Y4X5yE2irD2daYtwdL/9VEDW1cqi9aWAjJP4qQTZZ3fbuLQ/R8dQlSdsq7hPZWXOLQGNKTrOTcViGgIHlPbrmp3AgVoH7poL9GOdv+UY/q4ZP54hd3qg1P6+I=
+  on:
+    branch: master
+    tags: true
