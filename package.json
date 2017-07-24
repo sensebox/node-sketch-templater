@@ -10,12 +10,15 @@
   ],
   "license": "MIT",
   "scripts": {
-    "lint": "node_modules/.bin/eslint --fix \"src/**/*.js\""
+    "lint": "node_modules/.bin/eslint --fix \"{src,test}/**/*.js\"",
+    "test": "node_modules/.bin/mocha"
   },
   "devDependencies": {
+    "chai": "^4.1.0",
     "eslint": "^4.2.0",
     "eslint-config-prettier": "^2.3.0",
     "eslint-plugin-prettier": "^2.1.2",
+    "mocha": "^3.4.2",
     "prettier": "^1.5.3"
   },
   "dependencies": {
