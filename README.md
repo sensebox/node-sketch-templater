@@ -3,11 +3,11 @@ Arduino sketch templates used by the openSenseMap-api
 
 ## Usage
 
-Install via `npm install --save sensebox-sketch-templater` or `yarn add sensebox-sketch-templater`
+Install via `npm install --save @sensebox/sketch-templater` or `yarn add @sensebox/sketch-templater`
 
 ```javascript
 
-const Sketcher = require('sensebox-sketch-templater');
+const Sketcher = require('@sensebox/sketch-templater');
 
 const mySketcher = new Sketcher('<your api post domain>');
 
