@@ -9,6 +9,12 @@ const parseTemplateConfig = function parseTemplateConfig(configJsonStr) {
     let { model, models } = JSON.parse(configJsonStr);
     /* eslint-enable prefer-const */
 
+    if (model && models) {
+      throw new Error(
+        'Definition of keys "model" and "models" at the same time not allowed'
+      );
+    }
+
     if (!model && !models) {
       throw new Error('Key "model" or "models" not found');
     }
@@ -52,14 +58,16 @@ module.exports = {
 
           for (const model of models) {
             if (Object.keys(templates).includes(model)) {
-              throw new Error(`Duplicate declaration of model "${model}"`);
+              console.warn(
+                `Sketch Templater Error: Duplicate declaration of model "${model}" in file ${filePath}.`
+              );
             }
 
             templates[model] = templateLines.join('\r\n');
           }
         } catch (err) {
-          console.error(
-            `Sketch Templater Error: ${err.message} in file ${filePath}`
+          console.warn(
+            `Sketch Templater Error: ${err.message} in file ${filePath}.`
           );
         }
       }

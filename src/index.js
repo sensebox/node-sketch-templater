@@ -8,7 +8,14 @@ const templateFolderPath = `${__dirname}/../templates`;
 const SketchTemplater = function SketchTemplater(ingressDomain) {
   this._ingressDomain = ingressDomain;
   // pre load templates from templates folder
-  this._templates = readTemplates(templateFolderPath);
+  const templates = readTemplates(templateFolderPath);
+  if (Object.keys(templates).length === 0) {
+    console.warn(
+      `Sketch Templater Error: No valid templates found in path ${templateFolderPath}`
+    );
+  }
+
+  this._templates = templates;
 };
 
 SketchTemplater.prototype.generateSketch = function generateSketch(box) {
