@@ -72,4 +72,16 @@ describe('Included templates', function() {
       'Error: No sketch template availiable for model'
     );
   });
+
+  it('should return a sketch in base64 encoding when requested', function() {
+    const box = Object.assign({ model: 'custom' }, testBox());
+    // baseline sketch in text format
+    const sketch = mySketchTemplater.generateSketch(box);
+
+    const b64Sketch = Buffer.from(sketch).toString('base64');
+
+    expect(
+      mySketchTemplater.generateSketch(box, { encoding: 'base64' })
+    ).to.equal(b64Sketch);
+  });
 });

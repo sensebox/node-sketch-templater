@@ -18,8 +18,15 @@ const SketchTemplater = function SketchTemplater(ingressDomain) {
   this._templates = templates;
 };
 
-SketchTemplater.prototype.generateSketch = function generateSketch(box) {
+SketchTemplater.prototype.generateSketch = function generateSketch(
+  box,
+  { encoding } = {}
+) {
   if (this._templates[box.model]) {
+    if (encoding && encoding === 'base64') {
+      return Buffer.from(this._executeTemplate(box)).toString('base64');
+    }
+
     return this._executeTemplate(box);
   }
 

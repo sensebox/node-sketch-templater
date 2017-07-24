@@ -1,6 +1,10 @@
 # senseBox sketch-templater
 Arduino sketch templates used by the openSenseMap-api
 
+## Changelog
+
+See [`CHANGELOG.md`](CHANGELOG.md)
+
 ## Usage
 
 Install via `npm install --save @sensebox/sketch-templater` or `yarn add @sensebox/sketch-templater`
@@ -13,6 +17,7 @@ const mySketcher = new Sketcher('<your api post domain>');
 
 // generate Sketch
 const mySketch = mySketcher.generateSketch(box);
+const mySketchBase64 = mySketcher.generateSketch(box, { encoding: 'base64' });
 ```
 
 ## Adding new Templates
