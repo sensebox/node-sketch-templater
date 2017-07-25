@@ -1,6 +1,9 @@
 # senseBox sketch-templater
 Arduino sketch templates used by the openSenseMap-api
 
+[![Build Status](https://travis-ci.org/sensebox/node-sketch-templater.svg?branch=master)](https://travis-ci.org/sensebox/node-sketch-templater)
+[![NPM Version](https://img.shields.io/npm/v/@sensebox/sketch-templater.svg)](https://www.npmjs.com/package/@sensebox/sketch-templater)
+
 ## Changelog
 
 See [`CHANGELOG.md`](CHANGELOG.md)
