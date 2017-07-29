@@ -3,7 +3,6 @@
 /* global describe it before after */
 const expect = require('chai').expect,
   testBox = require('./test-data/testBox'),
-  { hex } = require('./helpers'),
   helpers = require('../src/helpers'),
   SketchTemplater = require('../src');
 
@@ -55,13 +54,13 @@ describe('Included templates', function() {
         const sketch = mySketchTemplater.generateSketch(box);
 
         expect(sketch).to.include(testDomain);
-        expect(sketch).to.include(hex(box._id));
+        expect(sketch).to.include(box._id);
         expect(sketch).to.include(
           `static const uint8_t NUM_SENSORS = ${box.sensors.length};`
         );
         for (const { title, _id } of box.sensors) {
           expect(sketch).to.include(title);
-          expect(sketch).to.include(hex(_id));
+          expect(sketch).to.include(_id);
         }
       }
     }

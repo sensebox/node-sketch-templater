@@ -1,5 +1,12 @@
 # node-sketch-templater Changelog
 
+## v1.0.3
+- Bump sketch versions
+- Unify sketch headers
+- Implement sprintf_P PROGMEM based building of HTTP strings and payload
+- Should send less TCP packets
+- Use same structure in all templates except `custom`
+
 ## v1.0.2
 Add `encoding` field to `generateSketch` which allows to specify base64 encoding
 

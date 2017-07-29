@@ -57,9 +57,8 @@ Additionally, the following transformers are implemented:
 | Transformer name | Description |
 |------------------|-------------|
 | `as-is` | Do nothing. |
-| `toHex` | Transforms a single string to hex tuples. Example: `"DEADBEEF" => "0xDE, 0xAD, 0xBE, 0xEF"` |
 | `toDefine` | Transform an array of sensors to multiple `#define` statements. |
-| `toHexArray` | Transform an array of sensors to a list of hex encoded arrays. Uses `toHex` internally. |
+| `toProgmem` | Transform an array of sensors to multiple `const char xxSENSOR_ID[] PROGMEM = "<id>";` statements. |
 
 ## Adding Transformers
 

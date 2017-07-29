@@ -1,277 +1,252 @@
 { "model": "homeWifiFeinstaub" }
 /*
-  senseBox Home - Citizen Sensingplatform
-  WiFi Version: 1.3
-  Date: 2017-05-31
+  senseBox:home - Citizen Sensingplatform
+  Version: wifi_1.4
+  Date: 2017-07-29
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Institute for Geoinformatics, University of Muenster
   Note: Sketch for senseBox:home WiFi with dust particle upgrade
+  Model: homeWifiFeinstaub
   Email: support@sensebox.de
   Code is in the public domain.
+  https://github.com/sensebox/node-sketch-templater
 */
 
-#include <avr/wdt.h>
+/* ------------------------------------------------------------------------- */
+/* ------------------------------Configuration------------------------------ */
+/* ------------------------------------------------------------------------- */
+
+// Wifi Credentials
+const char *ssid = ""; // your network SSID (name)
+const char *pass = ""; // your network password
+
+// Interval of measuring and submitting values in seconds
+const unsigned int postingInterval = 60e3;
+
+// address of the server to send to
+const char server[] PROGMEM = "@@INGRESS_DOMAIN@@";
+
+// senseBox ID
+const char SENSEBOX_ID[] PROGMEM = "@@SENSEBOX_ID@@";
+
+// Number of sensors
+// Change this number if you add or remove sensors
+// do not forget to remove or add the sensors on opensensemap.org
+static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
+
+// sensor IDs
+@@SENSOR_IDS|toProgmem@@
+
+// Uncomment the next line to get debugging messages printed on the Serial port
+// Do not leave this enabled for long time use
+// #define ENABLE_DEBUG
+
+/* ------------------------------------------------------------------------- */
+/* --------------------------End of Configuration--------------------------- */
+/* ------------------------------------------------------------------------- */
+
 #include "BMP280.h"
-#include <Wire.h>
 #include <HDC100X.h>
-#include <SPI.h>
-#include <WiFi101.h>
 #include <Makerblog_TSL45315.h>
 #include <SDS011-select-serial.h>
+#include <SPI.h>
+#include <VEML6070.h>
+#include <WiFi101.h>
+#include <Wire.h>
+#include <avr/wdt.h>
 
-//Custom WiFi Parameters
-const char ssid[] = "";       //  your network SSID (name)
-const char pass[] = "";       // your network password
+#ifdef ENABLE_DEBUG
+#define DEBUG(str) Serial.println(str)
+#else
+#define DEBUG(str)
+#endif
 
-bool debug = 0;
-
-//Network settings
-const char *server = "@@INGRESS_DOMAIN@@";
-uint8_t status = WL_IDLE_STATUS;
 WiFiClient client;
-SDS011 my_sds(Serial);
 
-//Sensor Instances
+// Sensor Instances
+SDS011 my_sds(Serial);
 Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
 HDC100X HDC(0x43);
 BMP280 BMP;
+VEML6070 VEML;
 
-//measurement variables
-#define UV_ADDR 0x38
-#define IT_1   0x1
-double tempBaro, pressure;
-char result;
-float pm10,pm25;
-int error;
+typedef struct measurement {
+  char *sensorId;
+  float value;
+} measurement;
 
-const unsigned int postingInterval = 60000;
+measurement measurements[NUM_SENSORS];
+uint8_t num_measurements = 0;
 
-typedef struct sensor {
-  const uint8_t ID[12];
-} sensor;
+// buffer for sprintf
+char buffer[150];
 
-uint8_t sensorsIndex = 0;
-
-// Number of sensors
-static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
-
-// senseBox ID
-const uint8_t SENSEBOX_ID[12] = { @@SENSEBOX_ID|toHex@@ };
-
-// sensor IDs
-// Do not change order of sensor IDs
-const sensor sensors[NUM_SENSORS] = {
-@@SENSOR_IDS|toHexArray@@
-};
-
-float values[NUM_SENSORS];
-
-void addValue(const float &value) {
-  values[sensorsIndex] = value;
-  sensorsIndex = sensorsIndex + 1;
+void addMeasurement(char *sensorId, float value) {
+  measurements[num_measurements].sensorId = sensorId;
+  measurements[num_measurements].value = value;
+  num_measurements++;
 }
 
-uint16_t getUV() {
-  byte msb = 0, lsb = 0;
-  uint16_t uvValue;
-  Wire.requestFrom(UV_ADDR + 1, 1); //MSB
-  sleep(1);
-  if (Wire.available()) msb = Wire.read();
-  Wire.requestFrom(UV_ADDR + 0, 1); //LSB
-  sleep(1);
-  if (Wire.available()) lsb = Wire.read();
-  uvValue = (msb << 8) | lsb;
-  return uvValue * 5.625;
-}
+void writeMeasurementsToClient(Print &stream) {
+  // iterate throug the measurements array
+  for (uint8_t i = 0; i < num_measurements; i++) {
+    sprintf_P(buffer, PSTR("%S,"), measurements[i].sensorId);
+    // arduino sprintf just returns "?" for floats, use dtostrf
+    dtostrf(measurements[i].value, 9, 2, &buffer[strlen(buffer)]);
 
-int printHexToStream(const uint8_t *data, uint8_t length, Print &stream) // prints 8-bit data in hex
-{
- byte first;
- int j = 0;
- for (uint8_t i=0; i<length; i++) {
-   first = (data[i] >> 4) | 48;
-   if (first > 57) {
-     stream.write(first + (byte)39);
-   } else {
-     stream.write(first);
-   }
-   j++;
-
-   first = (data[i] & 0x0F) | 48;
-   if (first > 57) {
-     stream.write(first + (byte)39);
-   } else {
-     stream.write(first);
-   }
-   j++;
- }
- return j;
-}
-
-int printCsvToStream(Print &stream) {
-  int len = 0;
-  for (uint8_t i = 0; i < sensorsIndex; i++) {
-    if (!isnan(values[i])) {
-      len = len + printHexToStream(sensors[i].ID, 12, stream);
-      len = len + stream.print(",");
-      //do not print digits for illuminance und uv-intensity
-      if (i < 3 || i > 4) len = len + stream.println(values[i],1);
-      else len = len + stream.println(values[i],0);
-    }
-  }
-  return len;
-}
-
-
-// millis() rollover fix - http://arduino.stackexchange.com/questions/12587/how-can-i-handle-the-millis-rollover
-void sleep(unsigned long ms) {            // ms: duration
-  unsigned long start = millis();         // start: timestamp
-  for (;;) {
-    unsigned long now = millis();         // now: timestamp
-    unsigned long elapsed = now - start;  // elapsed: duration
-    if (elapsed >= ms)                    // comparing durations: OK
-      return;
-  }
-}
-
-void waitForResponse()
-{
-  // if there are incoming bytes from the server, read and print them
-  sleep(100);
-  String response = "";
-  char c;
-  boolean repeat = true;
-  do {
-    if (client.available()) c = client.read();
-    else repeat = false;
-    response += c;
-    if (response == "HTTP/1.1 ") response = "";
-    if (c == '\n') repeat = false;
-  }
-  while (repeat);
-
-  if (debug) {
-    Serial.print("Server Response: ");
-    Serial.print(response);
+    // transmit buffer to client
+    stream.println(buffer);
+    DEBUG(buffer);
   }
 
-  client.flush();
-  client.stop();
+  // reset num_measurements
+  num_measurements = 0;
 }
 
 void submitValues() {
+  if (WiFi.status() != WL_CONNECTED) {
+    WiFi.disconnect();
+    delay(1000); // wait 1s
+    WiFi.begin(ssid, pass);
+    delay(5000); // wait 5s
+  }
   // close any connection before send a new request.
   // This will free the socket on the WiFi shield
-  if (debug) Serial.println("__________________________\n");
   if (client.connected()) {
     client.stop();
-    sleep(1000);
+    delay(1000);
   }
-  // if there's a successful connection:
-  if (client.connect(server, 80)) {
+  bool connected = false;
+  char _server[strlen_P(server)];
+  strcpy_P(_server, server);
+  for (uint8_t timeout = 2; timeout != 0; timeout--) {
+    DEBUG(F("connecting..."));
+    connected = client.connect(_server, 80);
+    if (connected == true) {
+      DEBUG(F("Connection successful, transferring..."));
+      // construct the HTTP POST request:
+      sprintf_P(buffer,
+                PSTR("POST /boxes/%S/data HTTP/1.1\nHost: %S\nContent-Type: "
+                     "csv\nConnection: close\nContent-Length: %i\n"),
+                SENSEBOX_ID, server, num_measurements * 36);
+      DEBUG(buffer);
 
-    if (debug) Serial.println("connecting...");
-    // send the HTTP POST request:
+      // send the HTTP POST request:
+      client.println(buffer);
 
-    client.print(F("POST /boxes/"));
-    printHexToStream(SENSEBOX_ID, 12, client);
-    client.println(F("/data HTTP/1.1"));
+      // send measurements
+      writeMeasurementsToClient(client);
 
-    // !!!!! NICHT LÖSCHEN !!!!!
-    // print once to Serial to get the content-length
-    int contentLen = printCsvToStream(Serial);
-    // !!!!! DO NOT REMOVE !!!!!
+      // send empty line to end the request
+      client.println();
 
-    // Send the required header parameters
-    client.print(F("Host: "));
-    client.println(server);
-    client.print(F("Content-Type: text/csv\nConnection: close\nContent-Length: "));
-    client.println(contentLen);
-    client.println();
-    printCsvToStream(client);
-    client.println();
-    if (debug) Serial.println("done!");
+      delay(100);
+      client.flush();
+      client.stop();
 
-    waitForResponse();
+      DEBUG("done!");
 
-    // reset index
-    sensorsIndex = 0;
-
+      // reset number of measurements
+      num_measurements = 0;
+      break;
+    }
+    delay(1000);
   }
-  else {
-    // if you couldn't make a connection:
-    if (debug) Serial.println("connection failed. Restarting System.");
-    sleep(5000);
-    asm volatile (" jmp 0");
+
+  if (connected == false) {
+    // Reset durchführen
+    Serial.println(F("connection failed. Restarting System."));
+    delay(5000);
+    cli();
+    wdt_enable(WDTO_60MS);
+    while (1)
+      ;
   }
 }
 
 void setup() {
-  //Initialize serial and wait for port to open:
+  // Initialize serial and wait for port to open:
   Serial.begin(9600);
-  //Enable Wifi Shield
+
+  // Enable Wifi Shield
   pinMode(4, INPUT);
   digitalWrite(4, HIGH);
-  sleep(2000);
-  //Check WiFi Shield status
+  delay(2000);
+  // Check WiFi Shield status
   if (WiFi.status() == WL_NO_SHIELD) {
-    if (debug) Serial.println("WiFi shield not present");
+    Serial.println(F("WiFi shield not present"));
     // don't continue:
-    while (true);
+    while (true)
+      ;
   }
+  uint8_t status = WL_IDLE_STATUS;
   // attempt to connect to Wifi network:
-  while ( status != WL_CONNECTED) {
-    if (debug) Serial.print("Attempting to connect to SSID: ");
-    if (debug) Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network
+  while (status != WL_CONNECTED) {
+    DEBUG(F("Attempting to connect to SSID: "));
+    DEBUG(ssid);
+    // Connect to WPA/WPA2 network. Change this line if using open or WEP
+    // network
     status = WiFi.begin(ssid, pass);
-    // wait 60 seconds for connection:
-    if (debug) {
-      Serial.println();
-      Serial.print("Waiting 10 seconds for connection...");
-    }
-    sleep(10000);
-    if (debug) Serial.println("done.");
+    // wait 10 seconds for connection:
+    DEBUG(F("Waiting 10 seconds for connection..."));
+    delay(10000);
+    DEBUG(F("done."));
   }
-  if (debug) Serial.print("Initializing sensors...");
-  Wire.begin();
-  Wire.beginTransmission(UV_ADDR);
-  Wire.write((IT_1 << 2) | 0x02);
-  Wire.endTransmission();
-  sleep(500);
+
+  // Sensor initialization
+  DEBUG(F("Initializing sensors..."));
+  VEML.begin();
+  delay(500);
   HDC.begin(HDC100X_TEMP_HUMI, HDC100X_14BIT, HDC100X_14BIT, DISABLE);
   TSL.begin();
   BMP.begin();
   BMP.setOversampling(4);
-  if (debug) {
-    Serial.println("done!");
-    Serial.println("Starting loop in 30 seconds.");
-  }
+  DEBUG(F("done!"));
+  DEBUG(F("Starting loop in 30 seconds."));
   HDC.getTemp();
-  sleep(30000);
+  delay(30000);
 }
 
 void loop() {
-  addValue(HDC.getTemp());
-  sleep(200);
-  addValue(HDC.getHumi());
+  // capture loop start timestamp
+  unsigned long start = millis();
+
+  // read measurements from sensors
+  addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
+  delay(200);
+  addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
+
+  double tempBaro, pressure;
+  char result;
   result = BMP.startMeasurment();
   if (result != 0) {
-    sleep(result);
+    delay(result);
     result = BMP.getTemperatureAndPressure(tempBaro, pressure);
-  }else pressure = 0;
-  addValue(pressure);
-  addValue(TSL.readLux());
-  addValue(getUV());
-  error = my_sds.read(&pm25,&pm10);
-  if (error) {
-    pm25 = 0;
-    pm10 = 0;
+    addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
-  addValue(pm10);
-  addValue(pm25);
+
+  addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
+  addMeasurement(UVINTESENSOR_ID, VEML.getUV());
+
+  uint8_t attempt = 0;
+  float pm10, pm25;
+  while (attempt < 5) {
+    bool error = my_sds.read(&pm25, &pm10);
+    if (!error) {
+      addMeasurement(PM10SENSOR_ID, pm10);
+      addMeasurement(PM25SENSOR_ID, pm25);
+      break;
+    }
+    attempt++;
+  }
 
   submitValues();
 
-  sleep(postingInterval);
+  // schedule next round of measurements
+  for (;;) {
+    unsigned long now = millis();
+    unsigned long elapsed = now - start;
+    if (elapsed >= postingInterval)
+      return;
+  }
 }
