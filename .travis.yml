@@ -2,6 +2,22 @@ sudo: false
 language: node_js
 node_js:
 - '6'
+env:
+  global:
+    - IDE_VERSION=1.8.3
+  matrix:
+    - BOARD="arduino:avr:uno"
+before_script:
+  - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
+  - tar xf arduino-$IDE_VERSION-linux64.tar.xz
+  - mv arduino-$IDE_VERSION $HOME/arduino-ide
+  - export PATH=$PATH:$HOME/arduino-ide
+  - mkdir -p $HOME/Arduino
+  - wget https://github.com/sensebox/resources/raw/master/libraries/senseBox_Libraries.zip
+  - unzip senseBox_Libraries.zip -d $HOME/Arduino
+script:
+  - npm run test
+  - npm run arduino-test
 deploy:
   provider: npm
   email:

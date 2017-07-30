@@ -12,7 +12,8 @@
   "license": "MIT",
   "scripts": {
     "lint": "node_modules/.bin/eslint --fix \"{src,test}/**/*.js\"",
-    "test": "node_modules/.bin/mocha"
+    "test": "node_modules/.bin/mocha",
+    "arduino-test": "node arduino-test/build-sketches.js"
   },
   "devDependencies": {
     "chai": "^4.1.0",
