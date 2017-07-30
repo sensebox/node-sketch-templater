@@ -1,6 +1,6 @@
 {
   "name": "@sensebox/sketch-templater",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "nodejs library to create senseBox Arduino Sketches",
   "main": "src/index.js",
   "repository": "https://github.com/sensebox/node-sketch-templater.git",
