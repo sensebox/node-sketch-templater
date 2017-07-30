@@ -15,7 +15,6 @@ before_script:
   - mkdir -p $HOME/Arduino
   - wget https://github.com/sensebox/resources/raw/master/libraries/senseBox_Libraries.zip
   - unzip senseBox_Libraries.zip -d $HOME/Arduino
-  - node arduino-test/build-sketches.js
 script:
   - npm run test
   - npm run arduino-test
