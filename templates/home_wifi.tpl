@@ -85,7 +85,7 @@ void addMeasurement(char *sensorId, float value) {
   num_measurements++;
 }
 
-void writeMeasurementsToClient(Print &stream) {
+void writeMeasurementsToClient() {
   // iterate throug the measurements array
   for (uint8_t i = 0; i < num_measurements; i++) {
     sprintf_P(buffer, PSTR("%S,"), measurements[i].sensorId);
@@ -93,7 +93,7 @@ void writeMeasurementsToClient(Print &stream) {
     dtostrf(measurements[i].value, 9, 2, &buffer[strlen(buffer)]);
 
     // transmit buffer to client
-    stream.println(buffer);
+    client.println(buffer);
     DEBUG(buffer);
   }
 
@@ -133,7 +133,7 @@ void submitValues() {
       client.println(buffer);
 
       // send measurements
-      writeMeasurementsToClient(client);
+      writeMeasurementsToClient();
 
       // send empty line to end the request
       client.println();
