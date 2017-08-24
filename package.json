@@ -11,9 +11,10 @@
   ],
   "license": "MIT",
   "scripts": {
-    "lint": "node_modules/.bin/eslint --fix \"{src,test}/**/*.js\"",
+    "lint": "node_modules/.bin/eslint --fix \"{src,test,.scripts}/**/*.js\"",
     "test": "node_modules/.bin/mocha",
-    "arduino-test": "node arduino-test/build-sketches.js"
+    "arduino-test": "node arduino-test/build-sketches.js",
+    "version": "node .scripts/npm_version-update_changelog.js && git add CHANGELOG.md"
   },
   "devDependencies": {
     "chai": "^4.1.0",

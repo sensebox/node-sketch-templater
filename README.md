@@ -8,6 +8,14 @@ Arduino sketch templates used by the openSenseMap-api
 
 See [`CHANGELOG.md`](CHANGELOG.md)
 
+#### Releasing a new version
+On each commit, [Travis CI](https://travis-ci.org/sensebox/node-sketch-templater) builds and tests the package with this [`.travis.yml`](.travis.yml). If the commit has a Git tag, a new version of the package will be published to npm through travis.
+
+To create a new version, use `npm version`.
+1. Document your changes in [`CHANGELOG.md`](CHANGELOG.md). Do not `git add` the file.
+1. Run `npm version [ major | minor | patch ] -m "[v%s] Your commit message"`
+1. `git push origin master`
+
 ## Usage
 
 Install via `npm install --save @sensebox/sketch-templater` or `yarn add @sensebox/sketch-templater`
