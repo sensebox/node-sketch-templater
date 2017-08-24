@@ -4,7 +4,7 @@ node_js:
 - '6'
 env:
   global:
-    - IDE_VERSION=1.8.3
+    - IDE_VERSION=1.8.4
   matrix:
     - BOARD="arduino:avr:uno"
 before_script:
@@ -18,6 +18,8 @@ before_script:
 script:
   - npm run test
   - npm run arduino-test
+before_deploy:
+  - rm -rf senseBox_Libraries.zip arduino-$IDE_VERSION-linux64.tar.xz
 deploy:
   provider: npm
   email:
