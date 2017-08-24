@@ -4,3 +4,5 @@ arduino-test
 .eslintrc*
 .travis.yml
 .gitignore
+.scripts
+.npmignore
