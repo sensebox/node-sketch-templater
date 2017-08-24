@@ -1,5 +1,8 @@
 # node-sketch-templater Changelog
 
+## unreleased
+- Do not push eslint, travis gitignore files to npm
+
 ## v1.0.3
 - Bump sketch versions
 - Unify sketch headers

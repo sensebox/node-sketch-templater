@@ -1,3 +1,6 @@
 deprecated_templates
 test
 arduino-test
+.eslintrc*
+.travis.yml
+.gitignore
