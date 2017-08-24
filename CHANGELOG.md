@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
-## unreleased
+## Unreleased
+
+## v1.0.6
 - Do not push eslint, travis gitignore files to npm
 
 ## v1.0.3
