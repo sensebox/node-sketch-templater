@@ -87,6 +87,7 @@ module.exports = {
     'prefer-template': 'error',
     'no-warning-comments': 'error',
     'require-jsdoc': 'warn',
-    'valid-jsdoc': 'warn'
+    'valid-jsdoc': 'warn',
+    'prefer-promise-reject-errors': 'error'
   }
 };
