@@ -69,7 +69,7 @@ BMP280 BMP;
 VEML6070 VEML;
 
 typedef struct measurement {
-  char *sensorId;
+  const char *sensorId;
   float value;
 } measurement;
 
@@ -79,7 +79,7 @@ uint8_t num_measurements = 0;
 // buffer for sprintf
 char buffer[150];
 
-void addMeasurement(char *sensorId, float value) {
+void addMeasurement(const char *sensorId, float value) {
   measurements[num_measurements].sensorId = sensorId;
   measurements[num_measurements].value = value;
   num_measurements++;
