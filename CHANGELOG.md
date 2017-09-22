@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.0.7
 - Fix Arduino compilation warnings in homeWifi, homeEthernet, homeWifiFeinstaub and homeEthernetFeinstaub templates
 
 ## v1.0.6
