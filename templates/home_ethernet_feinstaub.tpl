@@ -12,7 +12,7 @@
   https://github.com/sensebox/node-sketch-templater
 */
 
-#include <Ethernet.h>
+#include <Ethernet2.h>
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------Configuration------------------------------ */
