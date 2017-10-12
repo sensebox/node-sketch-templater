@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## v1.0.8
+- Use Ethernet2.h library in ethernet templates homeEthernet and homeEthernetFeinstaub
 
 ## v1.0.7
 - Fix Arduino compilation warnings in homeWifi, homeEthernet, homeWifiFeinstaub and homeEthernetFeinstaub templates
