@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.0.8
+
 ## v1.0.7
 - Fix Arduino compilation warnings in homeWifi, homeEthernet, homeWifiFeinstaub and homeEthernetFeinstaub templates
 
