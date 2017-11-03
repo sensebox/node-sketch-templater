@@ -44,24 +44,49 @@ const boxStub = function(model) {
   };
 };
 
-const sketchesPath = `${__dirname}/sketches`;
-fs.mkdirSync(sketchesPath);
+const buildMatrix = {
+  'arduino:avr:uno': [],
+  'senseBox:samd:sb': []
+};
 
 for (const model of Object.keys(sketchTemplater._templates)) {
-  fs.mkdirSync(`${sketchesPath}/${model}`);
+  if (model.includes('V2')) {
+    buildMatrix['senseBox:samd:sb'].push(model);
+  } else {
+    buildMatrix['arduino:avr:uno'].push(model);
+  }
+}
+
+const mkdirp = function mkdirp(path) {
+  /* eslint-disable no-empty */
+  try {
+    fs.mkdirSync(path);
+  } catch (e) {}
+  /* eslint-enable no-empty */
+};
+
+const build = function build(board, model) {
+  mkdirp(`${sketchesPath}/${model}`);
   fs.writeFileSync(
     `${sketchesPath}/${model}/${model}.ino`,
     sketchTemplater.generateSketch(boxStub(model))
   );
   console.log(
-    `Building model ${model} with "arduino --verbose-build --verify --board ${process
-      .env.BOARD} ${sketchesPath}/${model}/${model}.ino"`
+    `Building model ${model} with "arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino"`
   );
   child_process.execSync(
-    `arduino --verbose-build --verify --board ${process.env
-      .BOARD} ${sketchesPath}/${model}/${model}.ino`,
+    `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
     { stdio: [0, 1, 2] }
   );
   console.log('###########################################################');
+};
+
+const sketchesPath = `${__dirname}/sketches`;
+mkdirp(sketchesPath);
+
+for (const board of Object.keys(buildMatrix)) {
+  for (const model of buildMatrix[board]) {
+    build(board, model);
+  }
 }
 console.log('done');

@@ -2,26 +2,41 @@
 
 const fs = require('fs');
 
+const getProperty = function getProperty(obj, ...properties) {
+  let seenPropertyKey, value;
+  for (const key of properties) {
+    if (obj[key]) {
+      if (typeof seenPropertyKey !== 'undefined') {
+        throw new Error(
+          `Definition of keys "${seenPropertyKey}" and "${key}" at the same time not allowed`
+        );
+      }
+      seenPropertyKey = key;
+      value = obj[key];
+    }
+  }
+
+  if (!value) {
+    throw new Error(
+      `Key "${properties.slice(0, -1).join('", "')}" or "${properties.slice(
+        -1
+      )}" not found`
+    );
+  }
+
+  if (!Array.isArray(value)) {
+    value = [value];
+  }
+
+  return value;
+};
+
 const parseTemplateConfig = function parseTemplateConfig(configJsonStr) {
   // first line has processor information. Extract it and store along with lines
   try {
-    /* eslint-disable prefer-const */
-    let { model, models } = JSON.parse(configJsonStr);
-    /* eslint-enable prefer-const */
+    const configObj = JSON.parse(configJsonStr);
 
-    if (model && models) {
-      throw new Error(
-        'Definition of keys "model" and "models" at the same time not allowed'
-      );
-    }
-
-    if (!model && !models) {
-      throw new Error('Key "model" or "models" not found');
-    }
-
-    if (!Array.isArray(models)) {
-      models = [model];
-    }
+    const models = getProperty(configObj, 'model', 'models');
 
     for (const model of models) {
       if (!model || typeof model !== 'string' || model === '') {
