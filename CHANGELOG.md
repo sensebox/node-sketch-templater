@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.0.9
 - Added sketch template for new senseBox board
 - Updated the building process to test the new sketch
 - Update travis configuration: Install senseBox core and use Arduino IDE 1.8.5
