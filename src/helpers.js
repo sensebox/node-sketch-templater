@@ -39,7 +39,7 @@ const parseTemplateConfig = function parseTemplateConfig(configJsonStr) {
     const models = getProperty(configObj, 'model', 'models');
 
     for (const model of models) {
-      if (!model || typeof model !== 'string' || model === '') {
+      if (!model || typeof model !== 'string') {
         throw new Error(
           `Model declaration "${model}" (Type ${typeof model}) is invalid`
         );
