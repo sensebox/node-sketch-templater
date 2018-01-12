@@ -45,7 +45,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 /* --------------------------End of Configuration--------------------------- */
 /* ------------------------------------------------------------------------- */
 
-#include <senseBoxIO.h>
+#include <SenseBoxIO.h>
 #include <BMP280.h>
 #include <HDC100X.h>
 #include <Makerblog_TSL45315.h>
@@ -191,11 +191,11 @@ void setup() {
 
   // Enable Wifi Shield
   Serial.print("xbee1 spi enable...");
-  senseBoxIO.SPISelectXBEE1(); // select XBEE1 spi
+  senseBoxIO.SPISelectXB1(); // select XBEE1 spi
   Serial.println("done");
 
   Serial.print("xbee1 power on...");
-  senseBoxIO.PowerXBEE1(true); // power ON XBEE1
+  senseBoxIO.PowerXB1(true); // power ON XBEE1
   Serial.println("done");
 
   senseBoxIO.PowerI2C(true);
