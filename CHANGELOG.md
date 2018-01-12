@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.0.10
 - Update v2 sketch for senseBox MCU Rev 1.1 and arduino-senseBoxCore 1.0.2
 
 ## v1.0.9
