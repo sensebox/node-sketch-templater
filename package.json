@@ -25,6 +25,7 @@
     "prettier": "^1.5.3"
   },
   "dependencies": {
+    "config": "^1.29.2",
     "dedent": "^0.7.0"
   },
   "publishConfig": {
