@@ -3,10 +3,28 @@
 const transformers = require('./transformers'),
   { readTemplates } = require('./helpers');
 
+process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
+const config = require('config');
+
 const templateFolderPath = `${__dirname}/../templates`;
 
-const SketchTemplater = function SketchTemplater(ingressDomain) {
-  this._ingressDomain = ingressDomain;
+const defaultConfig = {
+  ingress_domain: ''
+};
+
+const SketchTemplater = function SketchTemplater(cfg) {
+  // check type of ingressDomainConfig parameter
+  if (typeof cfg === 'string') {
+    cfg = { ingress_domain: cfg };
+  }
+  // Mixin configs that have been passed in, and make those my defaults
+  config.util.extendDeep(defaultConfig, cfg);
+  config.util.setModuleDefaults('sketch-templater', defaultConfig);
+
+  if (cfg.ingress_domain === '' || typeof cfg.ingress_domain !== 'string') {
+    console.warn('Invalid or missing ingressDomain');
+  }
+
   // pre load templates from templates folder
   const templates = readTemplates(templateFolderPath);
   if (Object.keys(templates).length === 0) {
@@ -39,7 +57,7 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({ _id, sensors }) {
     {
       SENSEBOX_ID: _id,
       SENSOR_IDS: sensors,
-      INGRESS_DOMAIN: this._ingressDomain,
+      INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
       NUM_SENSORS: sensors.length
     }
   );
