@@ -31,6 +31,22 @@ const mySketch = mySketcher.generateSketch(box);
 const mySketchBase64 = mySketcher.generateSketch(box, { encoding: 'base64' });
 ```
 
+### Configuration
+
+In order to fill in the correct ingress domain, you have to specify a valid hostname. Do not specify a protocol (http or https)!
+
+You can do this either in code when calling the `new Sketcher('your domain here')` or through external configuration.
+
+If your project is using [`lorenwest/node-config`](https://github.com/lorenwest/node-config), you can specify the ingress domain in your config file of your project like this:
+
+      {
+        ... your other config
+
+        "sketch-templater: {
+          "ingress_domain": "ingress.example.com"
+        }
+      }
+
 ## Adding new Templates
 
 To add new templates, just create a new `.tpl` file in the [`templates`](templates) directory. A template consists of two parts. The first line contains a JSON object for configuration. The second line until the end is used as the template text.

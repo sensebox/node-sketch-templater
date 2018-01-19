@@ -1,6 +1,9 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Include lorenwest/node-config for configuration
+- Allow to specify ingress domain both as js object and plain string in SketchTemplater constructor
+- Allow to specify ingress domain through external configuration
 
 ## v1.0.10
 - Update v2 sketch for senseBox MCU Rev 1.1 and arduino-senseBoxCore 1.0.2
