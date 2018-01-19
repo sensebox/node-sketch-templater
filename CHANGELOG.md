@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.1.0
 - Include lorenwest/node-config for configuration
 - Allow to specify ingress domain both as js object and plain string in SketchTemplater constructor
 - Allow to specify ingress domain through external configuration
