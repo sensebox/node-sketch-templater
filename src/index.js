@@ -21,7 +21,9 @@ const SketchTemplater = function SketchTemplater(cfg) {
   config.util.extendDeep(defaultConfig, cfg);
   config.util.setModuleDefaults('sketch-templater', defaultConfig);
 
-  if (cfg.ingress_domain === '' || typeof cfg.ingress_domain !== 'string') {
+  const ingress_domain = config.get('sketch-templater.ingress_domain');
+
+  if (ingress_domain === '' || typeof ingress_domain !== 'string') {
     console.warn('Invalid or missing ingressDomain');
   }
 

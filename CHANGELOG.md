@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Fix calling constructor SketchTemplater with undefined parameter caused an error
 
 ## v1.1.0
 - Include lorenwest/node-config for configuration
