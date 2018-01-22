@@ -42,7 +42,7 @@ If your project is using [`lorenwest/node-config`](https://github.com/lorenwest/
       {
         ... your other config
 
-        "sketch-templater: {
+        "sketch-templater": {
           "ingress_domain": "ingress.example.com"
         }
       }
