@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.1.1
 - Fix calling constructor SketchTemplater with undefined parameter caused an error
 
 ## v1.1.0
