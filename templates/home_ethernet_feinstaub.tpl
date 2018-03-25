@@ -125,7 +125,7 @@ void submitValues() {
       // construct the HTTP POST request:
       sprintf_P(buffer,
                 PSTR("POST /boxes/%S/data HTTP/1.1\nHost: %S\nContent-Type: "
-                     "csv\nConnection: close\nContent-Length: %i\n"),
+                     "text/csv\nConnection: close\nContent-Length: %i\n"),
                 SENSEBOX_ID, server, num_measurements * 36);
       DEBUG(buffer);
 
