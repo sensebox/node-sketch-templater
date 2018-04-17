@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.1.2
 - Change content-type header in all sketches to `text/csv` instead of just `csv` [@mpfeil](https://github.com/mpfeil)
 
 ## v1.1.1
