@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Change content-type header in all sketches to `text/csv` instead of just `csv` [@mpfeil](https://github.com/mpfeil)
 
 ## v1.1.1
 - Fix calling constructor SketchTemplater with undefined parameter caused an error
