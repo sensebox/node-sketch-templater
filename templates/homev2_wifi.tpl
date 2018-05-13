@@ -1,11 +1,11 @@
 { "model" : "homeV2Wifi", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
-  Version: wifiv2_0.1
-  Date: 2017-11-03
+  Version: wifiv2_0.2
+  Date: 2018-05-13
   Homepage: https://www.sensebox.de https://www.opensensemap.org
-  Author: Institute for Geoinformatics, University of Muenster
-  Note: Sketch for senseBox:home WiFi Edition
+  Author: Reedu GmbH & Co. KG
+  Note: Sketch for senseBox:home WiFi MCU Edition
   Model: homeV2Wifi
   Email: support@sensebox.de
   Code is in the public domain.
@@ -32,14 +32,10 @@ const char SENSEBOX_ID[] PROGMEM = "@@SENSEBOX_ID@@";
 // Number of sensors
 // Change this number if you add or remove sensors
 // do not forget to remove or add the sensors on opensensemap.org
-static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
+uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
-
-// Uncomment the next line to get debugging messages printed on the Serial port
-// Do not leave this enabled for long time use
-#define ENABLE_DEBUG
 
 /* ------------------------------------------------------------------------- */
 /* --------------------------End of Configuration--------------------------- */
@@ -54,21 +50,15 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 #include <WiFi101.h>
 #include <Wire.h>
 
-#ifdef ENABLE_DEBUG
-#define DEBUG(str) Serial.println(str)
-#define DEBUG_p(str) Serial.print(str)
-#else
-#define DEBUG(str)
-#define DEBUG_p(str)
-#endif
-
 WiFiClient client;
 
 // Sensor Instances
 Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
-HDC100X HDC(0x43);
+HDC100X HDC(0x40);
 BMP280 BMP;
 VEML6070 VEML;
+
+bool hdc, bmp, veml, tsl = false;
 
 typedef struct measurement {
   const char *sensorId;
@@ -96,7 +86,7 @@ void writeMeasurementsToClient() {
 
     // transmit buffer to client
     client.print(buffer);
-    DEBUG_p(buffer);
+    Serial.print(buffer);
   }
 
   // reset num_measurements
@@ -120,16 +110,16 @@ void submitValues() {
   char _server[strlen_P(server)];
   strcpy_P(_server, server);
   for (uint8_t timeout = 2; timeout != 0; timeout--) {
-    DEBUG(F("connecting..."));
+    Serial.println(F("connecting..."));
     connected = client.connect(_server, 80);
     if (connected == true) {
-      DEBUG(F("Connection successful, transferring..."));
+      Serial.println(F("Connection successful, transferring..."));
       // construct the HTTP POST request:
       sprintf_P(buffer,
                 PSTR("POST /boxes/%s/data HTTP/1.1\nHost: %s\nContent-Type: "
                      "text/csv\nConnection: close\nContent-Length: %i\n\n"),
                 SENSEBOX_ID, server, num_measurements * 35);
-      DEBUG_p(buffer);
+      Serial.print(buffer);
 
       // send the HTTP POST request:
       client.print(buffer);
@@ -146,7 +136,7 @@ void submitValues() {
       while (timeout <= 5000) {
         delay(10);
         timeout = timeout + 10;
-        //                DEBUG(timeout);
+        //                Serial.println(timeout);
         if (client.available()) {
           break;
         }
@@ -164,7 +154,7 @@ void submitValues() {
         }
       }
 
-      DEBUG("done!");
+      Serial.println("done!");
 
       // reset number of measurements
       num_measurements = 0;
@@ -184,6 +174,60 @@ void submitValues() {
   }
 }
 
+void checkI2CSensors() {
+  byte error;
+  int nDevices = 0;
+  byte sensorAddr[] = {41, 56, 57, 64, 118};
+  tsl = false; veml = false; hdc = false; bmp = false;
+  Serial.println("\nScanning...");
+  for (int i = 0; i < sizeof(sensorAddr); i++) {
+    Wire.beginTransmission(sensorAddr[i]);
+    error = Wire.endTransmission();
+    if (error == 0) {
+      nDevices++;
+      switch (sensorAddr[i])
+      {
+        case 0x29:
+          Serial.println("TSL45315 found.")
+          tsl = true;
+          break;
+        case 0x38: // &0x39
+          Serial.println("VEML6070 found.")
+          veml = true;
+          break;
+        case 0x40:
+          Serial.println("HDC1080 found.")
+          hdc = true;
+          break;
+        case 0x76:
+          Serial.println("BMP280 found.")
+          bmp = true;
+          break;
+      }
+    }
+    else if (error == 4)
+    {
+      Serial.print("Unknown error at address 0x");
+      if (sensorAddr[i] < 16)
+        Serial.print("0");
+      Serial.println(sensorAddr[i], HEX);
+    }
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found.\nCheck cable connections and press Reset.");
+    while(true);
+  else
+  {
+    Serial.print(nDevices);
+    Serial.println(" sensors found.\n");
+  }
+  //Serial.print(" TSL: "); Serial.println(tsl);
+  //Serial.print("VEML: "); Serial.println(veml);
+  //Serial.print(" HDC: "); Serial.println(hdc);
+  //Serial.print(" BMP: "); Serial.println(bmp);
+  //return nDevices;
+}
+
 void setup() {
   // Initialize serial and wait for port to open:
   Serial.begin(9600);
@@ -193,11 +237,11 @@ void setup() {
   Serial.print("xbee1 spi enable...");
   senseBoxIO.SPISelectXB1(); // select XBEE1 spi
   Serial.println("done");
-
+  senseBoxIO.PowerXB1(false);delay(200);
   Serial.print("xbee1 power on...");
   senseBoxIO.PowerXB1(true); // power ON XBEE1
   Serial.println("done");
-
+  senseBoxIO.PowerI2C(false);delay(200);
   senseBoxIO.PowerI2C(true);
 
   // Check WiFi Shield status
@@ -210,53 +254,70 @@ void setup() {
   uint8_t status = WL_IDLE_STATUS;
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
-    DEBUG(F("Attempting to connect to SSID: "));
-    DEBUG(ssid);
+    Serial.println(F("Attempting to connect to SSID: "));
+    Serial.println(ssid);
     // Connect to WPA/WPA2 network. Change this line if using open or WEP
     // network
     status = WiFi.begin(ssid, pass);
     // wait 10 seconds for connection:
-    DEBUG(F("Waiting 10 seconds for connection..."));
+    Serial.println(F("Waiting 10 seconds for connection..."));
     delay(10000);
-    DEBUG(F("done."));
+    Serial.println(F("done."));
   }
 
   // Sensor initialization
-  DEBUG(F("Initializing sensors..."));
-  VEML.begin();
-  delay(500);
-  HDC.begin(HDC100X_TEMP_HUMI, HDC100X_14BIT, HDC100X_14BIT, DISABLE);
-  TSL.begin();
-  BMP.begin();
-  BMP.setOversampling(4);
-  DEBUG(F("done!"));
-  DEBUG(F("Starting loop in 3 seconds."));
-  HDC.getTemp();
+  Serial.println(F("Initializing sensors..."));
+  checkI2CSensors();
+  if (veml) 
+  {
+    VEML.begin();
+    delay(500);
+  }
+  if (hdc)
+  {
+    HDC.begin(HDC100X_TEMP_HUMI, HDC100X_14BIT, HDC100X_14BIT, DISABLE);
+    HDC.getTemp();
+  }
+  if (tsl)
+    TSL.begin();
+  if (bmp)
+  {
+    BMP.begin();
+    BMP.setOversampling(4);
+  }
+  Serial.println(F("done!"));
+  Serial.println(F("Starting loop in 3 seconds."));
   delay(3000);
 }
 
 void loop() {
-  DEBUG(F("Loop"));
+  Serial.println(F("Loop"));
   // capture loop start timestamp
   unsigned long start = millis();
 
   // read measurements from sensors
-  addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
-  delay(200);
-  addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
-
-  double tempBaro, pressure;
-  char result;
-  result = BMP.startMeasurment();
-  if (result != 0) {
-    delay(result);
-    result = BMP.getTemperatureAndPressure(tempBaro, pressure);
-    addMeasurement(LUFTDRSENSOR_ID, pressure);
+  if(hdc)
+  {
+    addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
+    delay(200);
+    addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
   }
-
-  addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
-  addMeasurement(UVINTESENSOR_ID, VEML.getUV());
-  DEBUG(F("submit values"));
+  if(bmp)
+  {
+    double tempBaro, pressure;
+    char result;
+    result = BMP.startMeasurment();
+    if (result != 0) {
+      delay(result);
+      result = BMP.getTemperatureAndPressure(tempBaro, pressure);
+      addMeasurement(LUFTDRSENSOR_ID, pressure);
+    }
+  }
+  if (tsl)
+    addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
+  if (veml)
+    addMeasurement(UVINTESENSOR_ID, VEML.getUV());
+  Serial.println(F("submit values"));
   submitValues();
 
   // schedule next round of measurements
