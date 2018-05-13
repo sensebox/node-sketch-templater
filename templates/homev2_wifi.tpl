@@ -42,7 +42,8 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 /* ------------------------------------------------------------------------- */
 
 #include <SenseBoxIO.h>
-#include <BMP280.h>
+#include <Adafruit_Sensor.h>
+#include <Adafruit_BMP280.h>
 #include <HDC100X.h>
 #include <Makerblog_TSL45315.h>
 #include <SPI.h>
@@ -55,7 +56,7 @@ WiFiClient client;
 // Sensor Instances
 Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
 HDC100X HDC(0x40);
-BMP280 BMP;
+Adafruit_BMP280 BMP;
 VEML6070 VEML;
 
 bool hdc, bmp, veml, tsl = false;
@@ -258,7 +259,8 @@ void setup() {
     delay(10000);
     Serial.println(F("done."));
   }
-
+  // init I2C/wire library
+  Wire.begin();
   // Sensor initialization
   Serial.println(F("Initializing sensors..."));
   checkI2CSensors();
@@ -275,10 +277,7 @@ void setup() {
   if (tsl)
     TSL.begin();
   if (bmp)
-  {
-    BMP.begin();
-    BMP.setOversampling(4);
-  }
+    BMP.begin(0x76);
   Serial.println(F("done!"));
   Serial.println(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -298,14 +297,11 @@ void loop() {
   }
   if(bmp)
   {
-    double tempBaro, pressure;
-    char result;
-    result = BMP.startMeasurment();
-    if (result != 0) {
-      delay(result);
-      result = BMP.getTemperatureAndPressure(tempBaro, pressure);
-      addMeasurement(LUFTDRSENSOR_ID, pressure);
-    }
+    float tempBaro, pressure, altitude;
+    tempBaro = BMP.readTemperature();
+    pressure = BMP.readPressure();
+    altitude = BMP.readAltitude(1013.25); //1013.25 = sea level pressure
+    addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
   if (tsl)
     addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
