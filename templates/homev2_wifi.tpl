@@ -32,7 +32,7 @@ const char SENSEBOX_ID[] PROGMEM = "@@SENSEBOX_ID@@";
 // Number of sensors
 // Change this number if you add or remove sensors
 // do not forget to remove or add the sensors on opensensemap.org
-uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
+static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
@@ -221,19 +221,14 @@ void checkI2CSensors() {
     Serial.print(nDevices);
     Serial.println(" sensors found.\n");
   }
-  //Serial.print(" TSL: "); Serial.println(tsl);
-  //Serial.print("VEML: "); Serial.println(veml);
-  //Serial.print(" HDC: "); Serial.println(hdc);
-  //Serial.print(" BMP: "); Serial.println(bmp);
   //return nDevices;
 }
 
 void setup() {
   // Initialize serial and wait for port to open:
   Serial.begin(9600);
-  delay(1000);
+  while(!Serial);
 
-  // Enable Wifi Shield
   Serial.print("xbee1 spi enable...");
   senseBoxIO.SPISelectXB1(); // select XBEE1 spi
   Serial.println("done");
@@ -244,12 +239,11 @@ void setup() {
   senseBoxIO.PowerI2C(false);delay(200);
   senseBoxIO.PowerI2C(true);
 
-  // Check WiFi Shield status
+  // Check WiFi Bee status
   if (WiFi.status() == WL_NO_SHIELD) {
     Serial.println(F("WiFi shield not present"));
     // don't continue:
-    while (true)
-      ;
+    while (true);
   }
   uint8_t status = WL_IDLE_STATUS;
   // attempt to connect to Wifi network:
