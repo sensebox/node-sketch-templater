@@ -41,7 +41,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 /* --------------------------End of Configuration--------------------------- */
 /* ------------------------------------------------------------------------- */
 
-#include <SenseBoxIO.h>
+#include <senseBoxIO.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_BMP280.h>
 #include <HDC100X.h>
@@ -189,19 +189,19 @@ void checkI2CSensors() {
       switch (sensorAddr[i])
       {
         case 0x29:
-          Serial.println("TSL45315 found.")
+          Serial.println("TSL45315 found.");
           tsl = true;
           break;
         case 0x38: // &0x39
-          Serial.println("VEML6070 found.")
+          Serial.println("VEML6070 found.");
           veml = true;
           break;
         case 0x40:
-          Serial.println("HDC1080 found.")
+          Serial.println("HDC1080 found.");
           hdc = true;
           break;
         case 0x76:
-          Serial.println("BMP280 found.")
+          Serial.println("BMP280 found.");
           bmp = true;
           break;
       }
@@ -214,11 +214,10 @@ void checkI2CSensors() {
       Serial.println(sensorAddr[i], HEX);
     }
   }
-  if (nDevices == 0)
+  if (nDevices == 0) {
     Serial.println("No I2C devices found.\nCheck cable connections and press Reset.");
     while(true);
-  else
-  {
+  } else {
     Serial.print(nDevices);
     Serial.println(" sensors found.\n");
   }
@@ -231,14 +230,14 @@ void setup() {
   while(!Serial);
 
   Serial.print("xbee1 spi enable...");
-  senseBoxIO.SPISelectXB1(); // select XBEE1 spi
+  senseBoxIO.SPIselectXB1(); // select XBEE1 spi
   Serial.println("done");
-  senseBoxIO.PowerXB1(false);delay(200);
+  senseBoxIO.powerXB1(false);delay(200);
   Serial.print("xbee1 power on...");
-  senseBoxIO.PowerXB1(true); // power ON XBEE1
+  senseBoxIO.powerXB1(true); // power ON XBEE1
   Serial.println("done");
-  senseBoxIO.PowerI2C(false);delay(200);
-  senseBoxIO.PowerI2C(true);
+  senseBoxIO.powerI2C(false);delay(200);
+  senseBoxIO.powerI2C(true);
 
   // Check WiFi Bee status
   if (WiFi.status() == WL_NO_SHIELD) {
