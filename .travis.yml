@@ -5,22 +5,27 @@ node_js:
 env:
   global:
     - IDE_VERSION=1.8.5
-    - SENSEBOXCORE_VERSION=1.0.2
-    - SENSEBOXCORE_URL=https://sensebox.github.io/arduino-senseBoxCore/package_sensebox_index.json
+    - SENSEBOXCORE_VERSION=1.0.6
+    - ARDUINO_SAMD_VERSION=1.6.18
+    - SENSEBOXCORE_URL=https://github.com/watterott/senseBox-MCU/raw/master/package_sensebox_index.json
+    - SENSEBOX_LIBRARIES_URL=https://github.com/sensebox/resources/raw/master/libraries/senseBox_Libraries.zip
+    - SENSEBOX_LIBRARY_URL=https://github.com/sensebox/senseBox_library/archive/master.zip
 before_script:
   - wget http://downloads.arduino.cc/arduino-$IDE_VERSION-linux64.tar.xz
   - tar xf arduino-$IDE_VERSION-linux64.tar.xz
   - mv arduino-$IDE_VERSION $HOME/arduino-ide
   - export PATH=$PATH:$HOME/arduino-ide
-  - mkdir -p $HOME/Arduino
-  - wget https://github.com/sensebox/resources/raw/master/libraries/senseBox_Libraries.zip
-  - unzip senseBox_Libraries.zip -d $HOME/Arduino
-  - arduino --pref boardsmanager.additional.urls=$SENSEBOXCORE_URL --install-boards senseBox:samd:$SENSEBOXCORE_VERSION
+  - wget -O senseBox_Libraries.zip $SENSEBOX_LIBRARIES_URL
+  - wget -O senseBox_Library.zip $SENSEBOX_LIBRARY_URL
+  - unzip senseBox_Libraries.zip -d $HOME/arduino-ide
+  - unzip senseBox_Library.zip -d $HOME/arduino-ide/libraries
+  - arduino --install-boards arduino:samd:$ARDUINO_SAMD_VERSION
+  - arduino --pref boardsmanager.additional.urls=$SENSEBOXCORE_URL --install-boards sensebox:samd:$SENSEBOXCORE_VERSION
 script:
   - npm run test
   - npm run arduino-test
 before_deploy:
-  - rm -rf senseBox_Libraries.zip arduino-$IDE_VERSION-linux64.tar.xz
+  - rm -rf senseBox_Libraries.zip senseBox_Library.zip arduino-$IDE_VERSION-linux64.tar.xz
 deploy:
   provider: npm
   email:

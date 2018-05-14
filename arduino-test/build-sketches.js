@@ -46,12 +46,12 @@ const boxStub = function(model) {
 
 const buildMatrix = {
   'arduino:avr:uno': [],
-  'senseBox:samd:sb': []
+  'sensebox:samd:sb': []
 };
 
 for (const model of Object.keys(sketchTemplater._templates)) {
   if (model.includes('V2')) {
-    buildMatrix['senseBox:samd:sb'].push(model);
+    buildMatrix['sensebox:samd:sb'].push(model);
   } else {
     buildMatrix['arduino:avr:uno'].push(model);
   }
