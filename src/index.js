@@ -60,7 +60,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({ _id, sensors }) {
       SENSEBOX_ID: _id,
       SENSOR_IDS: sensors,
       INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
-      NUM_SENSORS: sensors.length
+      NUM_SENSORS: sensors.length,
+      SERIAL_PORT: 'Serial1'
     }
   );
 };
