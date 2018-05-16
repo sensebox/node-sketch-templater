@@ -1,4 +1,4 @@
-{ "model":"homev2EthernetFeinstaub", "board": "senseBox:samd:sb"}
+{ "model":"homeV2EthernetFeinstaub", "board": "senseBox:samd:sb"}
 /*
   senseBox:home - Citizen Sensingplatform
   Version: ethernet_2.6
@@ -145,7 +145,7 @@ void submitValues() {
     Serial.println(F("connection failed."));
     delay(5000);
     noInterrupts();
-    NVIC_SystemReset()
+    NVIC_SystemReset();
     while (1)
       ;
   }

@@ -166,7 +166,7 @@ void submitValues() {
     Serial.println(F("connection failed. Restarting..."));
     delay(5000);
     noInterrupts();
-    NVIC_SystemReset()
+    NVIC_SystemReset();
     while (1)
       ;
   }
@@ -242,7 +242,7 @@ void setup() {
     Serial.println("Failed to configure Ethernet using DHCP");
     // no point in carrying on, so do nothing forevermore:
     // try to congifure using IP address instead of DHCP:
-    Ethernet.begin(mac, ip);
+    Ethernet.begin(mac, myIp);
   }
   // give the Ethernet shield a second to initialize:
   delay(1000);
