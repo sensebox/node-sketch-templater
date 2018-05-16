@@ -2,7 +2,7 @@
 /*
   senseBox:home - Citizen Sensing Platform
   Version: ethernetv2_0.1
-  Date: 2018-05-14
+  Date: 2018-05-17
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home Ethernet MCU Edition
@@ -64,6 +64,7 @@ Adafruit_BMP280 BMP;
 VEML6070 VEML;
 
 bool hdc, bmp, veml, tsl = false;
+int dataLength;
 
 typedef struct measurement {
   const char *sensorId;
@@ -74,24 +75,32 @@ measurement measurements[NUM_SENSORS];
 uint8_t num_measurements = 0;
 
 // buffer for sprintf
-char buffer[150];
+char buffer[200];
 char measurementsBuffer[NUM_SENSORS * 35];
 
 void addMeasurement(const char *sensorId, float value) {
   measurements[num_measurements].sensorId = sensorId;
   measurements[num_measurements].value = value;
   num_measurements++;
+  dataLength += String(sensorId).length() + 1; //length of ID + ','
+  dataLength += String((int)value * 100).length() + 1; //length of measurement value + decimal digit
 }
 
 void writeMeasurementsToClient() {
-  // iterate throug the measurements array
-  for (uint8_t i = 0; i < num_measurements; i++) {
-    sprintf_P(buffer, PSTR("%s,%9.2f\n"), measurements[i].sensorId,
-              measurements[i].value);
-
+  // iterate throug the measurements array 
+  for (uint8_t i = 0; i < num_measurements; i++) 
+  {
+    //convert float to char[]
+    float temp = measurements[i].value;
+    int intPart = (int)measurements[i].value;
+    temp -= intPart;
+    temp *= 100; //2 decimal places
+    int fracPart = (int)temp;
+    sprintf_P(buffer, PSTR("%s,%i.%02i\n"), measurements[i].sensorId, intPart, fracPart);
     // transmit buffer to client
     client.print(buffer);
     Serial.print(buffer);
+    //dataLength += String(buffer).length();
   }
 
   // reset num_measurements
@@ -116,7 +125,7 @@ void submitValues() {
       sprintf_P(buffer,
                 PSTR("POST /boxes/%s/data HTTP/1.1\nHost: %s\nContent-Type: "
                      "text/csv\nConnection: close\nContent-Length: %i\n\n"),
-                SENSEBOX_ID, server, num_measurements * 35);
+                SENSEBOX_ID, server, dataLength);
       Serial.print(buffer);
 
       // send the HTTP POST request:
@@ -139,7 +148,7 @@ void submitValues() {
           break;
         }
       }
-
+      delay(1000);
       while (client.available()) {
         char c = client.read();
         Serial.write(c);
@@ -254,7 +263,6 @@ void setup() {
   if (veml) 
   {
     VEML.begin();
-    delay(500);
   }
   if (hdc)
   {
@@ -265,7 +273,7 @@ void setup() {
     TSL.begin();
   if (bmp)
     BMP.begin(0x76);
-  Serial.println(F("done!"));
+  Serial.println(F("done!\n"));
   Serial.println(F("Starting loop in 3 seconds."));
   delay(3000);
 }
@@ -274,29 +282,37 @@ void loop() {
   Serial.println(F("Loop"));
   // capture loop start timestamp
   unsigned long start = millis();
+  dataLength = NUM_SENSORS - 1; // excluding linebreak after last measurement
 
   // read measurements from sensors
   if(hdc)
   {
-    addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
+    float temp = HDC.getTemp();
+    addMeasurement(TEMPERSENSOR_ID, temp);
     delay(200);
-    addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
+    float humi = HDC.getHumi();
+    addMeasurement(RELLUFSENSOR_ID, humi);
   }
   if(bmp)
   {
     float tempBaro, pressure, altitude;
     tempBaro = BMP.readTemperature();
-    pressure = BMP.readPressure();
+    pressure = BMP.readPressure()/100;
     altitude = BMP.readAltitude(1013.25); //1013.25 = sea level pressure
     addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
   if (tsl)
-    addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
+  {
+    uint32_t lux = TSL.readLux();
+    addMeasurement(BELEUCSENSOR_ID, lux);
+  }
   if (veml)
-    addMeasurement(UVINTESENSOR_ID, VEML.getUV());
+  {
+    float uv = VEML.getUV();
+    addMeasurement(UVINTESENSOR_ID, uv);
+  }
   Serial.println(F("submit values"));
   submitValues();
-
   // schedule next round of measurements
   for (;;) {
     unsigned long now = millis();

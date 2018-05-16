@@ -1,11 +1,11 @@
 { "model" : "homeV2WifiFeinstaub", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
-  Version: wifiv2_0.1
-  Date: 2018-02-07
+  Version: wifiv2_0.2
+  Date: 2018-05-17
   Homepage: https://www.sensebox.de https://www.opensensemap.org
-  Author: Institute for Geoinformatics, University of Muenster
-  Note: Sketch for senseBox:home WiFi Edition with dust particle upgrade
+  Author: Reedu GmbH & Co. KG
+  Note: Sketch for senseBox:home WiFi MCU Edition with dust particle upgrade
   Model: homeV2WifiFeinstaub
   Email: support@sensebox.de
   Code is in the public domain.
@@ -19,6 +19,9 @@
 // Wifi Credentials
 const char *ssid = ""; // your network SSID (name)
 const char *pass = ""; // your network password
+
+// Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
+#define SDS_UART_PORT (@@SERIAL_PORT@@)
 
 // Interval of measuring and submitting values in seconds
 const unsigned int postingInterval = 60e3;
@@ -59,7 +62,7 @@ Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
 HDC100X HDC(0x40);
 Adafruit_BMP280 BMP;
 VEML6070 VEML;
-SDS011 my_sds(@@SERIAL_PORT@@);
+SDS011 SDS(SDS_UART_PORT);
 
 bool hdc, bmp, veml, tsl = false;
 
@@ -170,8 +173,8 @@ void submitValues() {
     // Reset durchführen
     Serial.println(F("connection failed. Restarting System."));
     delay(5000);
-    //    cli();
-    //    wdt_enable(WDTO_60MS);
+    noInterrupts();
+    NVIC_SystemReset();
     while (1)
       ;
   }
@@ -266,6 +269,7 @@ void setup() {
   Wire.begin();
   // Sensor initialization
   Serial.println(F("Initializing sensors..."));
+  SDS_UART_PORT.begin(9600);
   checkI2CSensors();
   if (veml) 
   {
@@ -302,7 +306,7 @@ void loop() {
   {
     float tempBaro, pressure, altitude;
     tempBaro = BMP.readTemperature();
-    pressure = BMP.readPressure();
+    pressure = BMP.readPressure()/100;
     altitude = BMP.readAltitude(1013.25); //1013.25 = sea level pressure
     addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
@@ -314,7 +318,7 @@ void loop() {
   uint8_t attempt = 0;
   float pm10, pm25;
   while (attempt < 5) {
-    bool error = my_sds.read(&pm25, &pm10);
+    bool error = SDS_UART_PORT.read(&pm25, &pm10);
     if (!error) {
       addMeasurement(PM10SENSOR_ID, pm10);
       addMeasurement(PM25SENSOR_ID, pm25);

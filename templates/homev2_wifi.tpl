@@ -2,7 +2,7 @@
 /*
   senseBox:home - Citizen Sensingplatform
   Version: wifiv2_0.2
-  Date: 2018-05-13
+  Date: 2018-05-17
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home WiFi MCU Edition
@@ -168,8 +168,8 @@ void submitValues() {
     // Reset durchführen
     Serial.println(F("connection failed. Restarting System."));
     delay(5000);
-    //    cli();
-    //    wdt_enable(WDTO_60MS);
+    noInterrupts();
+    NVIC_SystemReset();
     while (1)
       ;
   }
@@ -298,7 +298,7 @@ void loop() {
   {
     float tempBaro, pressure, altitude;
     tempBaro = BMP.readTemperature();
-    pressure = BMP.readPressure();
+    pressure = BMP.readPressure()/100;
     altitude = BMP.readAltitude(1013.25); //1013.25 = sea level pressure
     addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
