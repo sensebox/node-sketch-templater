@@ -52,7 +52,6 @@ IPAddress mySubnet(255, 255, 255, 0);
 #include <SPI.h>
 #include <VEML6070.h>
 #include <Wire.h>
-#include <avr/wdt.h>
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 EthernetClient client;
@@ -143,10 +142,10 @@ void submitValues() {
 
   if (connected == false) {
     // Reset durchführen
-    Serial.println(F("connection failed. Restarting System."));
+    Serial.println(F("connection failed."));
     delay(5000);
-    cli();
-    wdt_enable(WDTO_60MS);
+    noInterrupts();
+    NVIC_SystemReset()
     while (1)
       ;
   }

@@ -163,10 +163,10 @@ void submitValues() {
 
   if (connected == false) {
     // Reset durchführen
-    Serial.println(F("connection failed. Restarting System."));
+    Serial.println(F("connection failed. Restarting..."));
     delay(5000);
-    //    cli();
-    //    wdt_enable(WDTO_60MS);
+    noInterrupts();
+    NVIC_SystemReset()
     while (1)
       ;
   }
