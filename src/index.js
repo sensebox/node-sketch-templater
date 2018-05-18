@@ -53,7 +53,11 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   return `Error: No sketch template availiable for model ${box.model}`;
 };
 
-SketchTemplater.prototype._cloneBox = function _cloneBox({ _id, sensors }) {
+SketchTemplater.prototype._cloneBox = function _cloneBox({
+  _id,
+  sensors,
+  serialPort
+}) {
   return Object.assign(
     {},
     {
@@ -61,7 +65,7 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({ _id, sensors }) {
       SENSOR_IDS: sensors,
       INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
       NUM_SENSORS: sensors.length,
-      SERIAL_PORT: 'Serial1'
+      SERIAL_PORT: serialPort
     }
   );
 };

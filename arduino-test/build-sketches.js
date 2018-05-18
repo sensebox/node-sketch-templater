@@ -40,7 +40,8 @@ const boxStub = function(model) {
         title: 'PM2.5',
         _id: '59479ed5a4ad5900112d8df3'
       }
-    ]
+    ],
+    serialPort: 'Serial1'
   };
 };
 
