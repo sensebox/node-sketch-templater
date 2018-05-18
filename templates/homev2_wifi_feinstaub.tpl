@@ -318,7 +318,7 @@ void loop() {
   uint8_t attempt = 0;
   float pm10, pm25;
   while (attempt < 5) {
-    bool error = SDS_UART_PORT.read(&pm25, &pm10);
+    bool error = SDS.read(&pm25, &pm10);
     if (!error) {
       addMeasurement(PM10SENSOR_ID, pm10);
       addMeasurement(PM25SENSOR_ID, pm25);
