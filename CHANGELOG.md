@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.2.0
 - Add WiFi template for new senseBox MCU
 - Add Ethernet template for new senseBox MCU
 - Allow to specify serial port for SDS 011 on new senseBox MCU
