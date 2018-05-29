@@ -1,6 +1,9 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Add WiFi template for new senseBox MCU
+- Add Ethernet template for new senseBox MCU
+- Allow to specify serial port for SDS 011 on new senseBox MCU
 
 ## v1.1.2
 - Change content-type header in all sketches to `text/csv` instead of just `csv` [@mpfeil](https://github.com/mpfeil)
