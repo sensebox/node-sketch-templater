@@ -1,27 +1,22 @@
-{ "model" : "homeV2WifiFeinstaub", "board": "senseBox:samd:sb" }
+{ "model" : "homeV2Ethernet", "board": "senseBox:samd:sb" }
 /*
-  senseBox:home - Citizen Sensingplatform
-  Version: wifiv2_0.2
+  senseBox:home - Citizen Sensing Platform
+  Version: ethernetv2_0.1
   Date: 2018-05-17
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
-  Note: Sketch for senseBox:home WiFi MCU Edition with dust particle upgrade
-  Model: homeV2WifiFeinstaub
+  Note: Sketch for senseBox:home Ethernet MCU Edition
+  Model: homeV2Ethernet
   Email: support@sensebox.de
   Code is in the public domain.
   https://github.com/sensebox/node-sketch-templater
 */
 
+#include <Ethernet2.h>
+
 /* ------------------------------------------------------------------------- */
 /* ------------------------------Configuration------------------------------ */
 /* ------------------------------------------------------------------------- */
-
-// Wifi Credentials
-const char *ssid = ""; // your network SSID (name)
-const char *pass = ""; // your network password
-
-// Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
-#define SDS_UART_PORT (@@SERIAL_PORT@@)
 
 // Interval of measuring and submitting values in seconds
 const unsigned int postingInterval = 60e3;
@@ -40,6 +35,12 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
 
+//Configure static IP setup (only needed if DHCP is disabled)
+IPAddress myIp(192, 168, 0, 42);
+IPAddress myDns(8, 8, 8, 8);
+IPAddress myGateway(192, 168, 0, 177);
+IPAddress mySubnet(255, 255, 255, 0);
+
 /* ------------------------------------------------------------------------- */
 /* --------------------------End of Configuration--------------------------- */
 /* ------------------------------------------------------------------------- */
@@ -49,22 +50,21 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 #include <Adafruit_BMP280.h>
 #include <HDC100X.h>
 #include <Makerblog_TSL45315.h>
-#include <SDS011-select-serial.h>
 #include <SPI.h>
 #include <VEML6070.h>
-#include <WiFi101.h>
 #include <Wire.h>
 
-WiFiClient client;
+byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
+EthernetClient client;
 
 // Sensor Instances
 Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
 HDC100X HDC(0x40);
 Adafruit_BMP280 BMP;
 VEML6070 VEML;
-SDS011 SDS(SDS_UART_PORT);
 
 bool hdc, bmp, veml, tsl = false;
+int dataLength;
 
 typedef struct measurement {
   const char *sensorId;
@@ -75,24 +75,32 @@ measurement measurements[NUM_SENSORS];
 uint8_t num_measurements = 0;
 
 // buffer for sprintf
-char buffer[150];
+char buffer[200];
 char measurementsBuffer[NUM_SENSORS * 35];
 
 void addMeasurement(const char *sensorId, float value) {
   measurements[num_measurements].sensorId = sensorId;
   measurements[num_measurements].value = value;
   num_measurements++;
+  dataLength += String(sensorId).length() + 1; //length of ID + ','
+  dataLength += String((int)value * 100).length() + 1; //length of measurement value + decimal digit
 }
 
 void writeMeasurementsToClient() {
-  // iterate throug the measurements array
-  for (uint8_t i = 0; i < num_measurements; i++) {
-    sprintf_P(buffer, PSTR("%s,%9.2f\n"), measurements[i].sensorId,
-              measurements[i].value);
-
+  // iterate throug the measurements array 
+  for (uint8_t i = 0; i < num_measurements; i++) 
+  {
+    //convert float to char[]
+    float temp = measurements[i].value;
+    int intPart = (int)measurements[i].value;
+    temp -= intPart;
+    temp *= 100; //2 decimal places
+    int fracPart = (int)temp;
+    sprintf_P(buffer, PSTR("%s,%i.%02i\n"), measurements[i].sensorId, intPart, fracPart);
     // transmit buffer to client
     client.print(buffer);
     Serial.print(buffer);
+    //dataLength += String(buffer).length();
   }
 
   // reset num_measurements
@@ -100,14 +108,7 @@ void writeMeasurementsToClient() {
 }
 
 void submitValues() {
-  if (WiFi.status() != WL_CONNECTED) {
-    WiFi.disconnect();
-    delay(1000); // wait 1s
-    WiFi.begin(ssid, pass);
-    delay(5000); // wait 5s
-  }
   // close any connection before send a new request.
-  // This will free the socket on the WiFi shield
   if (client.connected()) {
     client.stop();
     delay(1000);
@@ -124,7 +125,7 @@ void submitValues() {
       sprintf_P(buffer,
                 PSTR("POST /boxes/%s/data HTTP/1.1\nHost: %s\nContent-Type: "
                      "text/csv\nConnection: close\nContent-Length: %i\n\n"),
-                SENSEBOX_ID, server, num_measurements * 35);
+                SENSEBOX_ID, server, dataLength);
       Serial.print(buffer);
 
       // send the HTTP POST request:
@@ -147,7 +148,7 @@ void submitValues() {
           break;
         }
       }
-
+      delay(1000);
       while (client.available()) {
         char c = client.read();
         Serial.write(c);
@@ -171,7 +172,7 @@ void submitValues() {
 
   if (connected == false) {
     // Reset durchführen
-    Serial.println(F("connection failed. Restarting System."));
+    Serial.println(F("connection failed. Restarting..."));
     delay(5000);
     noInterrupts();
     NVIC_SystemReset();
@@ -232,7 +233,6 @@ void checkI2CSensors() {
 void setup() {
   // Initialize serial and wait for port to open:
   Serial.begin(9600);
-  @@SERIAL_PORT@@.begin(9600);
   delay(5000);
 
   Serial.print("xbee1 spi enable...");
@@ -245,36 +245,24 @@ void setup() {
   senseBoxIO.powerI2C(false);delay(200);
   senseBoxIO.powerI2C(true);
 
-  // Check WiFi Shield status
-  if (WiFi.status() == WL_NO_SHIELD) {
-    Serial.println(F("WiFi shield not present"));
-    // don't continue:
-    while (true)
-      ;
+  Ethernet.init(23);
+  // start the Ethernet connection:
+  if (Ethernet.begin(mac) == 0) {
+    Serial.println("Failed to configure Ethernet using DHCP");
+    // no point in carrying on, so do nothing forevermore:
+    // try to congifure using IP address instead of DHCP:
+    Ethernet.begin(mac, myIp);
   }
-  uint8_t status = WL_IDLE_STATUS;
-  // attempt to connect to Wifi network:
-  while (status != WL_CONNECTED) {
-    Serial.println(F("Attempting to connect to SSID: "));
-    Serial.println(ssid);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP
-    // network
-    status = WiFi.begin(ssid, pass);
-    // wait 10 seconds for connection:
-    Serial.println(F("Waiting 10 seconds for connection..."));
-    delay(10000);
-    Serial.println(F("done."));
-  }
+  // give the Ethernet shield a second to initialize:
+  delay(1000);
   // init I2C/wire library
   Wire.begin();
   // Sensor initialization
   Serial.println(F("Initializing sensors..."));
-  SDS_UART_PORT.begin(9600);
   checkI2CSensors();
   if (veml) 
   {
     VEML.begin();
-    delay(500);
   }
   if (hdc)
   {
@@ -285,7 +273,7 @@ void setup() {
     TSL.begin();
   if (bmp)
     BMP.begin(0x76);
-  Serial.println(F("done!"));
+  Serial.println(F("done!\n"));
   Serial.println(F("Starting loop in 3 seconds."));
   delay(3000);
 }
@@ -294,13 +282,16 @@ void loop() {
   Serial.println(F("Loop"));
   // capture loop start timestamp
   unsigned long start = millis();
+  dataLength = NUM_SENSORS - 1; // excluding linebreak after last measurement
 
   // read measurements from sensors
   if(hdc)
   {
-    addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
+    float temp = HDC.getTemp();
+    addMeasurement(TEMPERSENSOR_ID, temp);
     delay(200);
-    addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
+    float humi = HDC.getHumi();
+    addMeasurement(RELLUFSENSOR_ID, humi);
   }
   if(bmp)
   {
@@ -311,25 +302,17 @@ void loop() {
     addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
   if (tsl)
-    addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
-  if (veml)
-    addMeasurement(UVINTESENSOR_ID, VEML.getUV());
-
-  uint8_t attempt = 0;
-  float pm10, pm25;
-  while (attempt < 5) {
-    bool error = SDS.read(&pm25, &pm10);
-    if (!error) {
-      addMeasurement(PM10SENSOR_ID, pm10);
-      addMeasurement(PM25SENSOR_ID, pm25);
-      break;
-    }
-    attempt++;
+  {
+    uint32_t lux = TSL.readLux();
+    addMeasurement(BELEUCSENSOR_ID, lux);
   }
-
+  if (veml)
+  {
+    float uv = VEML.getUV();
+    addMeasurement(UVINTESENSOR_ID, uv);
+  }
   Serial.println(F("submit values"));
   submitValues();
-
   // schedule next round of measurements
   for (;;) {
     unsigned long now = millis();
