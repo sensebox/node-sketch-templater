@@ -227,7 +227,7 @@ void checkI2CSensors() {
 void setup() {
   // Initialize serial and wait for port to open:
   Serial.begin(9600);
-  while(!Serial);
+  delay(5000);
 
   Serial.print("xbee1 spi enable...");
   senseBoxIO.SPIselectXB1(); // select XBEE1 spi
