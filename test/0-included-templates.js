@@ -47,9 +47,12 @@ describe('Included templates', function() {
     }
   });
 
+  //TODO write test for LoRa model
+  it('should execute lora model and make all substitutions', function() {});
+
   it('should execute all other templates to execute and make all substitutions', function() {
     for (const model of Object.keys(mySketchTemplater._templates)) {
-      if (model !== 'custom') {
+      if (model !== 'custom' && model !== 'homeV2lora') {
         const box = Object.assign({ model: model }, testBox());
         const sketch = mySketchTemplater.generateSketch(box);
 
