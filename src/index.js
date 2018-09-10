@@ -84,9 +84,19 @@ SketchTemplater.prototype._executeTemplate = function _executeTemplate(
     subTemplateKey
   ) {
     // check if there is a transformer defined
-    const [key, transformer = 'as-is'] = subTemplateKey.split('|');
+    let [key, transformer = 'as-is'] = subTemplateKey.split('|');
+    let params = [];
 
-    if (transformers[transformer]) {
+    if (transformer.indexOf('~') >= -1) {
+      [transformer, params] = transformer.split('~');
+    }
+
+    if (params) {
+      const parameters = params.split(',');
+      box[key] = transformers[transformer](box[key], ...parameters);
+
+      return box[key];
+    } else if (transformers[transformer]) {
       box[key] = transformers[transformer](box[key]);
     }
 
