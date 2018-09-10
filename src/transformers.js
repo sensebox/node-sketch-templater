@@ -15,6 +15,15 @@ module.exports = {
 
     return output.join('\r\n');
   },
+  toDefineWithSuffixPrefixAndKey(sensors, prefix, suffix, key) {
+    const output = [];
+    for (const [, sensor] of sensors.entries()) {
+      output.push(dedent`// ${sensor.title}
+                         #define ${prefix}${sensor[key]}${suffix}`);
+    }
+
+    return output.join('\r\n');
+  },
   toProgmem(sensors) {
     const output = [];
     for (const { _id, title } of sensors) {

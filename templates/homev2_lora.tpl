@@ -26,6 +26,9 @@
 #include <SDS011-select-serial.h>
 #include <VEML6070.h>
 
+// Sensor setup
+@@SENSOR_IDS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
+
 // Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
 #define SDS_UART_PORT (@@SERIAL_PORT@@)
 
