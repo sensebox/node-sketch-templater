@@ -10,15 +10,18 @@ module.exports = function testBox() {
     sensors: [
       {
         title: 'Temperatur',
-        _id: randomHex()
+        _id: randomHex(),
+        sensorType: 'HDC1080'
       },
       {
         title: 'Luftdruck',
-        _id: randomHex()
+        _id: randomHex(),
+        sensorType: 'BMP280'
       },
       {
         title: 'Kellertemperatur',
-        _id: randomHex()
+        _id: randomHex(),
+        sensorType: 'HDC1080'
       }
     ]
   };

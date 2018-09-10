@@ -25,6 +25,27 @@ describe('Transformers', function() {
     }
   });
 
+  it('toDefineWithPrefixAndSuffix should transform a sensor array to multiple lines with #defines', function() {
+    const { sensors } = testBox();
+    const prefix = '';
+    const suffix = '_CONNECTED';
+
+    const result = transformers.toDefineWithSuffixPrefixAndKey(
+      sensors,
+      prefix,
+      suffix,
+      'sensorType'
+    );
+
+    expect(result).to.include('#define');
+
+    for (const { title, sensorType } of sensors) {
+      expect(result).to.include(title);
+      expect(result).to.include(`${sensorType}${suffix}`);
+      expect(result).to.include(`${prefix}${sensorType}${suffix}`);
+    }
+  });
+
   it('toProgmem should transform a sensor array to multiple lines with PROGMEM chars', function() {
     const { sensors } = testBox();
 

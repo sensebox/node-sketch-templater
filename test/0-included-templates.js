@@ -47,8 +47,16 @@ describe('Included templates', function() {
     }
   });
 
-  //TODO write test for LoRa model
-  it('should execute lora model and make all substitutions', function() {});
+  it('should execute lora model and make all substitutions', function() {
+    const box = Object.assign({ model: 'homeV2lora' }, testBox());
+
+    const sketch = mySketchTemplater.generateSketch(box);
+
+    for (const { title, sensorType } of box.sensors) {
+      expect(sketch).to.include(title);
+      expect(sketch).to.include(`${sensorType}_CONNECTED`);
+    }
+  });
 
   it('should execute all other templates to execute and make all substitutions', function() {
     for (const model of Object.keys(mySketchTemplater._templates)) {
