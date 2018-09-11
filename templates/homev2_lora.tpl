@@ -16,7 +16,6 @@
 #include <hal/hal.h>
 #include <SPI.h>
 #include <senseBoxIO.h>
-#include <Wire.h>
 
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HDC1000.h>
