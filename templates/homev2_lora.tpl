@@ -26,7 +26,7 @@
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
-#define ENABLE_DEBUG
+// #define ENABLE_DEBUG
 
 #ifdef ENABLE_DEBUG
 #define DEBUG(str) Serial.println(str)
@@ -70,18 +70,18 @@
 // first. When copying an EUI from ttnctl output, this means to reverse
 // the bytes. For TTN issued EUIs the last bytes should be 0xD5, 0xB3,
 // 0x70.
-static const u1_t PROGMEM APPEUI[8]={ @@TTN_APPEUI@@ };
+static const u1_t PROGMEM APPEUI[8]={ 0x21, 0x24, 0x01, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 };
 void os_getArtEui (u1_t* buf) { memcpy_P(buf, APPEUI, 8);}
 
 // This should also be in little endian format, see above.
-static const u1_t PROGMEM DEVEUI[8]={ @@TTN_DEVEUI@@ };
+static const u1_t PROGMEM DEVEUI[8]={ 0xD9, 0x6D, 0x33, 0x69, 0x38, 0xE1, 0x63, 0x00 };
 void os_getDevEui (u1_t* buf) { memcpy_P(buf, DEVEUI, 8);}
 
 // This key should be in big endian format (or, since it is not really a
 // number but a block of memory, endianness does not really apply). In
 // practice, a key taken from ttnctl can be copied as-is.
 // The key shown here is the semtech default key.
-static const u1_t PROGMEM APPKEY[16] = { @@TTN_APPKEY@@ };
+static const u1_t PROGMEM APPKEY[16] = { 0xB7, 0x05, 0x01, 0xF8, 0x72, 0xF9, 0x5E, 0xD6, 0x44, 0x7C, 0xE8, 0xF7, 0x7B, 0xE5, 0x10, 0x5D };
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static osjob_t sendjob;

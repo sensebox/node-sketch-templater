@@ -14,31 +14,38 @@ const boxStub = function(model) {
     sensors: [
       {
         title: 'Temperatur',
-        _id: '59479ed5a4ad5900112d8ded'
+        _id: '59479ed5a4ad5900112d8ded',
+        sensorType: 'HDC1080'
       },
       {
         title: 'rel. Luftfeuchte',
-        _id: '59479ed5a4ad5900112d8dee'
+        _id: '59479ed5a4ad5900112d8dee',
+        sensorType: 'HDC1080'
       },
       {
         title: 'Luftdruck',
-        _id: '59479ed5a4ad5900112d8def'
+        _id: '59479ed5a4ad5900112d8def',
+        sensorType: 'BMP280'
       },
       {
         title: 'Beleuchtungsstärke',
-        _id: '59479ed5a4ad5900112d8df0'
+        _id: '59479ed5a4ad5900112d8df0',
+        sensorType: 'TSL45315'
       },
       {
         title: 'UV-Intensität',
-        _id: '59479ed5a4ad5900112d8df1'
+        _id: '59479ed5a4ad5900112d8df1',
+        sensorType: 'VEML6070'
       },
       {
         title: 'PM10',
-        _id: '59479ed5a4ad5900112d8df2'
+        _id: '59479ed5a4ad5900112d8df2',
+        sensorType: 'SDS011'
       },
       {
         title: 'PM2.5',
-        _id: '59479ed5a4ad5900112d8df3'
+        _id: '59479ed5a4ad5900112d8df3',
+        sensorType: 'SDS011'
       }
     ],
     serialPort: 'Serial1'
