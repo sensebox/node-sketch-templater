@@ -41,8 +41,10 @@ describe('Transformers', function() {
 
     for (const { title, sensorType } of sensors) {
       expect(result).to.include(title);
-      expect(result).to.include(`${sensorType}${suffix}`);
-      expect(result).to.include(`${prefix}${sensorType}${suffix}`);
+      expect(result).to.include(`${sensorType.toUpperCase()}${suffix}`);
+      expect(result).to.include(
+        `${prefix}${sensorType.toUpperCase()}${suffix}`
+      );
     }
   });
 

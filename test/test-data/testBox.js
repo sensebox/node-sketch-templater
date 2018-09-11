@@ -21,7 +21,7 @@ module.exports = function testBox() {
       {
         title: 'Kellertemperatur',
         _id: randomHex(),
-        sensorType: 'HDC1080'
+        sensorType: 'hdc1080'
       }
     ]
   };

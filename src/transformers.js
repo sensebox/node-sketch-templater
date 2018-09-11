@@ -19,7 +19,9 @@ module.exports = {
     const output = [];
     for (const [, sensor] of sensors.entries()) {
       output.push(dedent`// ${sensor.title}
-                         #define ${prefix}${sensor[key]}${suffix}`);
+                         #define ${prefix}${sensor[
+        key
+      ].toUpperCase()}${suffix}`);
     }
 
     return output.join('\r\n');

@@ -54,7 +54,7 @@ describe('Included templates', function() {
 
     for (const { title, sensorType } of box.sensors) {
       expect(sketch).to.include(title);
-      expect(sketch).to.include(`${sensorType}_CONNECTED`);
+      expect(sketch).to.include(`${sensorType.toUpperCase()}_CONNECTED`);
     }
   });
 
