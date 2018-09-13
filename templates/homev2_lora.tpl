@@ -1,4 +1,4 @@
-{ "model" : "homeV2lora", "board": "senseBox:samd:sb" }
+{ "model" : "homeV2Lora", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
   Version: lorav2.0.0

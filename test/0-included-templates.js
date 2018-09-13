@@ -48,7 +48,7 @@ describe('Included templates', function() {
   });
 
   it('should execute lora model and make all substitutions', function() {
-    const box = Object.assign({ model: 'homeV2lora' }, testBox());
+    const box = Object.assign({ model: 'homeV2Lora' }, testBox());
 
     const sketch = mySketchTemplater.generateSketch(box);
 
@@ -60,7 +60,7 @@ describe('Included templates', function() {
 
   it('should execute all other templates to execute and make all substitutions', function() {
     for (const model of Object.keys(mySketchTemplater._templates)) {
-      if (model !== 'custom' && model !== 'homeV2lora') {
+      if (model !== 'custom' && model !== 'homeV2Lora') {
         const box = Object.assign({ model: model }, testBox());
         const sketch = mySketchTemplater.generateSketch(box);
 
