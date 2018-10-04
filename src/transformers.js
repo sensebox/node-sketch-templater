@@ -18,10 +18,9 @@ module.exports = {
   toDefineWithSuffixPrefixAndKey(sensors, prefix, suffix, key) {
     const output = [];
     for (const [, sensor] of sensors.entries()) {
+      const value = sensor[key].replace(/\s+/g, '');
       output.push(dedent`// ${sensor.title}
-                         #define ${prefix}${sensor[
-        key
-      ].toUpperCase()}${suffix}`);
+                         #define ${prefix}${value.toUpperCase()}${suffix}`);
     }
 
     return output.join('\r\n');
