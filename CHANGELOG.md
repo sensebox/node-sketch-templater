@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Add LoRa template for senseBox MCU
 
 ## v1.2.0
 - Add WiFi template for new senseBox MCU
