@@ -73,6 +73,11 @@ describe('Included templates', function() {
           expect(sketch).to.include(title);
           expect(sketch).to.include(_id);
         }
+
+        if (model.startsWith('homeV2Wifi')) {
+          expect(sketch).to.include(box.ssid);
+          expect(sketch).to.include(box.password);
+        }
       }
     }
   });

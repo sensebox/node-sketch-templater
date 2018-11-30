@@ -17,8 +17,8 @@
 /* ------------------------------------------------------------------------- */
 
 // Wifi Credentials
-const char *ssid = ""; // your network SSID (name)
-const char *pass = ""; // your network password
+const char *ssid = "@@SSID@@"; // your network SSID (name)
+const char *pass = "@@PASSWORD@@"; // your network password
 
 // Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
 #define SDS_UART_PORT (@@SERIAL_PORT@@)

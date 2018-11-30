@@ -48,7 +48,9 @@ const boxStub = function(model) {
         sensorType: 'SDS011'
       }
     ],
-    serialPort: 'Serial1'
+    serialPort: 'Serial1',
+    ssid: 'MY-HOME-NETWORK',
+    password: 'MY-SUPER-PASSWORD'
   };
 };
 

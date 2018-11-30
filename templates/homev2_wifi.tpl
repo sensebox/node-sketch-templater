@@ -17,8 +17,8 @@
 /* ------------------------------------------------------------------------- */
 
 // Wifi Credentials
-const char *ssid = ""; // your network SSID (name)
-const char *pass = ""; // your network password
+const char *ssid = "@@SSID@@"; // your network SSID (name)
+const char *pass = "@@PASSWORD@@"; // your network password
 
 // Interval of measuring and submitting values in seconds
 const unsigned int postingInterval = 60e3;

@@ -56,7 +56,9 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
 SketchTemplater.prototype._cloneBox = function _cloneBox({
   _id,
   sensors,
-  serialPort
+  serialPort,
+  ssid,
+  password
 }) {
   return Object.assign(
     {},
@@ -65,7 +67,9 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       SENSOR_IDS: sensors,
       INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
       NUM_SENSORS: sensors.length,
-      SERIAL_PORT: serialPort
+      SERIAL_PORT: serialPort,
+      SSID: ssid,
+      PASSWORD: password
     }
   );
 };
