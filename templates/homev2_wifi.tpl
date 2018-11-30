@@ -263,7 +263,7 @@ void setup() {
   // Sensor initialization
   Serial.println(F("Initializing sensors..."));
   checkI2CSensors();
-  if (veml) 
+  if (veml)
   {
     VEML.begin();
     delay(500);

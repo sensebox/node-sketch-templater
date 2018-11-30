@@ -271,7 +271,7 @@ void setup() {
   Serial.println(F("Initializing sensors..."));
   SDS_UART_PORT.begin(9600);
   checkI2CSensors();
-  if (veml) 
+  if (veml)
   {
     VEML.begin();
     delay(500);
