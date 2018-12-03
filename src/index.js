@@ -88,6 +88,7 @@ SketchTemplater.prototype._executeTemplate = function _executeTemplate(
     subTemplateKey
   ) {
     // check if there is a transformer defined
+    // eslint-disable-next-line prefer-const
     let [key, transformer = 'as-is'] = subTemplateKey.split('|');
     let params = [];
 
