@@ -25,6 +25,12 @@ script:
   - npm run test
   - npm run arduino-test
 before_deploy:
+  - TAG=latest
+  - if [[ $TRAVIS_TAG == *"beta"* ]]; then
+      echo "It's a beta release!"
+      echo "set env TAG to beta"
+      TAG='beta'
+    fi
   - rm -rf senseBox_Libraries.zip senseBox_Library.zip arduino-$IDE_VERSION-linux64.tar.xz
 deploy:
   provider: npm
@@ -35,3 +41,4 @@ deploy:
   on:
     branch: master
     tags: true
+    tag: $TAG
