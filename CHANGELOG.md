@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.4.0-beta.1
+
 ## v1.4.0-beta
 - Add `SSID` and `Password` replacement possibility for `homeV2Wifi` models
 
