@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.4.0-beta
+- Add `SSID` and `Password` replacement possibility for `homeV2Wifi` models
+
 ## v1.3.0
 - Add LoRa template for senseBox MCU
 
