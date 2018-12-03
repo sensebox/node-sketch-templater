@@ -27,9 +27,9 @@ script:
   - TAG=latest
   - echo "Lets check what release tag should be used"
   - if [[ $TRAVIS_TAG == *"beta"* ]]; then
-      echo "It's a beta release!"
-      echo "set env TAG to beta"
-      TAG='beta'
+      echo "It's a beta release!";
+      echo "set env TAG to beta";
+      TAG='beta';
     fi
 before_deploy:
   - rm -rf senseBox_Libraries.zip senseBox_Library.zip arduino-$IDE_VERSION-linux64.tar.xz
