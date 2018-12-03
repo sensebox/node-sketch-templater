@@ -26,6 +26,8 @@ script:
   - npm run arduino-test
 before_deploy:
   - TAG=latest
+  - echo $TRAVIS_TAG
+  - echo $TRAVIS_BRANCH
   - if [[ $TRAVIS_TAG == *"beta"* ]]; then
       echo "It's a beta release!"
       echo "set env TAG to beta"
