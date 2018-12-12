@@ -288,7 +288,7 @@ void setup() {
     DEBUG(F("done."));
   }
 
-  ifdef ENABLE_DEBUG
+  #ifdef ENABLE_DEBUG
     // init I2C/wire library
     Wire.begin();
     checkI2CSensors();
