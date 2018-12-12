@@ -92,7 +92,7 @@ measurement measurements[NUM_SENSORS];
 uint8_t num_measurements = 0;
 
 // buffer for sprintf
-char buffer[500];
+char buffer[750];
 
 /* ------------------------------------------------------------------------- */
 /* --------------------------End of Configuration--------------------------- */

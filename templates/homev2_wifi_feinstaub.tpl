@@ -99,7 +99,7 @@ measurement measurements[NUM_SENSORS];
 uint8_t num_measurements = 0;
 
 // buffer for sprintf
-char buffer[500];
+char buffer[750];
 
 /* ------------------------------------------------------------------------- */
 /* --------------------------End of Configuration--------------------------- */
@@ -255,7 +255,6 @@ void setup() {
   #ifdef ENABLE_DEBUG
     Serial.begin(9600);
   #endif
-  @@SERIAL_PORT@@.begin(9600);
   delay(5000);
 
   DEBUG2("xbee1 spi enable...");
