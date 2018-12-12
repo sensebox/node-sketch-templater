@@ -333,7 +333,7 @@ void loop() {
   //-----Pressure-----//
   #ifdef BMP280_CONNECTED
     float pressure;
-    tempBaro = BMP.readTemperature();
+    pressure = BMP.readPressure()/100;
     addMeasurement(LUFTDRSENSOR_ID, pressure);
   #endif
 
