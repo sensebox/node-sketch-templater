@@ -66,7 +66,7 @@ const char SENSEBOX_ID[] PROGMEM = "@@SENSEBOX_ID@@";
 static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 
 // Connected sensors
-@@SENSOR_IDS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
+@@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@

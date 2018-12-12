@@ -69,7 +69,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       NUM_SENSORS: sensors.length,
       SERIAL_PORT: serialPort,
       SSID: ssid,
-      PASSWORD: password
+      PASSWORD: password,
+      SENSORS: sensors
     }
   );
 };

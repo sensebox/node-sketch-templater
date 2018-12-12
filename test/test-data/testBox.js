@@ -21,8 +21,11 @@ module.exports = function testBox() {
       {
         title: 'Kellertemperatur',
         _id: randomHex(),
-        sensorType: 'hdc1080'
+        sensorType: 'HDC1080'
       }
-    ]
+    ],
+    serialPort: 'Serial1',
+    ssid: 'MY-HOME-NETWORK',
+    password: 'MY-SUPER-PASSWORD'
   };
 };
