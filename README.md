@@ -13,8 +13,9 @@ On each commit, [Travis CI](https://travis-ci.org/sensebox/node-sketch-templater
 
 To create a new version, use `npm version`.
 1. Document your changes in [`CHANGELOG.md`](CHANGELOG.md). Make sure there are no uncommited changes in the worktree.
-1. Run `npm version [ major | minor | patch ] -m "[v%s] Your commit message"`
-1. `git push origin master`
+1. Run `npm version -m "[v%s] Your commit message"`
+1. Type in the new version (to create a `beta` release include the word `beta` in the new version)
+1. `git push --tags origin master`
 
 ## Usage
 
