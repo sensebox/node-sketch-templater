@@ -7,6 +7,16 @@
 - use new `<Ethernet.h>` library in V2 ethernet sketches
 - replaced all `Serial.print() and Serial.println()` with DEBUG statements
 
+## v1.4.0-beta.4
+- Fix #13 in all V2 sketches
+- use new `<Ethernet.h>` library in V2 ethernet sketches
+- replaced all `Serial.print() and Serial.println()` with DEBUG statements
+
+## v1.4.0-beta.4
+- Fix #13 in all V2 sketches
+- use new `<Ethernet.h>` library in V2 ethernet sketches
+- replaced all `Serial.print() and Serial.println()` with DEBUG statements
+
 ## v1.4.0-beta.3
 
 ## v1.4.0-beta
