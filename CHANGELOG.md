@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.4.0
 - Fix #13 in all V2 sketches
 - use new `<Ethernet.h>` library in V2 ethernet sketches
 - replaced all `Serial.print() and Serial.println()` with DEBUG statements
