@@ -51,7 +51,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 #include <WiFi101.h>
 #include <Wire.h>
 
-WiFiClient client;
+WiFiSSLClient client;
 
 // Sensor Instances
 Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
@@ -112,7 +112,7 @@ void submitValues() {
   strcpy_P(_server, server);
   for (uint8_t timeout = 2; timeout != 0; timeout--) {
     Serial.println(F("connecting..."));
-    connected = client.connect(_server, 80);
+    connected = client.connect(_server, 443);
     if (connected == true) {
       Serial.println(F("Connection successful, transferring..."));
       // construct the HTTP POST request:
