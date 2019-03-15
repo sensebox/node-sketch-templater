@@ -13,8 +13,9 @@ On each commit, [Travis CI](https://travis-ci.org/sensebox/node-sketch-templater
 
 To create a new version, use `npm version`.
 1. Document your changes in [`CHANGELOG.md`](CHANGELOG.md). Make sure there are no uncommited changes in the worktree.
-1. Run `npm version [ major | minor | patch ] -m "[v%s] Your commit message"`
-1. `git push origin master`
+1. Run `npm version -m "[v%s] Your commit message"`
+1. Type in the new version (to create a `beta` release include the word `beta` in the new version)
+1. `git push --tags origin master`
 
 ## Usage
 
@@ -75,6 +76,9 @@ As of writing this, the following replacements can be made:
 | `@@SENSOR_IDS@@` | sensor IDs |
 | `@@NUM_SENSORS@@` | the number of sensors |
 | `@@INGRESS_DOMAIN@@` | the domain of your ingress server |
+| `@@SERIAL_PORT@@` | Serial port for connected SDS011 (only `Feinstaub` models) |
+| `@@SSID@@` | the domain of your ingress server (only `homeV2Wifi` models) |
+| `@@PASSWORD@@` | the domain of your ingress server (only `homeV2Wifi` models) |
 
 Additionally, the following transformers are implemented:
 

@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## v1.4.0-beta.4
+- Fix #13 in all V2 sketches
+- use new `<Ethernet.h>` library in V2 ethernet sketches
+- replaced all `Serial.print() and Serial.println()` with DEBUG statements
+
+## v1.4.0-beta.3
+
+## v1.4.0-beta
+- Add `SSID` and `Password` replacement possibility for `homeV2Wifi` models
+
 ## v1.3.0
 - Add LoRa template for senseBox MCU
 

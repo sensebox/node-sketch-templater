@@ -5,7 +5,7 @@ node_js:
 env:
   global:
     - IDE_VERSION=1.8.5
-    - SENSEBOXCORE_VERSION=1.1.5
+    - SENSEBOXCORE_VERSION=1.2.1
     - ARDUINO_SAMD_VERSION=1.6.18
     - SENSEBOXCORE_URL=https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json
     - SENSEBOX_LIBRARIES_URL=https://github.com/sensebox/resources/raw/master/libraries/senseBox_Libraries.zip
@@ -24,6 +24,14 @@ before_script:
 script:
   - npm run test
   - npm run arduino-test
+  - TAG=latest
+  - echo "Lets check what release tag should be used"
+  - if [[ $TRAVIS_TAG == *"beta"* ]]; then
+      echo "It's a beta release!";
+      echo "set env TAG to beta";
+      TAG=beta;
+    fi
+  - echo $TAG
 before_deploy:
   - rm -rf senseBox_Libraries.zip senseBox_Library.zip arduino-$IDE_VERSION-linux64.tar.xz
 deploy:
@@ -35,3 +43,4 @@ deploy:
   on:
     branch: master
     tags: true
+  tag: $TAG

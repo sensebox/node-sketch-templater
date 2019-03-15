@@ -35,7 +35,7 @@
 #endif
 
 // Connected sensors
-@@SENSOR_IDS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
+@@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
 // Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
 #ifdef SDS011_CONNECTED
@@ -184,7 +184,7 @@ void do_send(osjob_t* j){
       DEBUG(temperature);
       message.addUint16((temperature + 18) * 771);
       delay(2000);
-  
+
       DEBUG(F("Humidity: "));
       humidity = HDC.readHumidity();
       DEBUG(humidity);
@@ -240,7 +240,7 @@ void do_send(osjob_t* j){
         attempt++;
       }
     #endif
-    
+
     // Prepare upstream data transmission at the next possible time.
     LMIC_setTxData2(1, message.getBytes(), message.getLength(), 0);
     DEBUG(F("Packet queued"));
@@ -258,7 +258,7 @@ void setup() {
   senseBoxIO.powerXB1(false); // power off to reset RFM9X
   delay(250);
   senseBoxIO.powerXB1(true);  // power on
-  
+
   // Sensor initialization
   DEBUG(F("Initializing sensors..."));
   #ifdef VEML6070_CONNECTED
@@ -277,10 +277,10 @@ void setup() {
   #ifdef SDS011_CONNECTED
     SDS_UART_PORT.begin(9600);
   #endif
-  
+
   DEBUG(F("Sensor initializing done!"));
   DEBUG(F("Starting loop in 3 seconds."));
-  delay(3000);  
+  delay(3000);
 
   // LMIC init
   os_init();

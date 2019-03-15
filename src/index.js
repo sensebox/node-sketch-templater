@@ -56,7 +56,9 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
 SketchTemplater.prototype._cloneBox = function _cloneBox({
   _id,
   sensors,
-  serialPort
+  serialPort,
+  ssid,
+  password
 }) {
   return Object.assign(
     {},
@@ -65,7 +67,10 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       SENSOR_IDS: sensors,
       INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
       NUM_SENSORS: sensors.length,
-      SERIAL_PORT: serialPort
+      SERIAL_PORT: serialPort,
+      SSID: ssid,
+      PASSWORD: password,
+      SENSORS: sensors
     }
   );
 };
@@ -84,6 +89,7 @@ SketchTemplater.prototype._executeTemplate = function _executeTemplate(
     subTemplateKey
   ) {
     // check if there is a transformer defined
+    // eslint-disable-next-line prefer-const
     let [key, transformer = 'as-is'] = subTemplateKey.split('|');
     let params = [];
 
