@@ -6,7 +6,7 @@
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home WiFi MCU Edition with GPS
-  Model: homeV2Wifi
+  Model: homeV2WifiGPS
   Email: support@sensebox.de
   Code is in the public domain.
   https://github.com/sensebox/node-sketch-templater
@@ -354,18 +354,6 @@ void loop() {
 
     senseBoxIO.statusGreen();
 
-    //-----save latest GPS data-----//
-    lastGPSLocation.latitude = gps.location.lat();
-    lastGPSLocation.longitude = gps.location.lng();
-    lastGPSLocation.altitude = gps.altitude.meters();
-    lastGPSDateTime.year = gps.date.year();
-    lastGPSDateTime.month = gps.date.month();
-    lastGPSDateTime.day = gps.date.day();
-    lastGPSDateTime.hour = gps.time.hour();
-    lastGPSDateTime.minute = gps.time.minute();
-    lastGPSDateTime.second = gps.time.second();
-
-
     //-----Temperature-----//
     //-----Humidity-----//
     #ifdef HDC1080_CONNECTED
@@ -390,6 +378,17 @@ void loop() {
     #ifdef VEML6070_CONNECTED
       addMeasurement(UVINTESENSOR_ID, VEML.getUV());
     #endif
+
+    //-----save latest GPS data-----//
+    lastGPSLocation.latitude = gps.location.lat();
+    lastGPSLocation.longitude = gps.location.lng();
+    lastGPSLocation.altitude = gps.altitude.meters();
+    lastGPSDateTime.year = gps.date.year();
+    lastGPSDateTime.month = gps.date.month();
+    lastGPSDateTime.day = gps.date.day();
+    lastGPSDateTime.hour = gps.time.hour();
+    lastGPSDateTime.minute = gps.time.minute();
+    lastGPSDateTime.second = gps.time.second();
 
     DEBUG(F("Submit values"));
     submitValues();
