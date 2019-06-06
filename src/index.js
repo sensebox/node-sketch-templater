@@ -58,7 +58,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
   sensors,
   serialPort,
   ssid,
-  password
+  password,
+  postingInterval
 }) {
   return Object.assign(
     {},
@@ -70,7 +71,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       SERIAL_PORT: serialPort,
       SSID: ssid,
       PASSWORD: password,
-      SENSORS: sensors
+      SENSORS: sensors,
+      POSTING_INTERVAL: postingInterval
     }
   );
 };

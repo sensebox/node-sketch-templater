@@ -50,7 +50,7 @@ const char *ssid = "@@SSID@@"; // your network SSID (name)
 const char *pass = "@@PASSWORD@@"; // your network password
 
 // Interval of measuring and submitting values in seconds
-const unsigned int postingInterval = 10e3;
+const unsigned int postingInterval = @@POSTING_INTERVAL@@e3;
 
 // address of the server to send to
 const char server[] PROGMEM = "@@INGRESS_DOMAIN@@";
