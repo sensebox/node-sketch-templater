@@ -1,4 +1,4 @@
-{ "model" : "homeV2WifiFeinstaub", "board": "senseBox:samd:sb" }
+{ "model" : "homeV2WifiFeinstaubDisplay", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
   Version: wifiv2_0.2
