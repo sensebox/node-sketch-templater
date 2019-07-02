@@ -1,3 +1,4 @@
+{ "model" : "homeV2WifiDisplay", "board": "senseBox:samd:sb" }
 /*
   senseBox - Citizen Sensing Platform
   Version: mcu_1.0.0
