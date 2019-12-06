@@ -1,8 +1,8 @@
 { "model" : "homeV2WifiFeinstaub", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
-  Version: wifiv2_0.2
-  Date: 2018-05-17
+  Version: wifiv2_0.3
+  Date: 2019-12-06
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home WiFi MCU Edition with dust particle upgrade
@@ -20,6 +20,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
+#include <Adafruit_BME680.h>
 #include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
 #include <SDS011-select-serial.h>
@@ -88,6 +89,16 @@ WiFiSSLClient client;
 #endif
 #ifdef SDS011_CONNECTED
   SDS011 SDS(SDS_UART_PORT);
+#endif
+#ifdef SMT50_CONNECTED
+  #define SOILTEMPPIN 1
+  #define SOILMOISPIN 2
+#endif
+#ifdef SOUNDMETER_CONNECTED
+  #define SOUNDMETERPIN 3
+#endif
+#ifdef BME680_CONNECTED
+  Adafruit_BME680 BME;
 #endif
 
 typedef struct measurement {
@@ -228,7 +239,11 @@ void checkI2CSensors() {
           DEBUG("HDC1080 found.");
           break;
         case 0x76:
+        #ifdef BMP280_CONNECTED
           DEBUG("BMP280 found.");
+        #else
+          DEBUG("BME680 found.")
+        #endif
           break;
       }
     }
@@ -309,6 +324,13 @@ void setup() {
   #ifdef TSL45315_CONNECTED
     TSL.begin();
   #endif
+  #ifdef BME680_CONNECTED
+    BME.begin(0x76);
+    BME.setTemperatureOversampling(BME680_OS_8X);
+    BME.setHumidityOversampling(BME680_OS_2X);
+    BME.setPressureOversampling(BME680_OS_4X);
+    BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  #endif
   #ifdef SDS011_CONNECTED
     SDS_UART_PORT.begin(9600);
   #endif
@@ -359,6 +381,37 @@ void loop() {
         break;
       }
       attempt++;
+    }
+  #endif
+
+  //-----Soil Temperature & Moisture-----//
+  #ifdef SMT50_CONNECTED
+    float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
+    float soilTemperature = (voltage - 0.5) * 100;
+    addMeasurement(SOILTEMPSENSOR_ID, soilTemperature);
+    voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
+    float soilMoisture = (voltage * 50) / 3;
+    addMeasurement(SOILMOISSENSOR_ID, soilMoisture);
+  #endif
+
+  //-----dB(A) Sound Level-----//
+  #ifdef SOUNDMETER_CONNECTED
+    float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
+    float decibel = v * 50;
+    addMeasurement(SOUNDSENSOR_ID, decibel);
+  #endif
+
+  //-----BME680-----//
+  #ifdef BME680_CONNECTED
+    BME.setGasHeater(0, 0);
+    if( BME.performReading()) {
+       addMeasurement(TEMPE2SENSOR_ID, BME.temperature-1);
+       addMeasurement(RELLU2SENSOR_ID, BME.humidity);
+       addMeasurement(PRESSUSENSOR_ID, BME.pressure/100);
+    }
+    BME.setGasHeater(320, 150); // 320*C for 150 ms
+    if( BME.performReading()) {
+       addMeasurement(TEMPE2SENSOR_ID, BME.gas_resistance / 1000.0);
     }
   #endif
 

@@ -37,15 +37,38 @@ const boxStub = function(model) {
         _id: '59479ed5a4ad5900112d8df1',
         sensorType: 'VEML6070'
       },
+      { title: 'PM10', _id: '59479ed5a4ad5900112d8df2', sensorType: 'SDS011' },
+      { title: 'PM2.5', _id: '59479ed5a4ad5900112d8df3', sensorType: 'SDS011' },
       {
-        title: 'PM10',
-        _id: '59479ed5a4ad5900112d8df2',
-        sensorType: 'SDS011'
+        title: 'Bodenfeuchte',
+        _id: '59479ed5a4ad5900112d8df4',
+        sensorType: 'SMT50'
       },
       {
-        title: 'PM2.5',
-        _id: '59479ed5a4ad5900112d8df3',
-        sensorType: 'SDS011'
+        title: 'Bodentemperatur',
+        _id: '59479ed5a4ad5900112d8df5',
+        sensorType: 'SMT50'
+      },
+      {
+        title: 'Temperatur',
+        _id: '59479ed5a4ad5900112d8df6',
+        sensorType: 'BME680'
+      },
+      {
+        title: 'Luftfeuchtigkeit',
+        _id: '59479ed5a4ad5900112d8df7',
+        sensorType: 'BME680'
+      },
+      {
+        title: 'Luftdruck',
+        _id: '59479ed5a4ad5900112d8df8',
+        sensorType: 'BME680'
+      },
+      { title: 'VOC', _id: '59479ed5a4ad5900112d8df9', sensorType: 'BME680' },
+      {
+        title: 'Lautstärke',
+        _id: '59479ed5a4ad5900112d8dd0',
+        sensorType: 'SoundLevelMeter'
       }
     ],
     serialPort: 'Serial1',
