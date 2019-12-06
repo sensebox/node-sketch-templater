@@ -364,7 +364,7 @@ void loop() {
   #ifdef SMT50_CONNECTED
     float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
     float soilTemperature = (voltage - 0.5) * 100;
-    addMeasurement(SOILTEMPSENSOR_ID, soilTemperature);
+    addMeasurement(BODENTSENSOR_ID, soilTemperature);
     voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
     float soilMoisture = (voltage * 50) / 3;
     addMeasurement(SOILMOISSENSOR_ID, soilMoisture);
@@ -374,20 +374,20 @@ void loop() {
   #ifdef SOUNDMETER_CONNECTED
     float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
     float decibel = v * 50;
-    addMeasurement(SOUNDSENSOR_ID, decibel);
+    addMeasurement(LAUTSTSENSOR_ID, decibel);
   #endif
 
   //-----BME680-----//
   #ifdef BME680_CONNECTED
     BME.setGasHeater(0, 0);
     if( BME.performReading()) {
-       addMeasurement(TEMPE2SENSOR_ID, BME.temperature-1);
-       addMeasurement(RELLU2SENSOR_ID, BME.humidity);
-       addMeasurement(PRESSUSENSOR_ID, BME.pressure/100);
+       addMeasurement(LUFTTESENSOR_ID, BME.temperature-1);
+       addMeasurement(LUFTFESENSOR_ID, BME.humidity);
+       addMeasurement(ATMLUFSENSOR_ID, BME.pressure/100);
     }
-    BME.setGasHeater(320, 150); // 320*C for 150 ms
+    bme.setGasHeater(320, 150); // 320*C for 150 ms
     if( BME.performReading()) {
-       addMeasurement(TEMPE2SENSOR_ID, BME.gas_resistance / 1000.0);
+       addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
     }
   #endif
 
