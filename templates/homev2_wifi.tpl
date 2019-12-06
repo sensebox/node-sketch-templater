@@ -367,7 +367,7 @@ void loop() {
     addMeasurement(BODENTSENSOR_ID, soilTemperature);
     voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
     float soilMoisture = (voltage * 50) / 3;
-    addMeasurement(SOILMOISSENSOR_ID, soilMoisture);
+    addMeasurement(BODENFSENSOR_ID, soilMoisture);
   #endif
 
   //-----dB(A) Sound Level-----//
@@ -385,7 +385,7 @@ void loop() {
        addMeasurement(LUFTFESENSOR_ID, BME.humidity);
        addMeasurement(ATMLUFSENSOR_ID, BME.pressure/100);
     }
-    bme.setGasHeater(320, 150); // 320*C for 150 ms
+    BME.setGasHeater(320, 150); // 320*C for 150 ms
     if( BME.performReading()) {
        addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
     }
