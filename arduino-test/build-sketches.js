@@ -50,7 +50,7 @@ const boxStub = function(model) {
         sensorType: 'SMT50'
       },
       {
-        title: 'Temperatur',
+        title: 'Lufttemperatur',
         _id: '59479ed5a4ad5900112d8df6',
         sensorType: 'BME680'
       },
@@ -60,7 +60,7 @@ const boxStub = function(model) {
         sensorType: 'BME680'
       },
       {
-        title: 'Luftdruck',
+        title: 'atm. Luftdruck',
         _id: '59479ed5a4ad5900112d8df8',
         sensorType: 'BME680'
       },
