@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## v1.5.0
+
+## v1.5.0
+- Added 3 new sensors for senseBox V2 (`BME680`, `SMT50`, `SoundLevelMeter`)
+
 ## v1.4.0
 - Fix #13 in all V2 sketches
 - use new `<Ethernet.h>` library in V2 ethernet sketches
