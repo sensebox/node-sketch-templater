@@ -1,10 +1,6 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
-
-## v1.5.0
-
-## v1.5.0
 - Added 3 new sensors for senseBox V2 (`BME680`, `SMT50`, `SoundLevelMeter`)
 
 ## v1.4.0
