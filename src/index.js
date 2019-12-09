@@ -57,6 +57,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
   _id,
   sensors,
   serialPort,
+  soilDigitalPort,
+  soundMeterPort,
   ssid,
   password
 }) {
@@ -68,6 +70,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
       NUM_SENSORS: sensors.length,
       SERIAL_PORT: serialPort,
+      SOIL_DIGITAL_PORT: soilDigitalPort,
+      SOUND_METER_PORT: soundMeterPort,
       SSID: ssid,
       PASSWORD: password,
       SENSORS: sensors
@@ -99,14 +103,11 @@ SketchTemplater.prototype._executeTemplate = function _executeTemplate(
 
     if (params) {
       const parameters = params.split(',');
-      box[key] = transformers[transformer](box[key], ...parameters);
 
-      return box[key];
+      return transformers[transformer](box[key], ...parameters);
     } else if (transformers[transformer]) {
-      box[key] = transformers[transformer](box[key]);
+      return transformers[transformer](box[key]);
     }
-
-    return box[key];
   });
 };
 

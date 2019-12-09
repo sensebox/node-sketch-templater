@@ -36,5 +36,21 @@ module.exports = {
     }
 
     return output.join('\r\n');
+  },
+  digitalPortToPortNumber(port, offset = 0) {
+    let portNumber = 0;
+    switch (port) {
+      case 'A':
+        portNumber = 1;
+        break;
+      case 'B':
+        portNumber = 3;
+        break;
+      case 'C':
+        portNumber = 5;
+        break;
+    }
+
+    return Number(portNumber) + Number(offset);
   }
 };
