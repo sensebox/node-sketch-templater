@@ -27,7 +27,6 @@ module.exports = function testBox() {
     serialPort: 'Serial1',
     soilDigitalPort: 'B',
     soundMeterPort: 'C',
-    bme680Phenomenon: 'VOC',
     ssid: 'MY-HOME-NETWORK',
     password: 'MY-SUPER-PASSWORD'
   };
