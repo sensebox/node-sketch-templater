@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.5.1
 - Option to define a digital port a sensor is connected to
 
 ## v1.5.0
