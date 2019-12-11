@@ -94,11 +94,11 @@ IPAddress mySubnet(255, 255, 255, 0);
   SDS011 SDS(SDS_UART_PORT);
 #endif
 #ifdef SMT50_CONNECTED
-  #define SOILTEMPPIN 1
-  #define SOILMOISPIN 2
+  #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
+  #define SOILMOISPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber~1@@
 #endif
 #ifdef SOUNDMETER_CONNECTED
-  #define SOUNDMETERPIN 3
+  #define SOUNDMETERPIN @@SOUND_METER_PORT|digitalPortToPortNumber@@
 #endif
 #ifdef BME680_CONNECTED
   Adafruit_BME680 BME;

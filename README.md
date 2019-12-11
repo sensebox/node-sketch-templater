@@ -87,6 +87,7 @@ Additionally, the following transformers are implemented:
 | `as-is` | Do nothing. |
 | `toDefine` | Transform an array of sensors to multiple `#define` statements. |
 | `toProgmem` | Transform an array of sensors to multiple `const char xxSENSOR_ID[] PROGMEM = "<id>";` statements. |
+| `digitalPortToPortNumber` | Transform a digital port (`A`, `B` or `C`) to a port number. You can add a offset parameter. |
 
 ## Adding Transformers
 
