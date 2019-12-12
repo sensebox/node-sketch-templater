@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.5.1
+- Implemented transformer `digitalPortToPortNumber`
+
 ## v1.5.0
 - Added 3 new sensors for senseBox V2 (`BME680`, `SMT50`, `SoundLevelMeter`)
 
