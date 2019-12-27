@@ -1,8 +1,8 @@
 { "model" : "homeV2Lora", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
-  Version: lorav2.0.0
-  Date: 2018-09-11
+  Version: lorav2.1.0
+  Date: 2019-12-27
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home LoRa MCU Edition
@@ -208,8 +208,8 @@ void do_send(osjob_t* j){
       DEBUG(F("Illuminance: "));
       lux = TSL.readLux();
       DEBUG(lux);
-      message.addUint8(lux % 255);
-      message.addUint16(lux / 255);
+      message.addUint8(lux % 256);
+      message.addUint16(lux / 256);
       delay(2000);
     #endif
 
@@ -218,8 +218,8 @@ void do_send(osjob_t* j){
       DEBUG(F("UV: "));
       uv = VEML.getUV();
       DEBUG(uv);
-      message.addUint8(uv % 255);
-      message.addUint16(uv / 255);
+      message.addUint8(uv % 256);
+      message.addUint16(uv / 256);
       delay(2000);
     #endif
 
