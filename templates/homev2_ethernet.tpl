@@ -240,7 +240,7 @@ void checkI2CSensors() {
         #ifdef BMP280_CONNECTED
           DEBUG("BMP280 found.");
         #else
-          DEBUG("BME680 found.")
+          DEBUG("BME680 found.");
         #endif
           break;
       }
