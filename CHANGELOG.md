@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Fix integration of Sound Level Meter
+- Add missing semicolon
 
 ## v1.5.1
 - Implemented transformer `digitalPortToPortNumber`
