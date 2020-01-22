@@ -87,7 +87,7 @@ WiFiSSLClient client;
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
   #define SOILMOISPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber~1@@
 #endif
-#ifdef SOUNDMETER_CONNECTED
+#ifdef SOUNDLEVELMETER_CONNECTED
   #define SOUNDMETERPIN @@SOUND_METER_PORT|digitalPortToPortNumber@@
 #endif
 #ifdef BME680_CONNECTED
@@ -235,7 +235,7 @@ void checkI2CSensors() {
         #ifdef BMP280_CONNECTED
           DEBUG("BMP280 found.");
         #else
-          DEBUG("BME680 found.")
+          DEBUG("BME680 found.");
         #endif
           break;
       }
@@ -371,7 +371,7 @@ void loop() {
   #endif
 
   //-----dB(A) Sound Level-----//
-  #ifdef SOUNDMETER_CONNECTED
+  #ifdef SOUNDLEVELMETER_CONNECTED
     float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
     float decibel = v * 50;
     addMeasurement(LAUTSTSENSOR_ID, decibel);
