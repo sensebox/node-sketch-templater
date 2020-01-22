@@ -94,7 +94,7 @@ WiFiSSLClient client;
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
   #define SOILMOISPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber~1@@
 #endif
-#ifdef SOUNDMETER_CONNECTED
+#ifdef SOUNDLEVELMETER_CONNECTED
   #define SOUNDMETERPIN @@SOUND_METER_PORT|digitalPortToPortNumber@@
 #endif
 #ifdef BME680_CONNECTED
@@ -395,7 +395,7 @@ void loop() {
   #endif
 
   //-----dB(A) Sound Level-----//
-  #ifdef SOUNDMETER_CONNECTED
+  #ifdef SOUNDLEVELMETER_CONNECTED
     float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
     float decibel = v * 50;
     addMeasurement(LAUTSTSENSOR_ID, decibel);
@@ -409,6 +409,7 @@ void loop() {
        addMeasurement(LUFTFESENSOR_ID, BME.humidity);
        addMeasurement(ATMLUFSENSOR_ID, BME.pressure/100);
     }
+    delay(1000);
     BME.setGasHeater(320, 150); // 320*C for 150 ms
     if( BME.performReading()) {
        addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
