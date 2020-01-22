@@ -409,7 +409,6 @@ void loop() {
        addMeasurement(LUFTFESENSOR_ID, BME.humidity);
        addMeasurement(ATMLUFSENSOR_ID, BME.pressure/100);
     }
-    delay(1000);
     BME.setGasHeater(320, 150); // 320*C for 150 ms
     if( BME.performReading()) {
        addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
