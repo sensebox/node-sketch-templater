@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.5.2
 - Fix integration of Sound Level Meter
 - Add missing semicolon
 
