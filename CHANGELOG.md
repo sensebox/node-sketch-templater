@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.5.4
+
 ## v1.5.3
 - Add SMT50, Sound Level Meter and BME680 to LoRa sketch
 
