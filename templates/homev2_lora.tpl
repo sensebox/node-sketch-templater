@@ -20,6 +20,7 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
+#include <Adafruit_BME680.h>
 #include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
 #include <SDS011-select-serial.h>
@@ -64,6 +65,16 @@
   SDS011 SDS(SDS_UART_PORT);
   float pm10 = 0;
   float pm25 = 0;
+#endif
+#ifdef SMT50_CONNECTED
+  #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
+  #define SOILMOISPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber~1@@
+#endif
+#ifdef SOUNDLEVELMETER_CONNECTED
+  #define SOUNDMETERPIN @@SOUND_METER_PORT|digitalPortToPortNumber@@
+#endif
+#ifdef BME680_CONNECTED
+  Adafruit_BME680 BME;
 #endif
 
 // This EUI must be in little-endian format, so least-significant-byte (lsb)
@@ -241,6 +252,39 @@ void do_send(osjob_t* j){
       }
     #endif
 
+    //-----Soil Temperature & Moisture-----//
+    #ifdef SMT50_CONNECTED
+      float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
+      float soilTemperature = (voltage - 0.5) * 100;
+      message.addUint16((soilTemperature + 18) * 771);
+      voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
+      float soilMoisture = (voltage * 50) / 3;
+      message.addHumidity(soilMoisture);
+    #endif
+
+    //-----dB(A) Sound Level-----//
+    #ifdef SOUNDLEVELMETER_CONNECTED
+      float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
+      float decibel = v * 50;
+      message.addUint16(decibel * 10);
+    #endif
+
+    //-----BME680-----//
+    #ifdef BME680_CONNECTED
+      BME.setGasHeater(0, 0);
+      if( BME.performReading()) {
+        message.addUint16((BME.temperature-1 + 18) * 771);
+        message.addHumidity(BME.humidity);
+        message.addUint16((BME.pressure/100 - 300) * 81.9187);
+      }
+      BME.setGasHeater(320, 150); // 320*C for 150 ms
+      if( BME.performReading()) {
+        uint16_t gasResistance = BME.gas_resistance / 1000.0;
+        message.addUint8(gasResistance % 255);
+        message.addUint16(gasResistance / 255);
+      }
+    #endif
+
     // Prepare upstream data transmission at the next possible time.
     LMIC_setTxData2(1, message.getBytes(), message.getLength(), 0);
     DEBUG(F("Packet queued"));
@@ -276,6 +320,13 @@ void setup() {
   #endif
   #ifdef SDS011_CONNECTED
     SDS_UART_PORT.begin(9600);
+  #endif
+  #ifdef BME680_CONNECTED
+    BME.begin(0x76);
+    BME.setTemperatureOversampling(BME680_OS_8X);
+    BME.setHumidityOversampling(BME680_OS_2X);
+    BME.setPressureOversampling(BME680_OS_4X);
+    BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
   #endif
 
   DEBUG(F("Sensor initializing done!"));
