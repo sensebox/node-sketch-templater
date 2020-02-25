@@ -277,6 +277,7 @@ void do_send(osjob_t* j){
         message.addHumidity(BME.humidity);
         message.addUint16((BME.pressure/100 - 300) * 81.9187);
       }
+      delay(100);
       BME.setGasHeater(320, 150); // 320*C for 150 ms
       if( BME.performReading()) {
         uint16_t gasResistance = BME.gas_resistance / 1000.0;
