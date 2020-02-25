@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.5.5
+- Added delay to BME gas reading in lora sketch
+
 ## v1.5.4
 
 ## v1.5.3
