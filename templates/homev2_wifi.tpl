@@ -148,7 +148,7 @@ void submitValues() {
   char _server[strlen_P(server)];
   strcpy_P(_server, server);
   for (uint8_t timeout = 2; timeout != 0; timeout--) {
-    Serial.println(F("connecting..."));
+    DEBUG(F("connecting..."));
     connected = client.connect(_server, 443);
     if (connected == true) {
       DEBUG(F("Connection successful, transferring..."));
@@ -320,6 +320,7 @@ void setup() {
     TSL.begin();
   #endif
   #ifdef BME680_CONNECTED
+    Wire.begin();
     iaqSensor.begin(BME680_I2C_ADDR_PRIMARY, Wire);
     checkIaqSensorStatus();
     bsec_virtual_sensor_t sensorList[10] = {
@@ -423,24 +424,24 @@ void checkIaqSensorStatus(void)
   if (iaqSensor.status != BSEC_OK) {
     if (iaqSensor.status < BSEC_OK) {
       String output = "BSEC error code : " + String(iaqSensor.status);
-      Serial.println(output);
+      DEBUG(output);
       for (;;)
         errLeds(); /* Halt in case of failure */
     } else {
       String output = "BSEC warning code : " + String(iaqSensor.status);
-      Serial.println(output);
+      DEBUG(output);
     }
   }
 
   if (iaqSensor.bme680Status != BME680_OK) {
     if (iaqSensor.bme680Status < BME680_OK) {
       String output = "BME680 error code : " + String(iaqSensor.bme680Status);
-      Serial.println(output);
+      DEBUG(output);
       for (;;)
         errLeds(); /* Halt in case of failure */
     } else {
       String output = "BME680 warning code : " + String(iaqSensor.bme680Status);
-      Serial.println(output);
+      DEBUG(output);
     }
   }
 }

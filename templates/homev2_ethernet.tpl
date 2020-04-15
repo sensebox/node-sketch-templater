@@ -315,6 +315,7 @@ void setup() {
     TSL.begin();
   #endif
   #ifdef BME680_CONNECTED
+    Wire.begin();
     iaqSensor.begin(BME680_I2C_ADDR_PRIMARY, Wire);
     checkIaqSensorStatus();
     bsec_virtual_sensor_t sensorList[10] = {

@@ -322,6 +322,7 @@ void setup() {
     TSL.begin();
   #endif
   #ifdef BME680_CONNECTED
+    Wire.begin();
     iaqSensor.begin(BME680_I2C_ADDR_PRIMARY, Wire);
     checkIaqSensorStatus();
     bsec_virtual_sensor_t sensorList[10] = {
@@ -348,7 +349,7 @@ void setup() {
 }
 
 void loop() {
-  Serial.println(F("Loop"));
+  DEBUG(F("Loop"))
   // capture loop start timestamp
   unsigned long start = millis();
   dataLength = NUM_SENSORS - 1; // excluding linebreak after last measurement
@@ -444,24 +445,24 @@ void checkIaqSensorStatus(void)
   if (iaqSensor.status != BSEC_OK) {
     if (iaqSensor.status < BSEC_OK) {
       String output = "BSEC error code : " + String(iaqSensor.status);
-      Serial.println(output);
+      DEBUG(output);
       for (;;)
         errLeds(); /* Halt in case of failure */
     } else {
       String output = "BSEC warning code : " + String(iaqSensor.status);
-      Serial.println(output);
+      DEBUG(output);
     }
   }
 
   if (iaqSensor.bme680Status != BME680_OK) {
     if (iaqSensor.bme680Status < BME680_OK) {
       String output = "BME680 error code : " + String(iaqSensor.bme680Status);
-      Serial.println(output);
+      DEBUG(output);
       for (;;)
         errLeds(); /* Halt in case of failure */
     } else {
       String output = "BME680 warning code : " + String(iaqSensor.bme680Status);
-      Serial.println(output);
+      DEBUG(output);
     }
   }
 }
