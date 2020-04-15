@@ -20,9 +20,10 @@
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
-#include <Adafruit_BME680.h>
 #include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
+#include "bsec.h"
+
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -91,7 +92,7 @@ WiFiSSLClient client;
   #define SOUNDMETERPIN @@SOUND_METER_PORT|digitalPortToPortNumber@@
 #endif
 #ifdef BME680_CONNECTED
-  Adafruit_BME680 BME;
+  Bsec iaqSensor;
 #endif
 
 typedef struct measurement {
@@ -319,11 +320,22 @@ void setup() {
     TSL.begin();
   #endif
   #ifdef BME680_CONNECTED
-    BME.begin(0x76);
-    BME.setTemperatureOversampling(BME680_OS_8X);
-    BME.setHumidityOversampling(BME680_OS_2X);
-    BME.setPressureOversampling(BME680_OS_4X);
-    BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
+    iaqSensor.begin(BME680_I2C_ADDR_PRIMARY, Wire);
+    checkIaqSensorStatus();
+    bsec_virtual_sensor_t sensorList[10] = {
+      BSEC_OUTPUT_RAW_TEMPERATURE,
+      BSEC_OUTPUT_RAW_PRESSURE,
+      BSEC_OUTPUT_RAW_HUMIDITY,
+      BSEC_OUTPUT_RAW_GAS,
+      BSEC_OUTPUT_IAQ,
+      BSEC_OUTPUT_STATIC_IAQ,
+      BSEC_OUTPUT_CO2_EQUIVALENT,
+      BSEC_OUTPUT_BREATH_VOC_EQUIVALENT,
+      BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_TEMPERATURE,
+      BSEC_OUTPUT_SENSOR_HEAT_COMPENSATED_HUMIDITY,
+    };
+    iaqSensor.updateSubscription(sensorList, 10, BSEC_SAMPLE_RATE_LP);
+    checkIaqSensorStatus();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -379,15 +391,16 @@ void loop() {
 
   //-----BME680-----//
   #ifdef BME680_CONNECTED
-    BME.setGasHeater(0, 0);
-    if( BME.performReading()) {
-       addMeasurement(LUFTTESENSOR_ID, BME.temperature-1);
-       addMeasurement(LUFTFESENSOR_ID, BME.humidity);
-       addMeasurement(ATMLUFSENSOR_ID, BME.pressure/100);
-    }
-    BME.setGasHeater(320, 150); // 320*C for 150 ms
-    if( BME.performReading()) {
-       addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
+    if (iaqSensor.run()) { // If new data is available
+      addMeasurement(LUFTTESENSOR_ID, iaqSensor.temperature);
+      addMeasurement(LUFTFESENSOR_ID, iaqSensor.humidity);
+      addMeasurement(ATMLUFSENSOR_ID, iaqSensor.pressure / 100);
+      addMeasurement(INNENRSENSOR_ID, iaqSensor.iaq);
+      addMeasurement(CO2QUISENSOR_ID, iaqSensor.co2Equivalent);
+      addMeasurement(ATEMLUSENSOR_ID, iaqSensor.breathVocEquivalent);
+      addMeasurement(KALIBRSENSOR_ID, iaqSensor.iaqAccuracy);
+    } else {
+      checkIaqSensorStatus();
     }
   #endif
 
@@ -402,3 +415,42 @@ void loop() {
       return;
   }
 }
+
+#ifdef BME680_CONNECTED
+// Helper function definitions
+void checkIaqSensorStatus(void)
+{
+  if (iaqSensor.status != BSEC_OK) {
+    if (iaqSensor.status < BSEC_OK) {
+      String output = "BSEC error code : " + String(iaqSensor.status);
+      Serial.println(output);
+      for (;;)
+        errLeds(); /* Halt in case of failure */
+    } else {
+      String output = "BSEC warning code : " + String(iaqSensor.status);
+      Serial.println(output);
+    }
+  }
+
+  if (iaqSensor.bme680Status != BME680_OK) {
+    if (iaqSensor.bme680Status < BME680_OK) {
+      String output = "BME680 error code : " + String(iaqSensor.bme680Status);
+      Serial.println(output);
+      for (;;)
+        errLeds(); /* Halt in case of failure */
+    } else {
+      String output = "BME680 warning code : " + String(iaqSensor.bme680Status);
+      Serial.println(output);
+    }
+  }
+}
+
+void errLeds(void)
+{
+  pinMode(LED_BUILTIN, OUTPUT);
+  digitalWrite(LED_BUILTIN, HIGH);
+  delay(100);
+  digitalWrite(LED_BUILTIN, LOW);
+  delay(100);
+}
+#endif

@@ -64,10 +64,29 @@ const boxStub = function(model) {
         _id: '59479ed5a4ad5900112d8df8',
         sensorType: 'BME680'
       },
-      { title: 'VOC', _id: '59479ed5a4ad5900112d8df9', sensorType: 'BME680' },
+      {
+        title: 'Atemluft VOC Äquivalent',
+        _id: '59479ed5a4ad5900112d8df9',
+        sensorType: 'BME680'
+      },
+      {
+        title: 'CO2 Äquivalent',
+        _id: '59479ed5a4ad5900112d8dd0',
+        sensorType: 'BME680'
+      },
+      {
+        title: 'Innenraumluftqualität (IAQ)',
+        _id: '59479ed5a4ad5900112d8dd1',
+        sensorType: 'BME680'
+      },
+      {
+        title: 'Kalibrierungswert',
+        _id: '59479ed5a4ad5900112d8dd2',
+        sensorType: 'BME680'
+      },
       {
         title: 'Lautstärke',
-        _id: '59479ed5a4ad5900112d8dd0',
+        _id: '59479ed5a4ad5900112d8dd3',
         sensorType: 'SoundLevelMeter'
       }
     ],
