@@ -2,12 +2,6 @@
 
 ## Unreleased
 
-## v1.6.1
-- Add Wire.begin() to BME680 setup and replace Serial.println with DEBUG
-
-## v1.6.0
-- Use bsec library for BME680
-
 ## v1.5.5
 - Added delay to BME gas reading in lora sketch
 
