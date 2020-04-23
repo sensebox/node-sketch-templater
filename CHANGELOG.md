@@ -1,8 +1,6 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
-
-## v1.6.0
 - Use bsec library for BME680
 
 ## v1.5.5
