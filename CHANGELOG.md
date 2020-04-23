@@ -1,8 +1,6 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
-
-## v1.6.1
 - Add Wire.begin() to BME680 setup and replace Serial.println with DEBUG
 
 ## v1.6.0
