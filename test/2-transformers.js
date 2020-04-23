@@ -2,7 +2,7 @@
 
 /* global describe it */
 const expect = require('chai').expect,
-  testBox = require('./test-data/testBox'),
+  testBox = require('./test-data/testBox_newSensors'),
   transformers = require('../src/transformers');
 
 describe('Transformers', function() {
@@ -60,5 +60,24 @@ describe('Transformers', function() {
       expect(result).to.include(title);
       expect(result).to.include(_id);
     }
+  });
+
+  it('transformTTNID should transform a strign to a C compatible hex array', function() {
+    const { devEui, appEui, appKey } = testBox();
+
+    const devEuiTransformed = transformers.transformTTNID(devEui, true);
+    const appEuiTransformed = transformers.transformTTNID(appEui, true);
+    const appKeyTransformed = transformers.transformTTNID(appKey);
+
+    expect(devEuiTransformed).to.include(
+      '{ 0xDF, 0x99, 0xB9, 0x67, 0xD0, 0x31, 0xDD, 0x00 }'
+    );
+    expect(appEuiTransformed).to.include(
+      '{ 0xC8, 0xE0, 0x02, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 }'
+    );
+    expect(appKeyTransformed).to.include(
+      '{ 0xAD, 0xF1, 0x1B, 0x14, 0xC2, 0x74, 0x7C, 0x1D, 0xB5, 0xF7, 0x90, 0xD6, 0x92, 0x1E, 0xE7, 0xE5 }'
+    );
+    expect(transformers.transformTTNID('iammalformed')).to.include('{ }');
   });
 });

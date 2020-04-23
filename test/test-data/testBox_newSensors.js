@@ -28,6 +28,9 @@ module.exports = function testBox() {
     soilDigitalPort: 'B',
     soundMeterPort: 'C',
     ssid: 'MY-HOME-NETWORK',
-    password: 'MY-SUPER-PASSWORD'
+    password: 'MY-SUPER-PASSWORD',
+    devEui: '00DD31D067B999DF',
+    appEui: '70B3D57ED002E0C8',
+    appKey: 'ADF11B14C2747C1DB5F790D6921EE7E5'
   };
 };
