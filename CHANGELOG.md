@@ -1,7 +1,6 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
-- Use bsec library for BME680
 
 ## v1.5.5
 - Added delay to BME gas reading in lora sketch
