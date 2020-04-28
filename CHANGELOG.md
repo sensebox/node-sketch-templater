@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.7.1-beta
+- Rename Parameters
+
 ## v1.7.0-beta
 - Add TTN Transformer to insert and transform keys
 
