@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.7.0-beta
 - Add TTN Transformer to insert and transform keys
 
 ## v1.5.5
