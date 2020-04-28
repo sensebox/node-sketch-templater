@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Add TTN Transformer to insert and transform keys
 
 ## v1.5.5
 - Added delay to BME gas reading in lora sketch
