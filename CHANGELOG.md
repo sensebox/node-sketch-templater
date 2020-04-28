@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.7.0-beta2
+
 ## v1.7.1-beta
 - Rename Parameters
 
