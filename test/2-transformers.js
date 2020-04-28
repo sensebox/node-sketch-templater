@@ -63,16 +63,16 @@ describe('Transformers', function() {
   });
 
   it('transformTTNID should transform a strign to a C compatible hex array', function() {
-    const { devEui, appEui, appKey } = testBox();
+    const { devEUI, appEUI, appKey } = testBox();
 
-    const devEuiTransformed = transformers.transformTTNID(devEui, true);
-    const appEuiTransformed = transformers.transformTTNID(appEui, true);
+    const devEUITransformed = transformers.transformTTNID(devEUI, true);
+    const appEUITransformed = transformers.transformTTNID(appEUI, true);
     const appKeyTransformed = transformers.transformTTNID(appKey);
 
-    expect(devEuiTransformed).to.include(
+    expect(devEUITransformed).to.include(
       '{ 0xDF, 0x99, 0xB9, 0x67, 0xD0, 0x31, 0xDD, 0x00 }'
     );
-    expect(appEuiTransformed).to.include(
+    expect(appEUITransformed).to.include(
       '{ 0xC8, 0xE0, 0x02, 0xD0, 0x7E, 0xD5, 0xB3, 0x70 }'
     );
     expect(appKeyTransformed).to.include(

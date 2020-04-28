@@ -61,8 +61,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
   soundMeterPort,
   ssid,
   password,
-  devEui,
-  appEui,
+  devEUI,
+  appEUI,
   appKey
 }) {
   return Object.assign(
@@ -78,8 +78,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       SSID: ssid,
       PASSWORD: password,
       SENSORS: sensors,
-      DEV_EUI: devEui,
-      APP_EUI: appEui,
+      DEV_EUI: devEUI,
+      APP_EUI: appEUI,
       APP_KEY: appKey
     }
   );
