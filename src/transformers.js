@@ -52,5 +52,19 @@ module.exports = {
     }
 
     return Number(portNumber) + Number(offset);
+  },
+  transformTTNID(eui, lsb = false) {
+    if (eui === undefined || (eui.length !== 16 && eui.length !== 32)) {
+      return '{ }';
+    }
+
+    // split eui into chunks of two
+    let chunks = eui.match(/.{1,2}/g);
+
+    if (lsb) {
+      chunks = chunks.reverse();
+    }
+
+    return `{${chunks.map(c => ` 0x${c}`)} }`;
   }
 };

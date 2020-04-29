@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+## v1.7.0-beta2
+
+## v1.7.1-beta
+- Rename Parameters
+
+## v1.7.0-beta
+- Add TTN Transformer to insert and transform keys
+
 ## v1.5.5
 - Added delay to BME gas reading in lora sketch
 

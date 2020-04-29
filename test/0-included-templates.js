@@ -49,13 +49,16 @@ describe('Included templates', function() {
   });
 
   it('should execute lora model and make all substitutions', function() {
-    const box = Object.assign({ model: 'homeV2Lora' }, testBox());
+    const box = Object.assign({ model: 'homeV2Lora' }, testBoxNewSensors());
 
     const sketch = mySketchTemplater.generateSketch(box);
 
     for (const { title, sensorType } of box.sensors) {
       expect(sketch).to.include(title);
       expect(sketch).to.include(`${sensorType.toUpperCase()}_CONNECTED`);
+      expect(sketch).to.include(
+        '{ 0xAD, 0xF1, 0x1B, 0x14, 0xC2, 0x74, 0x7C, 0x1D, 0xB5, 0xF7, 0x90, 0xD6, 0x92, 0x1E, 0xE7, 0xE5 }'
+      );
     }
   });
 
@@ -105,8 +108,6 @@ describe('Included templates', function() {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
-
-    console.log(sketch);
 
     expect(sketch).to.include(`SOILTEMPPIN 3`);
     expect(sketch).to.include(`SOILMOISPIN 4`);
