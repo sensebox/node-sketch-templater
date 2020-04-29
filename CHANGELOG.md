@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.7.0
 - Release new version
 
 ## v1.7.0-beta2
