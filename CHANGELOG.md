@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.8.0
+- Add windspeed sensor to templates
+
 ## v1.7.0
 - Release new version
 

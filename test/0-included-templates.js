@@ -104,7 +104,7 @@ describe('Included templates', function() {
     ).to.equal(b64Sketch);
   });
 
-  it('should return a sketch with correct digital port for soil moisture sensor and sound meter', function() {
+  it('should return a sketch with correct digital ports for soil moisture sensor, sound meter and wind sensor', function() {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
@@ -112,5 +112,6 @@ describe('Included templates', function() {
     expect(sketch).to.include(`SOILTEMPPIN 3`);
     expect(sketch).to.include(`SOILMOISPIN 4`);
     expect(sketch).to.include(`SOUNDMETERPIN 5`);
+    expect(sketch).to.include(`WINDSPEEDPIN 1`);
   });
 });

@@ -22,9 +22,15 @@ module.exports = function testBox() {
         title: 'Kellertemperatur',
         _id: randomHex(),
         sensorType: 'HDC1080'
+      },
+      {
+        title: 'Windgeschwindigkeit',
+        _id: randomHex(),
+        sensorType: 'WINDSENSOR'
       }
     ],
     serialPort: 'Serial1',
+    windSpeedPort: 'A',
     soilDigitalPort: 'B',
     soundMeterPort: 'C',
     ssid: 'MY-HOME-NETWORK',
