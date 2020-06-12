@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Add windspeed sensor to templates
 
 ## v1.7.0
 - Release new version
