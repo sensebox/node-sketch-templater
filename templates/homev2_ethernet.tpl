@@ -96,7 +96,7 @@ IPAddress mySubnet(255, 255, 255, 0);
 #ifdef BME680_CONNECTED
   Adafruit_BME680 BME;
 #endif
-#ifdef WINDSENSOR_CONNECTED
+#ifdef WINDSPEED_CONNECTED
   #define WINDSPEEDPIN @@WIND_DIGITAL_PORT|digitalPortToPortNumber@@
 #endif
 
@@ -391,7 +391,7 @@ void loop() {
   #endif
 
   //-----Wind speed-----//
-  #ifdef WINDSENSOR_CONNECTED
+  #ifdef WINDSPEED_CONNECTED
     float voltage = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
     float windspeed = 0.0;
     if (voltage >= 0.018){
