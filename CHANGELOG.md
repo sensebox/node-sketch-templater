@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- Fix duplicate variable voltage
 
 ## v1.8.1
 
