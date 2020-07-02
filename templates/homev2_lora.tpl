@@ -76,7 +76,7 @@
 #ifdef BME680_CONNECTED
   Adafruit_BME680 BME;
 #endif
-#ifdef WINDSENSOR_CONNECTED
+#ifdef WINDSPEED_CONNECTED
   #define WINDSPEEDPIN @@WIND_DIGITAL_PORT|digitalPortToPortNumber@@
 #endif
 
@@ -290,15 +290,15 @@ void do_send(osjob_t* j){
     #endif
 
     //-----Wind speed-----//
-    #ifdef WINDSENSOR_CONNECTED
-      float voltage = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
+    #ifdef WINDSPEED_CONNECTED
+      float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
       float windspeed = 0.0;
-      if (voltage >= 0.018){
-        float poly1 = pow(voltage, 3);
+      if (voltageWind >= 0.018){
+        float poly1 = pow(voltageWind, 3);
         poly1 = 17.0359801998299 * poly1;
-        float poly2 = pow(voltage, 2);
+        float poly2 = pow(voltageWind, 2);
         poly2 = 47.9908168343362 * poly2;
-        float poly3 = 122.899677524413 * voltage;
+        float poly3 = 122.899677524413 * voltageWind;
         float poly4 = 0.657504127272728;
         windspeed = poly1 - poly2 + poly3 - poly4;
         windspeed = windspeed * 0.2777777777777778; //conversion in m/s
