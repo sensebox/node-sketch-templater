@@ -168,7 +168,7 @@ void submitValues() {
       DEBUG(F("Connection successful, transferring..."));
       // construct the HTTP POST request:
       sprintf_P(buffer,
-                PSTR("POST /boxes/%s/data HTTP/1.1\nHost: %s\nContent-Type: "
+                PSTR("POST /boxes/%s/data HTTP/1.1\nAuthorization: @@ACCESS_TOKEN@@\nHost: %s\nContent-Type: "
                      "text/csv\nConnection: close\nContent-Length: %i\n\n"),
                 SENSEBOX_ID, server, dataLength);
       DEBUG2(buffer);
