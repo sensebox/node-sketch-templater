@@ -114,4 +114,13 @@ describe('Included templates', function() {
     expect(sketch).to.include(`SOUNDMETERPIN 5`);
     expect(sketch).to.include(`WINDSPEEDPIN 1`);
   });
+
+  it('should return a sketch with CO2 sensor', function() {
+    const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
+    // baseline sketch in text format
+    const sketch = mySketchTemplater.generateSketch(box);
+
+    expect(sketch).to.include(`#define SCD30_CONNECTED`);
+    expect(sketch).to.include(`const char CO2SENSOR_ID[] PROGMEM`);
+  });
 });
