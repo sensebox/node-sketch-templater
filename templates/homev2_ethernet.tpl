@@ -23,6 +23,7 @@
 #include <Adafruit_BME680.h>
 #include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
+#include <SparkFun_SCD30_Arduino_Library.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -98,6 +99,9 @@ IPAddress mySubnet(255, 255, 255, 0);
 #endif
 #ifdef WINDSPEED_CONNECTED
   #define WINDSPEEDPIN @@WIND_DIGITAL_PORT|digitalPortToPortNumber@@
+#endif
+#ifdef SCD30_CONNECTED
+  SCD30 SCD;
 #endif
 
 int dataLength;
@@ -246,6 +250,9 @@ void checkI2CSensors() {
           DEBUG("BME680 found.");
         #endif
           break;
+        case 0x61:
+          DEBUG("SCD30 found.");
+          break;
       }
     }
     else if (error == 4)
@@ -322,6 +329,10 @@ void setup() {
     BME.setHumidityOversampling(BME680_OS_2X);
     BME.setPressureOversampling(BME680_OS_4X);
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  #endif
+  #ifdef SCD30_CONNECTED
+    Wire.begin();
+    SCD.begin();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -405,6 +416,11 @@ void loop() {
       windspeed = windspeed * 0.2777777777777778; //conversion in m/s
     }
     addMeasurement(WINDGESENSOR_ID, windspeed);
+  #endif
+
+  //-----CO2-----//
+  #ifdef SCD30_CONNECTED
+    addMeasurement(CO2SENSOR_ID, SCD.getCO2());
   #endif
 
   DEBUG(F("submit values"));

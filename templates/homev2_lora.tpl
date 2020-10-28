@@ -24,6 +24,7 @@
 #include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
 #include <SDS011-select-serial.h>
+#include <SparkFun_SCD30_Arduino_Library.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -78,6 +79,9 @@
 #endif
 #ifdef WINDSPEED_CONNECTED
   #define WINDSPEEDPIN @@WIND_DIGITAL_PORT|digitalPortToPortNumber@@
+#endif
+#ifdef SCD30_CONNECTED
+  SCD30 SCD;
 #endif
 
 // This EUI must be in little-endian format, so least-significant-byte (lsb)
@@ -306,6 +310,11 @@ void do_send(osjob_t* j){
       message.addUint16(windspeed * 10);
     #endif
 
+    //-----CO2-----//
+    #ifdef SCD30_CONNECTED
+      message.addUint16(SCD.getCO2());
+    #endif
+
     // Prepare upstream data transmission at the next possible time.
     LMIC_setTxData2(1, message.getBytes(), message.getLength(), 0);
     DEBUG(F("Packet queued"));
@@ -348,6 +357,10 @@ void setup() {
     BME.setHumidityOversampling(BME680_OS_2X);
     BME.setPressureOversampling(BME680_OS_4X);
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  #endif
+  #ifdef SCD30_CONNECTED
+    Wire.begin();
+    SCD.begin();
   #endif
 
   DEBUG(F("Sensor initializing done!"));
