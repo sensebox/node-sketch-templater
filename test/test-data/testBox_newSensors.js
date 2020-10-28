@@ -29,7 +29,7 @@ module.exports = function testBox() {
         sensorType: 'WINDSPEED'
       },
       {
-        title: 'CO2',
+        title: 'CO₂',
         _id: randomHex(),
         sensorType: 'SCD30'
       }
