@@ -221,7 +221,7 @@ void submitValues() {
 void checkI2CSensors() {
   byte error;
   int nDevices = 0;
-  byte sensorAddr[] = {41, 56, 57, 64, 118};
+  byte sensorAddr[] = {41, 56, 57, 64, 97, 118};
   DEBUG(F("\nScanning..."));
   for (int i = 0; i < sizeof(sensorAddr); i++) {
     Wire.beginTransmission(sensorAddr[i]);
