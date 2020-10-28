@@ -122,4 +122,13 @@ describe('Included templates', function() {
 
     expect(sketch).to.include(`Authorization: 1821b9d5d25c46e6af9b44e68c49ab6ac254c7986007ed73b7e46f50f06b430b`);
   });
+
+  it('should return a sketch with CO2 sensor', function() {
+    const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
+    // baseline sketch in text format
+    const sketch = mySketchTemplater.generateSketch(box);
+
+    expect(sketch).to.include(`#define SCD30_CONNECTED`);
+    expect(sketch).to.include(`const char CO2SENSOR_ID[] PROGMEM`);
+  });
 });
