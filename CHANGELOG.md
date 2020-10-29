@@ -3,6 +3,7 @@
 ## Unreleased
 
 ## v1.8.3
+- Add CO2 Sensor
 
 ## v1.8.3-beta.4
 
