@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## v1.8.3
+- Add CO2 Sensor
+
+## v1.8.3-beta.4
+
+## v1.8.3-beta.3
+
+## v1.8.3-beta.2
+
+## v1.8.3-beta.1
+
 ## v1.8.2
 - Fix duplicate variable voltage
 

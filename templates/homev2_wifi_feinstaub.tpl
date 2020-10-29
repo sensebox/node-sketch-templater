@@ -24,6 +24,7 @@
 #include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
 #include <SDS011-select-serial.h>
+#include <SparkFun_SCD30_Arduino_Library.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -102,6 +103,9 @@ WiFiSSLClient client;
 #endif
 #ifdef WINDSPEED_CONNECTED
   #define WINDSPEEDPIN @@WIND_DIGITAL_PORT|digitalPortToPortNumber@@
+#endif
+#ifdef SCD30_CONNECTED
+  SCD30 SCD;
 #endif
 
 typedef struct measurement {
@@ -223,7 +227,7 @@ void submitValues() {
 void checkI2CSensors() {
   byte error;
   int nDevices = 0;
-  byte sensorAddr[] = {41, 56, 57, 64, 118};
+  byte sensorAddr[] = {41, 56, 57, 64, 97, 118};
   DEBUG("\nScanning...");
   for (int i = 0; i < sizeof(sensorAddr); i++) {
     Wire.beginTransmission(sensorAddr[i]);
@@ -247,6 +251,9 @@ void checkI2CSensors() {
         #else
           DEBUG("BME680 found.");
         #endif
+          break;
+        case 0x61:
+          DEBUG("SCD30 found.");
           break;
       }
     }
@@ -336,6 +343,10 @@ void setup() {
   #endif
   #ifdef SDS011_CONNECTED
     SDS_UART_PORT.begin(9600);
+  #endif
+  #ifdef SCD30_CONNECTED
+    Wire.begin();
+    SCD.begin();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -433,6 +444,11 @@ void loop() {
       windspeed = windspeed * 0.2777777777777778; //conversion in m/s
     }
     addMeasurement(WINDGESENSOR_ID, windspeed);
+  #endif
+
+  //-----CO2-----//
+  #ifdef SCD30_CONNECTED
+    addMeasurement(CO2SENSOR_ID, SCD.getCO2());
   #endif
 
   DEBUG(F("Submit values"));

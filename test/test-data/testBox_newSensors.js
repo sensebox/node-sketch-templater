@@ -27,6 +27,11 @@ module.exports = function testBox() {
         title: 'Windgeschwindigkeit',
         _id: randomHex(),
         sensorType: 'WINDSPEED'
+      },
+      {
+        title: 'CO₂',
+        _id: randomHex(),
+        sensorType: 'SCD30'
       }
     ],
     serialPort: 'Serial1',
