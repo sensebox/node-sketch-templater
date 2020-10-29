@@ -64,7 +64,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
   password,
   devEUI,
   appEUI,
-  appKey
+  appKey,
+  access_token
 }) {
   return Object.assign(
     {},
@@ -82,7 +83,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       SENSORS: sensors,
       DEV_EUI: devEUI,
       APP_EUI: appEUI,
-      APP_KEY: appKey
+      APP_KEY: appKey,
+      ACCESS_TOKEN: access_token
     }
   );
 };

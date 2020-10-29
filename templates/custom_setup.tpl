@@ -64,6 +64,8 @@ void postFloatValue (float measurement, int digits, String sensorId) {
     client.print("POST /boxes/"); client.print(SENSEBOX_ID); client.print("/"); client.print(sensorId); client.println(" HTTP/1.1");
     client.print("Host:");
     client.println(server);
+    client.println("Authorization:");
+    client.println("@@ACCESS_TOKEN@@");
     client.println("Content-Type: application/json");
     client.println("Connection: close");
     client.print("Content-Length: "); client.println(jsonValue.length());

@@ -79,6 +79,7 @@ As of writing this, the following replacements can be made:
 | `@@SERIAL_PORT@@` | Serial port for connected SDS011 (only `Feinstaub` models) |
 | `@@SSID@@` | the domain of your ingress server (only `homeV2Wifi` models) |
 | `@@PASSWORD@@` | the domain of your ingress server (only `homeV2Wifi` models) |
+| `@@ACCESS_TOKEN@@` | the access_token of wifi / ethernet boxes |
 
 Additionally, the following transformers are implemented:
 
