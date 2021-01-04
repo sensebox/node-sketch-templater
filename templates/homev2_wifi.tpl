@@ -526,19 +526,6 @@ void loop() {
 #endif
       break;
     case 2:
-      // SDS
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("PM10&PM25"));
-      display.setTextColor(WHITE, BLACK);
-      display.println();
-      display.setTextSize(1);
-      display.print(F("PM10:"));
-      display.println(TSL.readLux());
-      display.print(F("PM25:"));
-      display.println(VEML.getUV());
-      break;
-    case 3:
       // SMT, SOUND LEVEL , BME
       display.setTextSize(2);
       display.setTextColor(BLACK, WHITE);
@@ -572,7 +559,7 @@ void loop() {
       display.print(F("not connected"));
 #endif
       break;
-    case 4:
+    case 3:
       // WINDSPEED SCD30
       display.setTextSize(2);
       display.setTextColor(BLACK, WHITE);
@@ -597,7 +584,7 @@ void loop() {
     display.display();
     if (elapsed >= displayTime)
     {
-      if (page == 4)
+      if (page == 3)
       {
         page = 0;
       }

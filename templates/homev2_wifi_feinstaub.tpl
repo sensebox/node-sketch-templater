@@ -107,6 +107,10 @@ WiFiSSLClient client;
 #ifdef SCD30_CONNECTED
   SCD30 SCD;
 #endif
+#ifdef DISPLAY128x64_CONNECTED
+#define OLED_RESET 4
+Adafruit_SSD1306 display(OLED_RESET);
+#endif
 
 typedef struct measurement {
   const char *sensorId;
@@ -292,6 +296,27 @@ void setup() {
   senseBoxIO.powerI2C(false);delay(200);
   senseBoxIO.powerI2C(true);
 
+
+#ifdef DISPLAY128x64_CONNECTED
+  DEBUG2(F("enable display..."));
+  delay(2000);
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3D);
+  display.display();
+  delay(100);
+  display.clearDisplay();
+  DEBUG(F("done."));
+  display.setCursor(0, 0);
+  display.setTextSize(2);
+  display.setTextColor(WHITE, BLACK);
+  display.println("senseBox:");
+  display.println("home\n");
+  display.setTextSize(1);
+  display.println("Version Wifi ");
+  display.setTextSize(2);
+  display.display();
+  delay(2000);
+#endif
+
   // Check WiFi Shield status
   if (WiFi.status() == WL_NO_SHIELD) {
     DEBUG(F("WiFi shield not present"));
@@ -355,6 +380,17 @@ void setup() {
 
 void loop() {
   DEBUG(F("Starting new measurement..."));
+    #ifdef DISPLAY128x64_CONNECTED
+    long displayTime = 5000;
+    int page = 0;
+    
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.setTextSize(1);
+    display.setTextColor(WHITE, BLACK);
+    display.println("Uploading new measurement... ");
+    display.display(); 
+  #endif
   // capture loop start timestamp
   unsigned long start = millis();
 
@@ -458,6 +494,145 @@ void loop() {
   for (;;) {
     unsigned long now = millis();
     unsigned long elapsed = now - start;
+
+    #ifdef DISPLAY128x64_CONNECTED
+    display.clearDisplay();
+    display.setCursor(0, 0);
+    display.setTextSize(1);
+    display.setTextColor(WHITE, BLACK);
+    switch (page)
+    {
+    case 0:
+      // HDC & BMP
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("HDC&BMP"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Temp:"));
+#ifdef HDC1080_CONNECTED
+      display.println(HDC.readTemperature());
+#else
+      display.println(F("not connected"));
+#endif
+      display.print(F("Humi:"));
+#ifdef HDC1080_CONNECTED
+      display.println(HDC.readHumidity());
+#else
+      display.println(F("not connected"));
+#endif
+      display.print(F("Pressure:"));
+#ifdef BMP280_CONNECTED
+      display.println(BMP.readPressure() / 100);
+#else
+      display.println(F("not connected"));
+#endif
+      break;
+    case 1:
+      // TSL/VEML
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("TSL&VEML"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Lux:"));
+#ifdef TSL45315_CONNECTED
+      display.println(TSL.readLux());
+#else
+      display.println(F(F("not connected")));
+#endif
+      display.print("UV:");
+#ifdef VEML6070_CONNECTED
+      display.println(VEML.getUV());
+#else
+      display.println(F(F("not connected")));
+#endif
+      break;
+    case 2:
+      // SDS
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("PM10&PM25"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("PM10:"));
+      display.println(pm10);
+      display.print(F("PM25:"));
+      display.println(pm25);
+      break;
+    case 3:
+      // SMT, SOUND LEVEL , BME
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("Soil"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Soil Temp:"));
+#ifdef SMT50_CONNECTED
+      display.println(soilTemperature);
+#else
+      display.println(F("not connected"));
+#endif
+      display.print(F("Soil moist"));
+#ifdef SMT50_CONNECTED
+      display.println(soilMoisture);
+#else
+      display.println(F("not connected"));
+#endif
+      display.print(F("SOUND:"));
+#ifdef SOUNDLEVELMETER_CONNECTED
+      display.println(decibel);
+#else
+      display.println(F("not connected"));
+#endif
+      display.print(F("Gas"));
+
+#ifdef BME680_CONNECTED
+      display.println(gasResistance);
+#else
+      display.print(F("not connected"));
+#endif
+      break;
+    case 4:
+      // WINDSPEED SCD30
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("Wind&SCD30"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Windspeed:"));
+#ifdef WINDSPEED_CONNECTED
+      display.println(windspeed);
+#else
+      display.println(F("not connected"));
+#endif
+      display.print(F("SCD30:"));
+#ifdef SCD30_CONNECTED
+      display.println(SCD.getCO2());
+#else
+      display.println(F("not connected"));
+#endif
+      break;
+    }
+    display.display();
+    if (elapsed >= displayTime)
+    {
+      if (page == 4)
+      {
+        page = 0;
+      }
+      else
+      {
+        page += 1;
+      }
+      displayTime += 5000;
+    }
+#endif
     if (elapsed >= postingInterval)
       return;
   }
