@@ -67,6 +67,8 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
+// Display enabled 
+// Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
 
 // Sensor SENSOR_IDs
