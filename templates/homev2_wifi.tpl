@@ -17,6 +17,8 @@
 #include <SPI.h>
 #include <senseBoxIO.h>
 
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
