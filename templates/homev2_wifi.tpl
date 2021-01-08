@@ -394,8 +394,108 @@ void setup() {
   delay(3000);
 }
 
+
 void loop() {
   DEBUG(F("Starting new measurement..."));
+#ifdef DISPLAY128x64_CONNECTED
+  long displayTime = 5000;
+  int page = 0;
+
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextSize(1);
+  display.setTextColor(WHITE, BLACK);
+  display.println("Uploading new measurement... ");
+  display.display();
+#endif
+  // capture loop start timestamp
+  unsigned long start = millis();
+
+  //-----Temperature-----//
+  //-----Humidity-----//
+#ifdef HDC1080_CONNECTED
+  addMeasurement(TEMPERSENSOR_ID, HDC.readTemperature());
+  delay(200);
+  addMeasurement(RELLUFSENSOR_ID, HDC.readHumidity());
+#endif
+
+  //-----Pressure-----//
+#ifdef BMP280_CONNECTED
+  float pressure;
+  pressure = BMP.readPressure() / 100;
+  addMeasurement(LUFTDRSENSOR_ID, pressure);
+#endif
+
+  //-----Lux-----//
+#ifdef TSL45315_CONNECTED
+  addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
+#endif
+
+  //-----UV intensity-----//
+#ifdef VEML6070_CONNECTED
+  addMeasurement(UVINTESENSOR_ID, VEML.getUV());
+#endif
+
+  //-----Soil Temperature & Moisture-----//
+#ifdef SMT50_CONNECTED
+  float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
+  float soilTemperature = (voltage - 0.5) * 100;
+  addMeasurement(BODENTSENSOR_ID, soilTemperature);
+  voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
+  float soilMoisture = (voltage * 50) / 3;
+  addMeasurement(BODENFSENSOR_ID, soilMoisture);
+#endif
+
+  //-----dB(A) Sound Level-----//
+#ifdef SOUNDLEVELMETER_CONNECTED
+  float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
+  float decibel = v * 50;
+  addMeasurement(LAUTSTSENSOR_ID, decibel);
+#endif
+
+  //-----BME680-----//
+#ifdef BME680_CONNECTED
+  BME.setGasHeater(0, 0);
+  if ( BME.performReading()) {
+    addMeasurement(LUFTTESENSOR_ID, BME.temperature - 1);
+    addMeasurement(LUFTFESENSOR_ID, BME.humidity);
+    addMeasurement(ATMLUFSENSOR_ID, BME.pressure / 100);
+  }
+  BME.setGasHeater(320, 150); // 320*C for 150 ms
+  if ( BME.performReading()) {
+    addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
+  }
+#endif
+
+  //-----Wind speed-----//
+#ifdef WINDSPEED_CONNECTED
+  float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
+  float windspeed = 0.0;
+  if (voltageWind >= 0.018) {
+    float poly1 = pow(voltageWind, 3);
+    poly1 = 17.0359801998299 * poly1;
+    float poly2 = pow(voltageWind, 2);
+    poly2 = 47.9908168343362 * poly2;
+    float poly3 = 122.899677524413 * voltageWind;
+    float poly4 = 0.657504127272728;
+    windspeed = poly1 - poly2 + poly3 - poly4;
+    windspeed = windspeed * 0.2777777777777778; //conversion in m/s
+  }
+  addMeasurement(WINDGESENSOR_ID, windspeed);
+#endif
+
+  //-----CO2-----//
+#ifdef SCD30_CONNECTED
+  addMeasurement(CO2SENSOR_ID, SCD.getCO2());
+#endif
+
+  DEBUG(F("Submit values"));
+  submitValues();
+
+  // schedule next round of measurements
+  for (;;) {
+    unsigned long now = millis();
+    unsigned long elapsed = now - start;
 #ifdef DISPLAY128x64_CONNECTED
     display.clearDisplay();
     display.setCursor(0, 0);
