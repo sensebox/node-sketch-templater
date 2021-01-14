@@ -479,6 +479,7 @@ void loop() {
 
   //-----BME680-----//
   #ifdef BME680_CONNECTED
+    float gasResistance;
     BME.setGasHeater(0, 0);
     if( BME.performReading()) {
        addMeasurement(LUFTTESENSOR_ID, BME.temperature-1);
@@ -487,7 +488,8 @@ void loop() {
     }
     BME.setGasHeater(320, 150); // 320*C for 150 ms
     if( BME.performReading()) {
-       addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
+       gasResistance = BME.gas_resistance / 1000.0
+       addMeasurement(VOCSENSOR_ID, gasResistance);
     }
   #endif
 
