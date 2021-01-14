@@ -568,14 +568,14 @@ void loop() {
 #ifdef TSL45315_CONNECTED
         display.println(TSL.readLux());
 #else
-        display.println(F("not connected")));
+        display.println(F("not connected"));
 #endif
         display.println();
         display.print("UV:");
 #ifdef VEML6070_CONNECTED
         display.println(VEML.getUV());
 #else
-        display.println(F("not connected")));
+        display.println(F("not connected"));
 #endif
     case 2:
       // SDS
