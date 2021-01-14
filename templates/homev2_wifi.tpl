@@ -464,7 +464,7 @@ void loop() {
   }
   BME.setGasHeater(320, 150); // 320*C for 150 ms
   if ( BME.performReading()) {
-           gasResistance = BME.gas_resistance / 1000.0
+      gasResistance = BME.gas_resistance / 1000.0;
        addMeasurement(VOCSENSOR_ID, gasResistance);
   }
 #endif
