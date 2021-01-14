@@ -342,7 +342,7 @@ void do_send(osjob_t* j){
 
 #ifdef DISPLAY128x64_CONNECTED
 void update_display(osjob_t* t) {
-  
+
   display.clearDisplay();
   display.setCursor(0, 0);
   display.setTextSize(1);
@@ -350,144 +350,154 @@ void update_display(osjob_t* t) {
   switch (displayPage)
   {
     case 0:
-      // HDC & BMP
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("HDC&BMP"));
-      display.setTextColor(WHITE, BLACK);
-      display.setTextSize(1);
-      display.print(F("Temp:"));
+      {
+        // HDC & BMP
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("HDC&BMP"));
+        display.setTextColor(WHITE, BLACK);
+        display.setTextSize(1);
+        display.print(F("Temp:"));
 #ifdef HDC1080_CONNECTED
-      display.println(HDC.readTemperature());
+        display.println(HDC.readTemperature());
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-      display.println();
-      display.print(F("Humi:"));
+        display.println();
+        display.print(F("Humi:"));
 #ifdef HDC1080_CONNECTED
-      display.println(HDC.readHumidity());
+        display.println(HDC.readHumidity());
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-      display.println();
-      display.print(F("Press.:"));
+        display.println();
+        display.print(F("Press.:"));
 #ifdef BMP280_CONNECTED
-      display.println(BMP.readPressure() / 100);
+        display.println(BMP.readPressure() / 100);
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
+      }
       break;
     case 1:
-      // TSL/VEML
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("TSL&VEML"));
-      display.setTextColor(WHITE, BLACK);
-      display.println();
-      display.setTextSize(1);
-      display.print(F("Lux:"));
+      {
+        // TSL/VEML
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("TSL&VEML"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("Lux:"));
 #ifdef TSL45315_CONNECTED
-      display.println(TSL.readLux());
+        display.println(TSL.readLux());
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-      display.println();
-      display.print("UV:");
+        display.println();
+        display.print("UV:");
 #ifdef VEML6070_CONNECTED
-      display.println(VEML.getUV());
+        display.println(VEML.getUV());
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
+      }
       break;
     case 2:
-      // SMT, SOUND LEVEL , BME
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("Soil"));
-      display.setTextColor(WHITE, BLACK);
-      display.println();
-      display.setTextSize(1);
-      display.print(F("Temp:"));
+      {
+        // SMT, SOUND LEVEL , BME
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("Soil"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("Temp:"));
 #ifdef SMT50_CONNECTED
-      float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
-      float soilTemperature = (voltage - 0.5) * 100;
-      display.println(soilTemperature);
+        float volt = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
+        float soilTemperature = (volt - 0.5) * 100;
+        display.println(soilTemperature);
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-      display.println();
-      display.print(F("Moist:"));
+        display.println();
+        display.print(F("Moist:"));
 #ifdef SMT50_CONNECTED
-      float voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
-      float soilMoisture = (voltage * 50) / 3;
-      display.println(soilMoisture);
+        volt = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
+        float soilMoisture = (volt * 50) / 3;
+        display.println(soilMoisture);
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-
+      }
       break;
     case 3:
-      // WINDSPEED SCD30
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("Wind&SCD30"));
-      display.setTextColor(WHITE, BLACK);
-      display.println();
-      display.setTextSize(1);
-      display.print(F("Speed:"));
+      {
+        // WINDSPEED SCD30
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("Wind&SCD30"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("Speed:"));
 #ifdef WINDSPEED_CONNECTED
-      float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
-      float windspeed = 0.0;
-      if (voltageWind >= 0.018){
-        float poly1 = pow(voltageWind, 3);
-        poly1 = 17.0359801998299 * poly1;
-        float poly2 = pow(voltageWind, 2);
-        poly2 = 47.9908168343362 * poly2;
-        float poly3 = 122.899677524413 * voltageWind;
-        float poly4 = 0.657504127272728;
-        windspeed = poly1 - poly2 + poly3 - poly4;
-        windspeed = windspeed * 0.2777777777777778; //conversion in m/s
-      }
-      display.println(windspeed);
+        float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
+        float windspeed = 0.0;
+        if (voltageWind >= 0.018) {
+          float poly1 = pow(voltageWind, 3);
+          poly1 = 17.0359801998299 * poly1;
+          float poly2 = pow(voltageWind, 2);
+          poly2 = 47.9908168343362 * poly2;
+          float poly3 = 122.899677524413 * voltageWind;
+          float poly4 = 0.657504127272728;
+          windspeed = poly1 - poly2 + poly3 - poly4;
+          windspeed = windspeed * 0.2777777777777778; //conversion in m/s
+        }
+        display.println(windspeed);
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-      display.println();
-      display.print(F("SCD30:"));
+        display.println();
+        display.print(F("SCD30:"));
 #ifdef SCD30_CONNECTED
-      display.println(SCD.getCO2());
+        display.println(SCD.getCO2());
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
+      }
       break;
     case 4:
+      {
         // SMT, SOUND LEVEL , BME
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("Sound&BME"));
-      display.setTextColor(WHITE, BLACK);
-      display.println();
-      display.setTextSize(1);
-      display.print(F("Sound:"));
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("Sound&BME"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("Sound:"));
 #ifdef SOUNDLEVELMETER_CONNECTED
-      float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
-      float decibel = v * 50;
-      display.println(decibel);
+        float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
+        float decibel = v * 50;
+        display.println(decibel);
 #else
-      display.println(F("not connected"));
+        display.println(F("not connected"));
 #endif
-      display.println();
-      display.print(F("Gas:"));
+        display.println();
+        display.print(F("Gas:"));
 #ifdef BME680_CONNECTED
-      delay(100);
-      BME.setGasHeater(320, 150); // 320*C for 150 ms
-      if( BME.performReading()) {
-        uint16_t gasResistance = BME.gas_resistance / 1000.0;
-      }
-      display.println(gasResistance);
+        uint16_t gasResistance = 0;
+        delay(100);
+        BME.setGasHeater(320, 150); // 320*C for 150 ms
+        if ( BME.performReading()) {
+          uint16_t gasResistance = BME.gas_resistance / 1000.0;
+        }
+        display.println(gasResistance);
 #else
-      display.print(F("not connected"));
+        display.print(F("not connected"));
 #endif
+      }
       break;
   }
   display.display();
