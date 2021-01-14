@@ -17,6 +17,8 @@
 #include <SPI.h>
 #include <senseBoxIO.h>
 
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
 #include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
@@ -38,6 +40,10 @@
 
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
+
+// Display enabled 
+// Uncomment the next line to get values of measurements printed on display
+@@DISPLAY_ENABLED|toDefineDisplay@@
 
 // Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
 #ifdef SDS011_CONNECTED
@@ -83,6 +89,10 @@
 #ifdef SCD30_CONNECTED
   SCD30 SCD;
 #endif
+#ifdef DISPLAY128x64_CONNECTED
+  #define OLED_RESET 4
+  Adafruit_SSD1306 display(OLED_RESET);
+#endif
 
 // This EUI must be in little-endian format, so least-significant-byte (lsb)
 // first. When copying an EUI from ttnctl output, this means to reverse
@@ -105,10 +115,18 @@ static const u1_t PROGMEM APPKEY[16] = @@APP_KEY|transformTTNID@@;
 void os_getDevKey (u1_t* buf) {  memcpy_P(buf, APPKEY, 16);}
 
 static osjob_t sendjob;
+#ifdef DISPLAY128x64_CONNECTED
+  static osjob_t displayjob;
+#endif
+
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
 const unsigned TX_INTERVAL = 60;
+#ifdef DISPLAY128x64_CONNECTED
+  const unsigned DISPLAY_INTERVAL = 5; // update display each 5 seconds
+  int unsigned displayPage = 0;
+#endif
 
 // Pin mapping
 const lmic_pinmap lmic_pins = {
@@ -322,6 +340,170 @@ void do_send(osjob_t* j){
   // Next TX is scheduled after TX_COMPLETE event.
 }
 
+#ifdef DISPLAY128x64_CONNECTED
+void update_display(osjob_t* t) {
+  
+  display.clearDisplay();
+  display.setCursor(0, 0);
+  display.setTextSize(1);
+  display.setTextColor(WHITE, BLACK);
+  switch (displayPage)
+  {
+    case 0:
+      // HDC & BMP
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("HDC&BMP"));
+      display.setTextColor(WHITE, BLACK);
+      display.setTextSize(1);
+      display.print(F("Temp:"));
+#ifdef HDC1080_CONNECTED
+      display.println(HDC.readTemperature());
+#else
+      display.println(F("not connected"));
+#endif
+      display.println();
+      display.print(F("Humi:"));
+#ifdef HDC1080_CONNECTED
+      display.println(HDC.readHumidity());
+#else
+      display.println(F("not connected"));
+#endif
+      display.println();
+      display.print(F("Press.:"));
+#ifdef BMP280_CONNECTED
+      display.println(BMP.readPressure() / 100);
+#else
+      display.println(F("not connected"));
+#endif
+      break;
+    case 1:
+      // TSL/VEML
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("TSL&VEML"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Lux:"));
+#ifdef TSL45315_CONNECTED
+      display.println(TSL.readLux());
+#else
+      display.println(F("not connected"));
+#endif
+      display.println();
+      display.print("UV:");
+#ifdef VEML6070_CONNECTED
+      display.println(VEML.getUV());
+#else
+      display.println(F("not connected"));
+#endif
+      break;
+    case 2:
+      // SMT, SOUND LEVEL , BME
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("Soil"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Temp:"));
+#ifdef SMT50_CONNECTED
+      float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
+      float soilTemperature = (voltage - 0.5) * 100;
+      display.println(soilTemperature);
+#else
+      display.println(F("not connected"));
+#endif
+      display.println();
+      display.print(F("Moist:"));
+#ifdef SMT50_CONNECTED
+      float voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
+      float soilMoisture = (voltage * 50) / 3;
+      display.println(soilMoisture);
+#else
+      display.println(F("not connected"));
+#endif
+
+      break;
+    case 3:
+      // WINDSPEED SCD30
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("Wind&SCD30"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Speed:"));
+#ifdef WINDSPEED_CONNECTED
+      float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
+      float windspeed = 0.0;
+      if (voltageWind >= 0.018){
+        float poly1 = pow(voltageWind, 3);
+        poly1 = 17.0359801998299 * poly1;
+        float poly2 = pow(voltageWind, 2);
+        poly2 = 47.9908168343362 * poly2;
+        float poly3 = 122.899677524413 * voltageWind;
+        float poly4 = 0.657504127272728;
+        windspeed = poly1 - poly2 + poly3 - poly4;
+        windspeed = windspeed * 0.2777777777777778; //conversion in m/s
+      }
+      display.println(windspeed);
+#else
+      display.println(F("not connected"));
+#endif
+      display.println();
+      display.print(F("SCD30:"));
+#ifdef SCD30_CONNECTED
+      display.println(SCD.getCO2());
+#else
+      display.println(F("not connected"));
+#endif
+      break;
+    case 4:
+        // SMT, SOUND LEVEL , BME
+      display.setTextSize(2);
+      display.setTextColor(BLACK, WHITE);
+      display.println(F("Sound&BME"));
+      display.setTextColor(WHITE, BLACK);
+      display.println();
+      display.setTextSize(1);
+      display.print(F("Sound:"));
+#ifdef SOUNDLEVELMETER_CONNECTED
+      float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
+      float decibel = v * 50;
+      display.println(decibel);
+#else
+      display.println(F("not connected"));
+#endif
+      display.println();
+      display.print(F("Gas:"));
+#ifdef BME680_CONNECTED
+      delay(100);
+      BME.setGasHeater(320, 150); // 320*C for 150 ms
+      if( BME.performReading()) {
+        uint16_t gasResistance = BME.gas_resistance / 1000.0;
+      }
+      display.println(gasResistance);
+#else
+      display.print(F("not connected"));
+#endif
+      break;
+  }
+  display.display();
+
+
+  if (displayPage == 4) {
+    displayPage = 0;
+  }
+  else {
+    displayPage++;
+  }
+
+  os_setTimedCallback(&displayjob, os_getTime() + sec2osticks(DISPLAY_INTERVAL), update_display);
+}
+#endif
+
 void setup() {
   #ifdef ENABLE_DEBUG
     Serial.begin(9600);
@@ -362,6 +544,24 @@ void setup() {
     Wire.begin();
     SCD.begin();
   #endif
+  #ifdef DISPLAY128x64_CONNECTED
+    DEBUG(F("enable display..."));
+    delay(2000);
+    display.begin(SSD1306_SWITCHCAPVCC, 0x3D);
+    display.display();
+    delay(100);
+    display.clearDisplay();
+    DEBUG(F("done."));
+    display.setCursor(0, 0);
+    display.setTextSize(2);
+    display.setTextColor(WHITE, BLACK);
+    display.println("senseBox:");
+    display.println("home\n");
+    display.setTextSize(1);
+    display.println("Version LoRaWAN");
+    display.setTextSize(2);
+    display.display();
+  #endif
 
   DEBUG(F("Sensor initializing done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -374,6 +574,10 @@ void setup() {
 
   // Start job (sending automatically starts OTAA too)
   do_send(&sendjob);
+  #ifdef DISPLAY128x64_CONNECTED
+    update_display(&displayjob);
+  #endif
+
 }
 
 void loop() {
