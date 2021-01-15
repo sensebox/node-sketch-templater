@@ -66,5 +66,16 @@ module.exports = {
     }
 
     return `{${chunks.map(c => ` 0x${c}`)} }`;
+  },
+  toDefineDisplay(display){
+    const output = [];
+    if(display === 'true'){
+      output.push(`#define DISPLAY128x64_CONNECTED`);
+    }
+    else{
+      output.push(`//#define DISPLAY128x64_CONNECTED`);
+    }
+
+    return output.join('\r\n');    
   }
 };
