@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.9.0
+
 ## v1.8.3
 - Add CO2 Sensor
 
