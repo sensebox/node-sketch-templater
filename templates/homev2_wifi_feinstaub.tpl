@@ -437,7 +437,7 @@ void loop() {
 
   //-----Lux-----//
   #ifdef TSL45315_CONNECTED
-    addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
+    addMeasurement(BELEUCSENSOR_ID, getLux());
   #endif
 
   //-----UV intensity-----//
@@ -568,7 +568,7 @@ void loop() {
         display.setTextSize(1);
         display.print(F("Lux:"));
 #ifdef TSL45315_CONNECTED
-        display.println(TSL.readLux());
+        display.println(getLux());
 #else
         display.println(F("not connected"));
 #endif
@@ -677,4 +677,39 @@ void loop() {
     if (elapsed >= postingInterval)
       return;
   }
+}
+
+long getLux() {
+  unsigned long l=0;
+  u = read_reg(0x29, 0x80|0x0A); //id register
+  if((u&0xF0) == 0xA0) // TSL45315
+  {
+    l = TSL.readLux()
+  }
+  else //LTR-329ALS-01
+  {
+    u = read_reg(address, 0x86); //id register
+    if((u&0xF0) == 0xA0) // LTR-329ALS-01
+    {
+      Serial.println("LTR-329ALS-01");
+      write_reg(address, 0x80, 0x01); //gain=1, active mode
+      //dummy read
+      u = (read_reg(address, 0x88)<<0); //data low channel 1
+      u = (read_reg(address, 0x89)<<8); //data high channel 1
+      u = (read_reg(address, 0x8A)<<0); //data low channel 0
+      u = (read_reg(address, 0x8B)<<8); //data high channel 0
+      delay(100);
+      do{
+        delay(10);
+        u = read_reg(address, 0x8C);
+      }while(u & 0x80); //wait for data ready
+      u  = (read_reg(address, 0x88)<<0); //data low channel 1
+      u |= (read_reg(address, 0x89)<<8); //data high channel 1
+      v  = (read_reg(address, 0x8A)<<0); //data low channel 0
+      v |= (read_reg(address, 0x8B)<<8); //data high channel 0
+      l = (u + v) / 2;
+    }
+  }
+
+  return l
 }
