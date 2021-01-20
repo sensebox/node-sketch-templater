@@ -435,6 +435,29 @@ void loop() {
   }
 }
 
+int read_reg(byte address, uint8_t reg)
+{
+  int i = 0;
+
+  Wire.beginTransmission(address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom((uint8_t)address, (uint8_t)1);
+  delay(1);
+  if(Wire.available())
+    i = Wire.read();
+
+  return i;
+}
+
+void write_reg(byte address, uint8_t reg, uint8_t val)
+{
+  Wire.beginTransmission(address);
+  Wire.write(reg);
+  Wire.write(val);
+  Wire.endTransmission();
+}
+
 long getLux() {
 #ifdef TSL45315_CONNECTED
   unsigned long l = 0;
