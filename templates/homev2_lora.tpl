@@ -242,7 +242,7 @@ void do_send(osjob_t* j){
     //-----Lux-----//
     #ifdef TSL45315_CONNECTED
       DEBUG(F("Illuminance: "));
-      lux = TSL.readLux();
+      lux = getLux();
       DEBUG(lux);
       message.addUint8(lux % 255);
       message.addUint16(lux / 255);
@@ -390,7 +390,7 @@ void update_display(osjob_t* t) {
         display.setTextSize(1);
         display.print(F("Lux:"));
 #ifdef TSL45315_CONNECTED
-        display.println(TSL.readLux());
+        display.println(getLux());
 #else
         display.println(F("not connected"));
 #endif
@@ -592,4 +592,67 @@ void setup() {
 
 void loop() {
   os_runloop_once();
+}
+
+int read_reg(byte address, uint8_t reg)
+{
+  int i = 0;
+
+  Wire.beginTransmission(address);
+  Wire.write(reg);
+  Wire.endTransmission();
+  Wire.requestFrom((uint8_t)address, (uint8_t)1);
+  delay(1);
+  if(Wire.available())
+    i = Wire.read();
+
+  return i;
+}
+
+void write_reg(byte address, uint8_t reg, uint8_t val)
+{
+  Wire.beginTransmission(address);
+  Wire.write(reg);
+  Wire.write(val);
+  Wire.endTransmission();
+}
+
+long getLux() {
+#ifdef TSL45315_CONNECTED
+  unsigned long l = 0;
+  unsigned int u = 0, v = 0;
+  byte address = 0x29;
+
+  u = read_reg(address, 0x80 | 0x0A); //id register
+  if ((u & 0xF0) == 0xA0) // TSL45315
+  {
+    l = TSL.readLux();
+  }
+  else //LTR-329ALS-01
+  {
+    u = read_reg(address, 0x86); //id register
+    if ((u & 0xF0) == 0xA0) // LTR-329ALS-01
+    {
+      Serial.println("LTR-329ALS-01");
+      write_reg(address, 0x80, 0x01); //gain=1, active mode
+      //dummy read
+      u = (read_reg(address, 0x88) << 0); //data low channel 1
+      u = (read_reg(address, 0x89) << 8); //data high channel 1
+      u = (read_reg(address, 0x8A) << 0); //data low channel 0
+      u = (read_reg(address, 0x8B) << 8); //data high channel 0
+      delay(100);
+      do {
+        delay(10);
+        u = read_reg(0x29, 0x8C);
+      } while (u & 0x80); //wait for data ready
+      u  = (read_reg(address, 0x88) << 0); //data low channel 1
+      u |= (read_reg(address, 0x89) << 8); //data high channel 1
+      v  = (read_reg(address, 0x8A) << 0); //data low channel 0
+      v |= (read_reg(address, 0x8B) << 8); //data high channel 0
+      l = (u + v) / 2;
+    }
+  }
+
+  return l;
+#endif
 }
