@@ -301,6 +301,8 @@ void setup() {
   DEBUG("done");
   senseBoxIO.powerI2C(false);delay(200);
   senseBoxIO.powerI2C(true);
+  delay(200);
+  senseBoxIO.powerUART(true);
 
 
   

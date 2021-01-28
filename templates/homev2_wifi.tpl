@@ -296,6 +296,8 @@ void setup() {
   senseBoxIO.powerI2C(false);
   delay(200);
   senseBoxIO.powerI2C(true);
+  delay(200);
+  senseBoxIO.powerUART(true);
 
 #ifdef DISPLAY128x64_CONNECTED
   DEBUG2(F("enable display..."));
