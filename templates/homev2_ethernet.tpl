@@ -290,6 +290,8 @@ void setup() {
   senseBoxIO.powerI2C(false);
   delay(200);
   senseBoxIO.powerI2C(true);
+  delay(200);
+  senseBoxIO.powerUART(true);
 
   Ethernet.init(23);
   // start the Ethernet connection:

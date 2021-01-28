@@ -524,6 +524,8 @@ void setup() {
   senseBoxIO.powerXB1(false); // power off to reset RFM9X
   delay(250);
   senseBoxIO.powerXB1(true);  // power on
+  delay(200);
+  senseBoxIO.powerUART(true);
 
   // Sensor initialization
   DEBUG(F("Initializing sensors..."));
