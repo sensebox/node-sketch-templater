@@ -27,4 +27,4 @@ jobs:
 
       - name: Execute arduino-test
         run: |
-          yarn test
+          yarn arduino-test
