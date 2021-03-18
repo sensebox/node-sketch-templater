@@ -53,8 +53,9 @@ jobs:
       - name: Install test deps
         run: |
           npm ci
+          arduino-cli --additional-urls "https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json" core update-index
+          arduino-cli core install sensebox:samd
           arduino-cli core install arduino:samd
-          arduino-cli --additional-urls "https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json" core install sensebox:samd
 
       - name: Execute test suite
         run: |
