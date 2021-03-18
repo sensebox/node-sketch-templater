@@ -23,7 +23,6 @@
 #include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_BME680.h>
-#include <Makerblog_TSL45315.h>
 #include <VEML6070.h>
 #include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
@@ -62,7 +61,7 @@
 #endif
 #ifdef TSL45315_CONNECTED
   uint32_t lux;
-  Makerblog_TSL45315 TSL = Makerblog_TSL45315(TSL45315_TIME_M4);
+  // no declaration
 #endif
 #ifdef VEML6070_CONNECTED
   VEML6070 VEML;
@@ -242,7 +241,7 @@ void do_send(osjob_t* j){
     //-----Lux-----//
     #ifdef TSL45315_CONNECTED
       DEBUG(F("Illuminance: "));
-      lux = getLux();
+      lux = Lightsensor_getIlluminance();
       DEBUG(lux);
       message.addUint8(lux % 255);
       message.addUint16(lux / 255);
@@ -390,7 +389,7 @@ void update_display(osjob_t* t) {
         display.setTextSize(1);
         display.print(F("Lux:"));
 #ifdef TSL45315_CONNECTED
-        display.println(getLux());
+        display.println(Lightsensor_getIlluminance());
 #else
         display.println(F("not connected"));
 #endif
@@ -540,7 +539,7 @@ void setup() {
     BMP.begin(0x76);
   #endif
   #ifdef TSL45315_CONNECTED
-    TSL.begin();
+    Lightsensor_begin();
   #endif
   #ifdef SDS011_CONNECTED
     SDS_UART_PORT.begin(9600);
@@ -619,42 +618,97 @@ void write_reg(byte address, uint8_t reg, uint8_t val)
   Wire.endTransmission();
 }
 
-long getLux() {
-#ifdef TSL45315_CONNECTED
-  unsigned long l = 0;
-  unsigned int u = 0, v = 0;
-  byte address = 0x29;
+#define LIGHTSENSOR_ADDR 0x29
+#define LTR329_ALS_CONTR 0x80
+#define LTR329_ALS_STATUS 0x8C
+#define LTR329_ALS_DATA_CH1_0 0x88
+#define LTR329_ALS_DATA_CH1_1 0x89
+#define LTR329_ALS_DATA_CH0_0 0x8A
+#define LTR329_ALS_DATA_CH0_1 0x8B
+int lightsensortype = 0; //0 for tsl - 1 for liteon sensor
 
-  u = read_reg(address, 0x80 | 0x0A); //id register
-  if ((u & 0xF0) == 0xA0) // TSL45315
-  {
-    l = TSL.readLux();
-  }
-  else //LTR-329ALS-01
-  {
-    u = read_reg(address, 0x86); //id register
-    if ((u & 0xF0) == 0xA0) // LTR-329ALS-01
-    {
-      Serial.println("LTR-329ALS-01");
-      write_reg(address, 0x80, 0x01); //gain=1, active mode
-      //dummy read
-      u = (read_reg(address, 0x88) << 0); //data low channel 1
-      u = (read_reg(address, 0x89) << 8); //data high channel 1
-      u = (read_reg(address, 0x8A) << 0); //data low channel 0
-      u = (read_reg(address, 0x8B) << 8); //data high channel 0
-      delay(100);
-      do {
-        delay(10);
-        u = read_reg(0x29, 0x8C);
-      } while (u & 0x80); //wait for data ready
-      u  = (read_reg(address, 0x88) << 0); //data low channel 1
-      u |= (read_reg(address, 0x89) << 8); //data high channel 1
-      v  = (read_reg(address, 0x8A) << 0); //data low channel 0
-      v |= (read_reg(address, 0x8B) << 8); //data high channel 0
-      l = (u + v) / 2;
-    }
-  }
+void Lightsensor_begin()
+{
+	Wire.begin();
+	unsigned int u = 0;
+	Serial.println("Checking lightsensortype");
+	u = read_reg(LIGHTSENSOR_ADDR, 0x80 | 0x0A); //id register
+	if ((u & 0xF0) == 0xA0)						 // TSL45315
+	{
+		Serial.println("TSL45315");
+		write_reg(LIGHTSENSOR_ADDR, 0x80 | 0x00, 0x03); //control: power on
+		write_reg(LIGHTSENSOR_ADDR, 0x80 | 0x01, 0x02); //config: M=4 T=100ms
+		delay(120);
+		lightsensortype = 0; //TSL45315
+	}
+	else
+	{
+		Serial.println("LTR329");
+		delay(100);											 //Wait 100 ms (min) - initial startup time for LTR
+		write_reg(LIGHTSENSOR_ADDR, LTR329_ALS_CONTR, 0x01); //power on with default settings
+		delay(10);											 //Wait 10 ms (max) - wakeup time from standby
+		lightsensortype = 1;										 //
+	}
+}
 
-  return l;
-#endif
+unsigned long Lightsensor_getIlluminance()
+{
+	unsigned int u = 0, v = 0;
+	unsigned long lux = 0;
+	if (lightsensortype == 0) // TSL45315
+	{
+		u = (read_reg(LIGHTSENSOR_ADDR, 0x80 | 0x04) << 0);	 //data low
+		u |= (read_reg(LIGHTSENSOR_ADDR, 0x80 | 0x05) << 8); //data high
+		lux = u * 4;										 // calc lux with M=4 and T=100ms
+		return (unsigned long)(lux);
+	}
+	else if (lightsensortype == 1) //LTR-329ALS-01
+	{
+		unsigned int u = 0;
+
+		//The ALS ADC channel-1 and channel-0 data are expressed as a 16-bit data spread over two registers.
+		//The ALS_DATA_CH_0 and ALS_DATA_CH_1 registers provide the lower and upper byte respectively.
+		byte lower, upper;
+		unsigned int ch0, ch1;
+
+		do
+		{
+			delay(10);
+			u = read_reg(LIGHTSENSOR_ADDR, LTR329_ALS_STATUS);
+		} while (u & 0x80); //wait for data ready
+
+		//ALS_DATA registers should be read as a group, with the lower address read back first (i.e. read 0x88 first, then read 0x89).
+		//These two registers should also be read before reading channel-0 data
+		lower = (read_reg(LIGHTSENSOR_ADDR, LTR329_ALS_DATA_CH1_0));
+		upper = (read_reg(LIGHTSENSOR_ADDR, LTR329_ALS_DATA_CH1_1));
+		ch1 = word(upper, lower);
+
+		//ALS_DATA_CH0 Registers (0x8A / 0x8B) should be read after reading channel-1 data
+		//Lower address register should be read first (i.e read 0x8A first, then read 0x8B).
+		lower = (read_reg(LIGHTSENSOR_ADDR, LTR329_ALS_DATA_CH0_0));
+		upper = (read_reg(LIGHTSENSOR_ADDR, LTR329_ALS_DATA_CH0_1));
+		ch0 = word(upper, lower);
+
+		double ratio, lux = 0.0;
+		ratio = double(ch1) / (ch0 + ch1);
+
+		if (ratio < 0.45) // calculation done with pfactor = 1, gain = 1, T=100ms
+		{
+			lux = (1.7743 * ch0 + 1.1059 * ch1);
+		}
+		else if (ratio < 0.64 && ratio >= 0.45)
+		{
+			lux = (4.2785 * ch0 - 1.9548 * ch1);
+		}
+		else if (ratio < 0.85 && ratio >= 0.64)
+		{
+			lux = (0.5926 * ch0 + 0.1185 * ch1);
+		}
+		else
+		{
+			lux = 0;
+		}
+
+		return (unsigned long)(lux);
+	}
 }

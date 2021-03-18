@@ -106,10 +106,11 @@ const build = function build(board, model) {
     sketchTemplater.generateSketch(boxStub(model))
   );
   console.log(
-    `Building model ${model} with "arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino"`
+    `Building model ${model} with "arduino-cli compile --fqbn ${board} ${sketchesPath}/${model}/${model}.ino"`
   );
   child_process.execSync(
-    `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
+    `arduino-cli compile --fqbn ${board} ${sketchesPath}/${model}/${model}.ino`,
+    // `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
     { stdio: [0, 1, 2] }
   );
   console.log('###########################################################');
