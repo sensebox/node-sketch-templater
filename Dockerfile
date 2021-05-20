@@ -21,11 +21,13 @@ RUN wget https://raw.githubusercontent.com/sensebox/home/master/libraries/BMP280
 RUN wget https://raw.githubusercontent.com/sensebox/home/master/libraries/HDC100X.zip
 RUN wget https://raw.githubusercontent.com/sensebox/home/master/libraries/Makerblog_TSL45315.zip
 RUN wget https://raw.githubusercontent.com/sensebox/home/master/libraries/VEML6070.zip
+RUN wget https://raw.githubusercontent.com/sensebox/home/master/libraries/LTR329.zip
 
 RUN arduino-cli lib install --zip-path BMP280.zip
 RUN arduino-cli lib install --zip-path HDC100X.zip
 RUN arduino-cli lib install --zip-path Makerblog_TSL45315.zip
 RUN arduino-cli lib install --zip-path VEML6070.zip
+RUN arduino-cli lib install --zip-path LTR329.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial 
 
 # install arduino stuff for senseBox V2
