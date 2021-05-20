@@ -672,7 +672,7 @@ unsigned int Lightsensor_getIlluminance()
         else delay(10);
       }
       else {
-        DEBUG2(F("LTR getData error "));
+        DEBUG(F("LTR getData error "));
         byte error = LTR.getError();
         Serial.println(error);
       }
