@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.10.4
+- Add LTR329 library
+
 ## v1.10.2
 - Power UART in setup 
 
