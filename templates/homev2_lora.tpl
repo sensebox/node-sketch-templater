@@ -681,4 +681,4 @@ unsigned int Lightsensor_getIlluminance()
   }
   return lux;
 }
-#ifdef TSL45315_CONNECTED
+#endif
