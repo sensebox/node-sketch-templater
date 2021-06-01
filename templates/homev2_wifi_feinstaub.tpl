@@ -707,6 +707,7 @@ void write_reg(byte address, uint8_t reg, uint8_t val)
   Wire.endTransmission();
 }
 
+#ifdef TSL45315_CONNECTED
 void Lightsensor_begin()
 {
 	Wire.begin();
@@ -762,3 +763,4 @@ unsigned int Lightsensor_getIlluminance()
   }
   return lux;
 }
+#endif
