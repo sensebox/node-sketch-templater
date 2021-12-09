@@ -27,6 +27,7 @@
 #include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
+#include <ArduinoBearSSL.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -79,7 +80,12 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
 
-WiFiSSLClient client;
+WiFiSSLClient sslclient;
+BearSSLClient client(sslclient);
+
+unsigned long getTime() {
+  return WiFi.getTime();
+}
 
 //Load sensors / instances
 #ifdef HDC1080_CONNECTED
@@ -172,6 +178,10 @@ void submitValues() {
     client.stop();
     delay(1000);
   }
+
+  // check the server time for the validation of the certificate
+  ArduinoBearSSL.onGetTime(getTime);
+
   bool connected = false;
   char _server[strlen_P(server)];
   strcpy_P(_server, server);
