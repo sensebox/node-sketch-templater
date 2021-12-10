@@ -80,7 +80,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
 
-WiFiSSLClient wifiClient;
+WiFiClient wifiClient;
 BearSSLClient client(wifiClient);
 
 unsigned long getTime() {
