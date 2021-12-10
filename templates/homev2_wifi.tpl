@@ -172,10 +172,6 @@ void submitValues() {
     client.stop();
     delay(1000);
   }
-
-  // check the server time for the validation of the certificate
-  ArduinoBearSSL.onGetTime(getTime);
-
   bool connected = false;
   char _server[strlen_P(server)];
   strcpy_P(_server, server);
@@ -366,6 +362,8 @@ void setup() {
     DEBUG(F("done."));
   }
 
+  // check the server time for the validation of the certificate
+  ArduinoBearSSL.onGetTime(getTime);
 
   #ifdef ENABLE_DEBUG
     // init I2C/wire library
