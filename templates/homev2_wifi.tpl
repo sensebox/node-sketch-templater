@@ -77,8 +77,8 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Sensor SENSOR_IDs
 @@SENSOR_IDS|toProgmem@@
 
-WiFiSSLClient sslclient;
-BearSSLClient client(sslclient);
+WiFiSSLClient wifiClient;
+BearSSLClient client(wifiClient);
 
 unsigned long getTime() {
   return WiFi.getTime();
