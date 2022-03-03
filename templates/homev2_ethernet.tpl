@@ -24,6 +24,9 @@
 #include <VEML6070.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
+#include <ArduinoBearSSL.h>
+#include <EthernetUdp.h>
+#include <NTPClient.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -66,7 +69,16 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 @@SENSOR_IDS|toProgmem@@
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-EthernetClient client;
+
+EthernetClient eclient;
+BearSSLClient client(eclient);
+EthernetUDP Udp;
+NTPClient timeClient(Udp);
+
+unsigned long getTime() {
+  timeClient.update();
+  return timeClient.getEpochTime();
+}
 
 //Configure static IP setup (only needed if DHCP is disabled)
 IPAddress myIp(192, 168, 0, 42);
@@ -165,7 +177,7 @@ void submitValues() {
   strcpy_P(_server, server);
   for (uint8_t timeout = 2; timeout != 0; timeout--) {
     DEBUG(F("connecting..."));
-    connected = client.connect(_server, 80);
+    connected = client.connect(_server, 443);
     if (connected == true) {
       DEBUG(F("Connection successful, transferring..."));
       // construct the HTTP POST request:
@@ -344,6 +356,10 @@ void setup() {
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
+
+  timeClient.begin();
+  ArduinoBearSSL.onGetTime(getTime);  
+
 }
 
 void loop() {
