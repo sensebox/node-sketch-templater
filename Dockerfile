@@ -31,16 +31,16 @@ RUN arduino-cli lib install --zip-path LTR329.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial
 
 # install arduino stuff for senseBox V2
-RUN arduino-cli core install arduino:samd@1.8.11
+RUN arduino-cli core install arduino:samd@1.8.13
 RUN curl -o /root/.arduino15/package_sensebox_index.json https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json
 RUN arduino-cli --additional-urls https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json core install sensebox:samd
 
 WORKDIR /app
 
 COPY package.json /app
-COPY yarn.lock /app
+COPY package-lock.json /app
 
-RUN yarn install --pure-lockfile --production
+RUN npm install --production
 
 COPY . /app/
 
