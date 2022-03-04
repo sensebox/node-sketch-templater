@@ -1,6 +1,10 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- 🧹 Housekeeping (`dependebot`, `dependencies`)
+- 🐻 BearSSL library
+- ℹ️ Add senseBox metadata and version number to sketches
+- ⚙️ DPS310 library
 
 ## v1.10.5
 - Fix LTR
@@ -9,7 +13,7 @@
 - Add LTR329 library
 
 ## v1.10.2
-- Power UART in setup 
+- Power UART in setup
 
 ## v1.10.1
 
