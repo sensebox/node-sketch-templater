@@ -1,7 +1,6 @@
-# senseBox sketch-templater
-Arduino sketch templates used by the openSenseMap-api
+# senseBox sketch-templater [![NPM Version](https://img.shields.io/npm/v/@sensebox/sketch-templater.svg)](https://www.npmjs.com/package/@sensebox/sketch-templater)
 
-[![NPM Version](https://img.shields.io/npm/v/@sensebox/sketch-templater.svg)](https://www.npmjs.com/package/@sensebox/sketch-templater)
+Arduino sketch templates used by the [openSenseMap-API](https://github.com/sensebox/openSenseMap-API). The `sketch-templater` creates a Arduino Sketch (`.ino`) for the Arduino IDE based on the selected options and sensors during the registration process on [openSenseMap](https://github.com/sensebox/openSenseMap).
 
 ## Versioning
 
@@ -76,6 +75,7 @@ As of writing this, the following replacements can be made:
 | Template text | Replacement |
 |------------------|-------------|
 | `@@SENSEBOX_ID@@` | the senseBox ID  |
+| `@@SENSEBOX_NAME@@` | the senseBox Name  |
 | `@@SENSOR_IDS@@` | sensor IDs |
 | `@@NUM_SENSORS@@` | the number of sensors |
 | `@@INGRESS_DOMAIN@@` | the domain of your ingress server |
