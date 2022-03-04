@@ -28,6 +28,7 @@
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
+#include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -44,6 +45,15 @@
 #define DEBUG2(str)
 #define DEBUG_WRITE(c)
 #endif
+
+/* ------------------------------------------------------------------------- */
+/* ---------------------------------Metadata-------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* SENSEBOX ID  : @@SENSEBOX_ID@@                                            */
+/* SENSEBOX NAME: @@SENSEBOX_NAME@@                                          */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------End of Metadata---------------------------- */
+/* ------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------------------- */
 /* ------------------------------Configuration------------------------------ */
@@ -73,7 +83,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
-// Display enabled 
+// Display enabled
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
 
@@ -128,6 +138,10 @@ unsigned long getTime() {
 #define OLED_RESET 4
 Adafruit_SSD1306 display(OLED_RESET);
 #endif
+#ifdef DPS310_CONNECTED
+  Adafruit_DPS310 dps;
+#endif
+
 
 typedef struct measurement {
   const char *sensorId;
@@ -269,8 +283,10 @@ void checkI2CSensors() {
         case 0x76:
         #ifdef BMP280_CONNECTED
           DEBUG("BMP280 found.");
-        #else
+        #elif BME680_CONNECTED
           DEBUG("BME680 found.");
+        #else
+          DEBUG("DPS310 found.");
         #endif
           break;
         case 0x61:
@@ -412,7 +428,12 @@ void setup() {
   display.setTextSize(2);
   display.print("Ready!");
   display.display();
-#endif
+  #endif
+  #ifdef DPS310_CONNECTED
+    dps.begin_I2C(0x76);
+    dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
+    dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
+  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -527,6 +548,13 @@ void loop() {
   //-----CO2-----//
   #ifdef SCD30_CONNECTED
     addMeasurement(CO2SENSOR_ID, SCD.getCO2());
+  #endif
+
+  //-----DPS310 Pressure-----//
+  #ifdef DPS310_CONNECTED
+    sensors_event_t temp_event, pressure_event;
+    dps.getEvents(&temp_event, &pressure_event);
+    addMeasurement(DPS310_SENSOR_ID, pressure_event.pressure);
   #endif
 
   DEBUG(F("Submit values"));
@@ -716,6 +744,7 @@ void write_reg(byte address, uint8_t reg, uint8_t val)
   Wire.endTransmission();
 }
 
+#ifdef TSL45315_CONNECTED
 void Lightsensor_begin()
 {
 	Wire.begin();
@@ -771,3 +800,4 @@ unsigned int Lightsensor_getIlluminance()
   }
   return lux;
 }
+#endif

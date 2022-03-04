@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v1.10.5
+- Fix LTR
+
 ## v1.10.4
 - Add LTR329 library
 
