@@ -480,7 +480,7 @@ void loop() {
   #ifdef DPS310_CONNECTED
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
-    addMeasurement(DPS310_SENSOR_ID, pressure_event.pressure);
+    addMeasurement(DPS310SENSOR_ID, pressure_event.pressure);
   #endif
 
   DEBUG(F("submit values"));
