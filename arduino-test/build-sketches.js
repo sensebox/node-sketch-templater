@@ -10,6 +10,7 @@ const sketchTemplater = new SketchTemplater('test.ingress.domain');
 const boxStub = function(model) {
   return {
     _id: '59479ed5a4ad5900112d8dec',
+    name: 'Teststation',
     model: model,
     sensors: [
       {
@@ -74,7 +75,7 @@ const boxStub = function(model) {
     serialPort: 'Serial1',
     ssid: 'MY-HOME-NETWORK',
     password: 'MY-SUPER-PASSWORD',
-    display_enabled:'true'
+    display_enabled: 'true'
   };
 };
 

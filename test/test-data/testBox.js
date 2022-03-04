@@ -7,6 +7,7 @@ const randomHex = function randomHex() {
 module.exports = function testBox() {
   return {
     _id: randomHex(),
+    name: 'Teststation',
     sensors: [
       {
         title: 'Temperatur',

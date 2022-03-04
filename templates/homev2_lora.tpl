@@ -38,10 +38,19 @@
 #define DEBUG(str)
 #endif
 
+/* ------------------------------------------------------------------------- */
+/* ---------------------------------Metadata-------------------------------- */
+/* ------------------------------------------------------------------------- */
+/* SENSEBOX ID  : @@SENSEBOX_ID@@                                            */
+/* SENSEBOX NAME: @@SENSEBOX_NAME@@                                          */
+/* ------------------------------------------------------------------------- */
+/* ------------------------------End of Metadata---------------------------- */
+/* ------------------------------------------------------------------------- */
+
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
-// Display enabled 
+// Display enabled
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
 
