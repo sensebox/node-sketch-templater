@@ -24,6 +24,7 @@
 #include <VEML6070.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
+#include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -107,6 +108,9 @@ IPAddress mySubnet(255, 255, 255, 0);
 #endif
 #ifdef SCD30_CONNECTED
   SCD30 SCD;
+#endif
+#ifdef DPS310_CONNECTED
+  Adafruit_DPS310 dps;
 #endif
 
 int dataLength;
@@ -251,8 +255,10 @@ void checkI2CSensors() {
         case 0x76:
         #ifdef BMP280_CONNECTED
           DEBUG("BMP280 found.");
-        #else
+        #elif BME680_CONNECTED
           DEBUG("BME680 found.");
+        #else
+          DEBUG("DPS310 found.");
         #endif
           break;
         case 0x61:
@@ -341,6 +347,11 @@ void setup() {
     Wire.begin();
     SCD.begin();
   #endif
+  #ifdef DPS310_CONNECTED
+    dps.begin_I2C(0x76);
+    dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
+    dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
+  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -428,6 +439,13 @@ void loop() {
   //-----CO2-----//
   #ifdef SCD30_CONNECTED
     addMeasurement(CO2SENSOR_ID, SCD.getCO2());
+  #endif
+
+  //-----DPS310 Pressure-----//
+  #ifdef DPS310_CONNECTED
+    sensors_event_t temp_event, pressure_event;
+    dps.getEvents(&temp_event, &pressure_event);
+    addMeasurement(DPS310_SENSOR_ID, pressure_event.pressure);
   #endif
 
   DEBUG(F("submit values"));

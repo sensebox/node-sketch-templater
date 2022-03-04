@@ -27,6 +27,8 @@
 #include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
+#include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
+
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -98,6 +100,9 @@
 #ifdef DISPLAY128x64_CONNECTED
   #define OLED_RESET 4
   Adafruit_SSD1306 display(OLED_RESET);
+#endif
+#ifdef DPS310_CONNECTED
+  Adafruit_DPS310 dps;
 #endif
 
 // This EUI must be in little-endian format, so least-significant-byte (lsb)
@@ -337,6 +342,13 @@ void do_send(osjob_t* j){
     //-----CO2-----//
     #ifdef SCD30_CONNECTED
       message.addUint16(SCD.getCO2());
+    #endif
+
+    //-----DPS310 Pressure-----//
+    #ifdef DPS310_CONNECTED
+      sensors_event_t temp_event, pressure_event;
+      dps.getEvents(&temp_event, &pressure_event);
+      message.addUint16((pressure_event.pressure - 300) * 81.9187);
     #endif
 
     // Prepare upstream data transmission at the next possible time.
@@ -579,6 +591,11 @@ void setup() {
     display.println("Version LoRaWAN");
     display.setTextSize(2);
     display.display();
+  #endif
+  #ifdef DPS310_CONNECTED
+    dps.begin_I2C(0x76);
+    dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
+    dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
 
   DEBUG(F("Sensor initializing done!"));
