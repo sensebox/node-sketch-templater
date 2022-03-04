@@ -1,8 +1,8 @@
 { "model" : "homeV2Ethernet", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensing Platform
-  Version: ethernetv2_0.3
-  Date: 2019-12-06
+  Version: ethernetv2_1.6.0
+  Date: 2022-03-04
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home Ethernet MCU Edition
