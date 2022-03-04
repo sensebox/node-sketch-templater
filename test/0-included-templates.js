@@ -135,4 +135,12 @@ describe('Included templates', function() {
     expect(sketch).to.include(`#define SCD30_CONNECTED`);
     expect(sketch).to.include(`const char CO2SENSOR_ID[] PROGMEM`);
   });
+
+  it('should return a sketch with DPS310 sensor', function() {
+    const box = Object.assign({ model: 'homeV2Wifi' }, testBox());
+    // baseline sketch in text format
+    const sketch = mySketchTemplater.generateSketch(box);
+
+    expect(sketch).to.include(`const char DPS310SENSOR_ID[] PROGMEM =`);
+  });
 });
