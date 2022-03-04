@@ -42,6 +42,7 @@ describe('Included templates', function() {
 
     expect(sketch).to.include(testDomain);
     expect(sketch).to.include(box._id);
+    expect(sketch).to.include(box.name);
     for (const { title, _id } of box.sensors) {
       expect(sketch).to.include(title);
       expect(sketch).to.include(_id);
@@ -70,6 +71,7 @@ describe('Included templates', function() {
 
         expect(sketch).to.include(testDomain);
         expect(sketch).to.include(box._id);
+        expect(sketch).to.include(box.name);
         expect(sketch).to.include(
           `static const uint8_t NUM_SENSORS = ${box.sensors.length};`
         );
@@ -120,7 +122,9 @@ describe('Included templates', function() {
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
 
-    expect(sketch).to.include(`Authorization: 1821b9d5d25c46e6af9b44e68c49ab6ac254c7986007ed73b7e46f50f06b430b`);
+    expect(sketch).to.include(
+      `Authorization: 1821b9d5d25c46e6af9b44e68c49ab6ac254c7986007ed73b7e46f50f06b430b`
+    );
   });
 
   it('should return a sketch with CO2 sensor', function() {

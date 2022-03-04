@@ -45,12 +45,13 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   if (this._templates[box.model]) {
     // transform CO₂ to CO2 just for node sketch templater
     box.sensors = box.sensors.map(s => {
-      if(s.title === "CO₂") {
-        s.title = "CO2"
+      if (s.title === 'CO₂') {
+        s.title = 'CO2';
       }
-      return s
-    })
-    
+
+      return s;
+    });
+
     if (encoding && encoding === 'base64') {
       return Buffer.from(this._executeTemplate(box)).toString('base64');
     }
@@ -63,6 +64,7 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
 
 SketchTemplater.prototype._cloneBox = function _cloneBox({
   _id,
+  name,
   sensors,
   serialPort,
   soilDigitalPort,
@@ -80,6 +82,7 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
     {},
     {
       SENSEBOX_ID: _id,
+      SENSEBOX_NAME: name,
       SENSOR_IDS: sensors,
       INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
       NUM_SENSORS: sensors.length,
