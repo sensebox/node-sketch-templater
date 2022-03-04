@@ -18,6 +18,7 @@ To create a new version, use `npm version`.
 1. Run `npm version [major | minor | patch] -m "[v%s] Your commit message"`
 1. Type in the new version (to create a `beta` release include the word `beta` in the new version)
 1. `git push --tags origin main`
+1. `npm publish`
 
 ## Usage
 
