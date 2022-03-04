@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.11.0
 - 🧹 Housekeeping (`dependebot`, `dependencies`)
 - 🐻 BearSSL library
 - ℹ️ Add senseBox metadata and version number to sketches
