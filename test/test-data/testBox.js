@@ -23,7 +23,8 @@ module.exports = function testBox() {
         title: 'Kellertemperatur',
         _id: randomHex(),
         sensorType: 'HDC1080'
-      }
+      },
+      { title: 'DPS310 Luftdruck', _id: randomHex(), sensorType: 'DPS310' }
     ],
     serialPort: 'Serial1',
     ssid: 'MY-HOME-NETWORK',
