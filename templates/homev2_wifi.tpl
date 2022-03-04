@@ -26,8 +26,8 @@
 #include <VEML6070.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
+#include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -86,7 +86,12 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Sensor SENSOR_IDs
 @@SENSOR_IDS|toProgmem@@
 
-WiFiSSLClient client;
+WiFiClient wifiClient;
+BearSSLClient client(wifiClient);
+
+unsigned long getTime() {
+  return WiFi.getTime();
+}
 
 //Load sensors / instances
 #ifdef HDC1080_CONNECTED
@@ -372,6 +377,8 @@ void setup() {
     DEBUG(F("done."));
   }
 
+  // check the server time for the validation of the certificate
+  ArduinoBearSSL.onGetTime(getTime);
 
   #ifdef ENABLE_DEBUG
     // init I2C/wire library
