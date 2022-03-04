@@ -1,8 +1,8 @@
 { "model" : "homeV2Lora", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
-  Version: lorav2.0.0
-  Date: 2018-09-11
+  Version: lorav2_1.6.0
+  Date: 2022-03-04
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home LoRa MCU Edition
