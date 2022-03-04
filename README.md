@@ -1,7 +1,6 @@
 # senseBox sketch-templater
 Arduino sketch templates used by the openSenseMap-api
 
-[![Build Status](https://travis-ci.org/sensebox/node-sketch-templater.svg?branch=master)](https://travis-ci.org/sensebox/node-sketch-templater)
 [![NPM Version](https://img.shields.io/npm/v/@sensebox/sketch-templater.svg)](https://www.npmjs.com/package/@sensebox/sketch-templater)
 
 ## Versioning
@@ -18,7 +17,7 @@ To create a new version, use `npm version`.
 1. Document your changes in [`CHANGELOG.md`](CHANGELOG.md). Make sure there are no uncommited changes in the worktree.
 1. Run `npm version [major | minor | patch] -m "[v%s] Your commit message"`
 1. Type in the new version (to create a `beta` release include the word `beta` in the new version)
-1. `git push --tags origin master`
+1. `git push --tags origin main`
 
 ## Usage
 
