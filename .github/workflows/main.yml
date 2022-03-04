@@ -2,7 +2,7 @@
 
 name: CI
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push or pull request events but only for the master branch
   push:
@@ -27,12 +27,12 @@ jobs:
 
       - name: Install deps
         run: |
-          yarn
+          npm install
 
       - name: Execute tests
         run: |
-          yarn test
-  
+          npm run test
+
   # This workflow contains a single job called "build"
   arduino-test:
     # The type of runner that the job will run on
@@ -45,5 +45,4 @@ jobs:
 
       - name: Execute arduino-test
         run: |
-          yarn arduino-test
-
+          npm run arduino-test

@@ -5,6 +5,10 @@
   "main": "src/index.js",
   "repository": "https://github.com/sensebox/node-sketch-templater.git",
   "author": "Gerald Pape <ubergesundheit@googlemail.com>",
+  "engines": {
+    "node": ">=16",
+    "npm": ">=8"
+  },
   "contributors": [
     "Jan Wirwahn",
     "Matthias Pfeil"
