@@ -6,7 +6,7 @@
   "repository": "https://github.com/sensebox/node-sketch-templater.git",
   "author": "Gerald Pape <ubergesundheit@googlemail.com>",
   "engines": {
-    "node": ">=16",
+    "node": ">=14",
     "npm": ">=8"
   },
   "contributors": [
