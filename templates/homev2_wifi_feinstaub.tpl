@@ -283,7 +283,7 @@ void checkI2CSensors() {
         case 0x76:
         #ifdef BMP280_CONNECTED
           DEBUG("BMP280 found.");
-        #elif BME680_CONNECTED
+        #elif defined(BME680_CONNECTED)
           DEBUG("BME680 found.");
         #else
           DEBUG("DPS310 found.");
