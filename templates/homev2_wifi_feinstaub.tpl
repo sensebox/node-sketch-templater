@@ -135,8 +135,10 @@ unsigned long getTime() {
   SCD30 SCD;
 #endif
 #ifdef DISPLAY128x64_CONNECTED
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
 #define OLED_RESET 4
-Adafruit_SSD1306 display(OLED_RESET);
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
