@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.11.2
 - 🔧 Fix BME680_CONNECTED issue
 - 🖥 Fix OLED initialisation ([#78](https://github.com/sensebox/node-sketch-templater/issues/78))
 
