@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- ⬇️ Set `node` engine to v14
 
 ## v1.11.0
 - 🧹 Housekeeping (`dependebot`, `dependencies`)
