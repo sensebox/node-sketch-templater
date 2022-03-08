@@ -1,6 +1,8 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+
+## v1.11.1
 - ⬇️ Set `node` engine to v14
 
 ## v1.11.0
