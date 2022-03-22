@@ -11,32 +11,32 @@ const testDomain = 'test.domain.com';
 
 const templateLocation = './templates';
 
-describe('Included templates', function() {
+describe('Included templates', function () {
   let globalconsolewarn, mySketchTemplater;
-  before(function() {
+  before(function () {
     globalconsolewarn = global.console.warn;
-    global.console.warn = function(err) {
+    global.console.warn = function (err) {
       throw new Error(err);
     };
 
     mySketchTemplater = new SketchTemplater(testDomain);
   });
 
-  after(function() {
+  after(function () {
     global.console.warn = globalconsolewarn;
   });
 
-  it('should not show any warnings', function() {
+  it('should not show any warnings', function () {
     expect(() => helpers.readTemplates(templateLocation)).to.not.throw();
   });
 
-  it('should load without warnings', function() {
+  it('should load without warnings', function () {
     const templates = helpers.readTemplates(templateLocation);
     expect(templates).to.be.a('object');
     expect(templates).to.not.be.empty;
   });
 
-  it('should execute custom model and make all substitutions', function() {
+  it('should execute custom model and make all substitutions', function () {
     const box = Object.assign({ model: 'custom' }, testBox());
     const sketch = mySketchTemplater.generateSketch(box);
 
@@ -49,7 +49,7 @@ describe('Included templates', function() {
     }
   });
 
-  it('should execute lora model and make all substitutions', function() {
+  it('should execute lora model and make all substitutions', function () {
     const box = Object.assign({ model: 'homeV2Lora' }, testBoxNewSensors());
 
     const sketch = mySketchTemplater.generateSketch(box);
@@ -63,7 +63,7 @@ describe('Included templates', function() {
     }
   });
 
-  it('should execute all other templates to execute and make all substitutions', function() {
+  it('should execute all other templates to execute and make all substitutions', function () {
     for (const model of Object.keys(mySketchTemplater._templates)) {
       if (model !== 'custom' && model !== 'homeV2Lora') {
         const box = Object.assign({ model: model }, testBox());
@@ -88,13 +88,13 @@ describe('Included templates', function() {
     }
   });
 
-  it('should return error string for unknown model', function() {
+  it('should return error string for unknown model', function () {
     expect(mySketchTemplater.generateSketch({ model: 'nosketch' })).to.include(
       'Error: No sketch template availiable for model'
     );
   });
 
-  it('should return a sketch in base64 encoding when requested', function() {
+  it('should return a sketch in base64 encoding when requested', function () {
     const box = Object.assign({ model: 'custom' }, testBox());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
@@ -106,7 +106,7 @@ describe('Included templates', function() {
     ).to.equal(b64Sketch);
   });
 
-  it('should return a sketch with correct digital ports for soil moisture sensor, sound meter and wind sensor', function() {
+  it('should return a sketch with correct digital ports for soil moisture sensor, sound meter and wind sensor', function () {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
@@ -117,7 +117,7 @@ describe('Included templates', function() {
     expect(sketch).to.include(`WINDSPEEDPIN 1`);
   });
 
-  it('should return a sketch with correct authorization header', function() {
+  it('should return a sketch with correct authorization header', function () {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
@@ -127,20 +127,20 @@ describe('Included templates', function() {
     );
   });
 
-  it('should return a sketch with CO2 sensor', function() {
+  it('should return a sketch with CO2 sensor', function () {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBoxNewSensors());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
 
     expect(sketch).to.include(`#define SCD30_CONNECTED`);
-    expect(sketch).to.include(`const char CO2SENSOR_ID[] PROGMEM`);
+    expect(sketch).to.include(`const char SCD30_CO2SENSOR_ID[] PROGMEM`);
   });
 
-  it('should return a sketch with DPS310 sensor', function() {
+  it('should return a sketch with DPS310 sensor', function () {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBox());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
 
-    expect(sketch).to.include(`const char DPS310SENSOR_ID[] PROGMEM =`);
+    expect(sketch).to.include(`const char DPS310_LUFTDRSENSOR_ID[] PROGMEM =`);
   });
 });

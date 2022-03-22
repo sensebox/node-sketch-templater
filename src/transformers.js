@@ -8,8 +8,8 @@ module.exports = {
   },
   toDefine(sensors) {
     const output = [];
-    for (const [i, { _id, title }] of sensors.entries()) {
-      output.push(dedent`// ${title}
+    for (const [i, { _id, title, sensorType }] of sensors.entries()) {
+      output.push(dedent`// ${title} - ${sensorType}
                          #define SENSOR${i + 1}_ID "${_id}"`);
     }
 
@@ -19,7 +19,7 @@ module.exports = {
     const output = [];
     for (const [, sensor] of sensors.entries()) {
       const value = sensor[key].replace(/\s+/g, '');
-      output.push(dedent`// ${sensor.title}
+      output.push(dedent`// ${sensor.title} - ${sensor.sensorType}
                          #define ${prefix}${value.toUpperCase()}${suffix}`);
     }
 
@@ -27,12 +27,12 @@ module.exports = {
   },
   toProgmem(sensors) {
     const output = [];
-    for (const { _id, title } of sensors) {
-      output.push(dedent`// ${title}
-                         const char ${title
-                           .toUpperCase()
-                           .replace(/[^A-Z0-9]+/g, '')
-                           .slice(0, 6)}SENSOR_ID[] PROGMEM = "${_id}";`);
+    for (const { _id, title, sensorType } of sensors) {
+      output.push(dedent`// ${title} - ${sensorType}
+                         const char ${sensorType.toUpperCase()}_${title
+        .toUpperCase()
+        .replace(/[^A-Z0-9]+/g, '')
+        .slice(0, 6)}SENSOR_ID[] PROGMEM = "${_id}";`);
     }
 
     return output.join('\r\n');
@@ -65,17 +65,16 @@ module.exports = {
       chunks = chunks.reverse();
     }
 
-    return `{${chunks.map(c => ` 0x${c}`)} }`;
+    return `{${chunks.map((c) => ` 0x${c}`)} }`;
   },
-  toDefineDisplay(display){
+  toDefineDisplay(display) {
     const output = [];
-    if(display === 'true'){
+    if (display === 'true') {
       output.push(`#define DISPLAY128x64_CONNECTED`);
-    }
-    else{
+    } else {
       output.push(`//#define DISPLAY128x64_CONNECTED`);
     }
 
-    return output.join('\r\n');    
+    return output.join('\r\n');
   }
 };

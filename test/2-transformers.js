@@ -5,13 +5,13 @@ const expect = require('chai').expect,
   testBox = require('./test-data/testBox_newSensors'),
   transformers = require('../src/transformers');
 
-describe('Transformers', function() {
-  it('as-is should just return whats given', function() {
+describe('Transformers', function () {
+  it('as-is should just return whats given', function () {
     const teststring = 'I am a teststring';
     expect(transformers['as-is'](teststring)).to.equal(teststring);
   });
 
-  it('toDefine should transform a sensor array to multiple lines with #defines', function() {
+  it('toDefine should transform a sensor array to multiple lines with #defines', function () {
     const { sensors } = testBox();
 
     const result = transformers.toDefine(sensors);
@@ -25,7 +25,7 @@ describe('Transformers', function() {
     }
   });
 
-  it('toDefineWithPrefixAndSuffix should transform a sensor array to multiple lines with #defines', function() {
+  it('toDefineWithPrefixAndSuffix should transform a sensor array to multiple lines with #defines', function () {
     const { sensors } = testBox();
     const prefix = '';
     const suffix = '_CONNECTED';
@@ -48,7 +48,7 @@ describe('Transformers', function() {
     }
   });
 
-  it('toProgmem should transform a sensor array to multiple lines with PROGMEM chars', function() {
+  it('toProgmem should transform a sensor array to multiple lines with PROGMEM chars', function () {
     const { sensors } = testBox();
 
     const result = transformers.toProgmem(sensors);
@@ -62,7 +62,7 @@ describe('Transformers', function() {
     }
   });
 
-  it('transformTTNID should transform a strign to a C compatible hex array', function() {
+  it('transformTTNID should transform a strign to a C compatible hex array', function () {
     const { devEUI, appEUI, appKey } = testBox();
 
     const devEUITransformed = transformers.transformTTNID(devEUI, true);

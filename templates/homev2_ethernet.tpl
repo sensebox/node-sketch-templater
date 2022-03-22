@@ -378,7 +378,7 @@ void setup() {
   delay(3000);
 
   timeClient.begin();
-  ArduinoBearSSL.onGetTime(getTime);  
+  ArduinoBearSSL.onGetTime(getTime);
 
 }
 
@@ -391,56 +391,56 @@ void loop() {
   //-----Temperature-----//
   //-----Humidity-----//
   #ifdef HDC1080_CONNECTED
-    addMeasurement(TEMPERSENSOR_ID, HDC.readTemperature());
+    addMeasurement(HDC1080_TEMPERSENSOR_ID, HDC.readTemperature());
     delay(200);
-    addMeasurement(RELLUFSENSOR_ID, HDC.readHumidity());
+    addMeasurement(HDC1080_RELLUFSENSOR_ID, HDC.readHumidity());
   #endif
 
   //-----Pressure-----//
   #ifdef BMP280_CONNECTED
     float pressure;
     pressure = BMP.readPressure()/100;
-    addMeasurement(LUFTDRSENSOR_ID, pressure);
+    addMeasurement(BMP280_LUFTDRSENSOR_ID, pressure);
   #endif
 
   //-----Lux-----//
   #ifdef TSL45315_CONNECTED
-    addMeasurement(BELEUCSENSOR_ID, Lightsensor_getIlluminance());
+    addMeasurement(TSL45315_BELEUCSENSOR_ID, Lightsensor_getIlluminance());
   #endif
 
   //-----UV intensity-----//
   #ifdef VEML6070_CONNECTED
-    addMeasurement(UVINTESENSOR_ID, VEML.getUV());
+    addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
   #endif
 
   //-----Soil Temperature & Moisture-----//
   #ifdef SMT50_CONNECTED
     float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
     float soilTemperature = (voltage - 0.5) * 100;
-    addMeasurement(BODENTSENSOR_ID, soilTemperature);
+    addMeasurement(SMT50_BODENTSENSOR_ID, soilTemperature);
     voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
     float soilMoisture = (voltage * 50) / 3;
-    addMeasurement(BODENFSENSOR_ID, soilMoisture);
+    addMeasurement(SMT50_BODENFSENSOR_ID, soilMoisture);
   #endif
 
   //-----dB(A) Sound Level-----//
   #ifdef SOUNDLEVELMETER_CONNECTED
     float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
     float decibel = v * 50;
-    addMeasurement(LAUTSTSENSOR_ID, decibel);
+    addMeasurement(SOUNDLEVELMETER_LAUTSTSENSOR_ID, decibel);
   #endif
 
   //-----BME680-----//
   #ifdef BME680_CONNECTED
     BME.setGasHeater(0, 0);
     if( BME.performReading()) {
-       addMeasurement(LUFTTESENSOR_ID, BME.temperature-1);
-       addMeasurement(LUFTFESENSOR_ID, BME.humidity);
-       addMeasurement(ATMLUFSENSOR_ID, BME.pressure/100);
+       addMeasurement(BME680_LUFTTESENSOR_ID, BME.temperature-1);
+       addMeasurement(BME680_LUFTFESENSOR_ID, BME.humidity);
+       addMeasurement(BME680_ATMLUFSENSOR_ID, BME.pressure/100);
     }
     BME.setGasHeater(320, 150); // 320*C for 150 ms
     if( BME.performReading()) {
-       addMeasurement(VOCSENSOR_ID, BME.gas_resistance / 1000.0);
+       addMeasurement(BME680_VOCSENSOR_ID, BME.gas_resistance / 1000.0);
     }
   #endif
 
@@ -458,19 +458,19 @@ void loop() {
       windspeed = poly1 - poly2 + poly3 - poly4;
       windspeed = windspeed * 0.2777777777777778; //conversion in m/s
     }
-    addMeasurement(WINDGESENSOR_ID, windspeed);
+    addMeasurement(WINDSPEED_WINDGESENSOR_ID, windspeed);
   #endif
 
   //-----CO2-----//
   #ifdef SCD30_CONNECTED
-    addMeasurement(CO2SENSOR_ID, SCD.getCO2());
+    addMeasurement(SCD30_CO2SENSOR_ID, SCD.getCO2());
   #endif
 
   //-----DPS310 Pressure-----//
   #ifdef DPS310_CONNECTED
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
-    addMeasurement(DPS310SENSOR_ID, pressure_event.pressure);
+    addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
   #endif
 
   DEBUG(F("submit values"));
