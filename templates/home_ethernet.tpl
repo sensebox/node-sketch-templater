@@ -201,9 +201,9 @@ void loop() {
   unsigned long start = millis();
 
   // read measurements from sensors
-  addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
+  addMeasurement(HDC1080_TEMPERSENSOR_ID, HDC.getTemp());
   delay(200);
-  addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
+  addMeasurement(HDC1080_RELLUFSENSOR_ID, HDC.getHumi());
 
   double tempBaro, pressure;
   char result;
@@ -211,11 +211,11 @@ void loop() {
   if (result != 0) {
     delay(result);
     result = BMP.getTemperatureAndPressure(tempBaro, pressure);
-    addMeasurement(LUFTDRSENSOR_ID, pressure);
+    addMeasurement(BMP280_LUFTDRSENSOR_ID, pressure);
   }
 
-  addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
-  addMeasurement(UVINTESENSOR_ID, VEML.getUV());
+  addMeasurement(TSL45315_BELEUCSENSOR_ID, TSL.readLux());
+  addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
 
   submitValues();
 
