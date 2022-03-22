@@ -37,6 +37,18 @@ module.exports = {
 
     return output.join('\r\n');
   },
+  toProgmemWithoutPrefix(sensors) {
+    const output = [];
+    for (const { _id, title } of sensors) {
+      output.push(dedent`// ${title}
+                         const char ${title
+                           .toUpperCase()
+                           .replace(/[^A-Z0-9]+/g, '')
+                           .slice(0, 6)}SENSOR_ID[] PROGMEM = "${_id}";`);
+    }
+
+    return output.join('\r\n');
+  },
   digitalPortToPortNumber(port, offset = 0) {
     let portNumber = 0;
     switch (port) {

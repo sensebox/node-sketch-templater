@@ -44,7 +44,7 @@ const char SENSEBOX_ID[] PROGMEM = "@@SENSEBOX_ID@@";
 static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 
 // sensor IDs
-@@SENSOR_IDS|toProgmem@@
+@@SENSOR_IDS|toProgmemWithoutPrefix@@
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -219,9 +219,9 @@ void loop() {
   unsigned long start = millis();
 
   // read measurements from sensors
-  addMeasurement(HDC1080_TEMPERSENSOR_ID, HDC.getTemp());
+  addMeasurement(TEMPERSENSOR_ID, HDC.getTemp());
   delay(200);
-  addMeasurement(HDC1080_RELLUFSENSOR_ID, HDC.getHumi());
+  addMeasurement(RELLUFSENSOR_ID, HDC.getHumi());
 
   double tempBaro, pressure;
   char result;
@@ -229,11 +229,11 @@ void loop() {
   if (result != 0) {
     delay(result);
     result = BMP.getTemperatureAndPressure(tempBaro, pressure);
-    addMeasurement(BMP280_LUFTDRSENSOR_ID, pressure);
+    addMeasurement(LUFTDRSENSOR_ID, pressure);
   }
 
-  addMeasurement(TSL45315_BELEUCSENSOR_ID, TSL.readLux());
-  addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
+  addMeasurement(BELEUCSENSOR_ID, TSL.readLux());
+  addMeasurement(UVINTESENSOR_ID, VEML.getUV());
 
   submitValues();
 
