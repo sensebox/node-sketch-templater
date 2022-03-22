@@ -477,7 +477,7 @@ void loop() {
 #ifdef SMT50_CONNECTED
   float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
   float soilTemperature = (voltage - 0.5) * 100;
-  addMeasurement(BODENTSENSOR_ID, soilTemperature);
+  addMeasurement(SMT50_BODENTSENSOR_ID, soilTemperature);
   voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
   float soilMoisture = (voltage * 50) / 3;
   addMeasurement(SMT50_BODENFSENSOR_ID, soilMoisture);

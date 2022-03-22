@@ -88,7 +88,7 @@ measurement measurements[NUM_SENSORS];
 uint8_t num_measurements = 0;
 
 // buffer for sprintf
-char buffer[750];
+char buffer[500];
 
 void addMeasurement(const char *sensorId, float value) {
   measurements[num_measurements].sensorId = sensorId;
