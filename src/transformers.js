@@ -29,7 +29,9 @@ module.exports = {
     const output = [];
     for (const { _id, title, sensorType } of sensors) {
       output.push(dedent`// ${title} - ${sensorType}
-                         const char ${sensorType.toUpperCase()}_${title
+                         const char ${sensorType
+                           .toUpperCase()
+                           .replace(/[^A-Z0-9]+/g, '')}_${title
         .toUpperCase()
         .replace(/[^A-Z0-9]+/g, '')
         .slice(0, 6)}SENSOR_ID[] PROGMEM = "${_id}";`);
