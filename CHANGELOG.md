@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.12.1
+
 - 🔧 Remove whitespaces in `sensorTypes` included in variable names
 - 🧪 Update tests to reflect sensorTypes fcoming from API
 
