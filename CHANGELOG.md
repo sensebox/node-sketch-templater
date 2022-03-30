@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v1.12.0
+
 - 🔧 Fix variable naming
 
 ## v1.11.2
