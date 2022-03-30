@@ -44,7 +44,7 @@ const char SENSEBOX_ID[] PROGMEM = "@@SENSEBOX_ID@@";
 static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 
 // sensor IDs
-@@SENSOR_IDS|toProgmem@@
+@@SENSOR_IDS|toProgmemWithoutPrefix@@
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -86,7 +86,7 @@ measurement measurements[NUM_SENSORS];
 uint8_t num_measurements = 0;
 
 // buffer for sprintf
-char buffer[150];
+char buffer[500];
 
 void addMeasurement(const char *sensorId, float value) {
   measurements[num_measurements].sensorId = sensorId;

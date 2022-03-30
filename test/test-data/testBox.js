@@ -24,7 +24,11 @@ module.exports = function testBox() {
         _id: randomHex(),
         sensorType: 'HDC1080'
       },
-      { title: 'DPS310 Luftdruck', _id: randomHex(), sensorType: 'DPS310' }
+      {
+        title: 'Luftdruck',
+        _id: randomHex(),
+        sensorType: 'DPS310'
+      }
     ],
     serialPort: 'Serial1',
     ssid: 'MY-HOME-NETWORK',

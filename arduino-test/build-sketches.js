@@ -7,7 +7,7 @@ const SketchTemplater = require('../src');
 
 const sketchTemplater = new SketchTemplater('test.ingress.domain');
 
-const boxStub = function(model) {
+const boxStub = function (model) {
   return {
     _id: '59479ed5a4ad5900112d8dec',
     name: 'Teststation',
