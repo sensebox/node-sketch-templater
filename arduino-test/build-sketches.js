@@ -38,8 +38,12 @@ const boxStub = function (model) {
         _id: '59479ed5a4ad5900112d8df1',
         sensorType: 'VEML6070'
       },
-      { title: 'PM10', _id: '59479ed5a4ad5900112d8df2', sensorType: 'SDS011' },
-      { title: 'PM2.5', _id: '59479ed5a4ad5900112d8df3', sensorType: 'SDS011' },
+      { title: 'PM10', _id: '59479ed5a4ad5900112d8df2', sensorType: 'SDS 011' },
+      {
+        title: 'PM2.5',
+        _id: '59479ed5a4ad5900112d8df3',
+        sensorType: 'SDS 011'
+      },
       {
         title: 'Bodenfeuchte',
         _id: '59479ed5a4ad5900112d8df4',
