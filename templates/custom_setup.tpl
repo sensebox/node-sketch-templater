@@ -37,7 +37,7 @@ void setup () {
   if (Ethernet.begin(mac) == 0)
   {
     Serial.println("DHCP failed!");
-    //Falls DHCP fehltschlägt, mit manueller IP versuchen
+    //Falls DHCP fehlschlägt, mit manueller IP versuchen
     Ethernet.begin(mac, myIP);
   }
   Serial.println("done!");
@@ -47,7 +47,7 @@ void setup () {
 
 void loop () {
   /*
-     Hier Sensoren auslesen und nacheinerander über postFloatValue(...) hochladen. Beispiel:
+     Hier Sensoren auslesen und nacheinander über postFloatValue(...) hochladen. Beispiel:
 
      float temperature = sensor.readTemperature();
      postFloatValue(temperature, 1, temperatureSensorID);
@@ -65,7 +65,7 @@ void postFloatValue (float measurement, int digits, String sensorId) {
   jsonValue += "}";
   //Mit OSeM Server verbinden und POST Operation durchführen
   Serial.println("-------------------------------------");
-  Serial.print("Connectingto OSeM Server...");
+  Serial.print("Connecting to OSeM Server...");
   if (client.connect(server, 80)) {
     Serial.println("connected!");
     Serial.println("-------------------------------------");
