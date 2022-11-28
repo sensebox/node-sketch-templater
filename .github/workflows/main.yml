@@ -41,8 +41,22 @@ jobs:
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+
+      - name: Build docker image
+        run: docker build -t arduino-test .
 
       - name: Execute arduino-test
-        run: |
-          npm run arduino-test
+        run:  docker run -v ${{ github.workspace }}/arduino-test/build:/app/arduino-test/sketches arduino-test
+
+      - name: Archive build artifact
+        uses: actions/upload-artifact@master
+        with:
+          name: node-sketch-templater-build-artifact
+          path: ${{ github.workspace }}/arduino-test/build
+
+      - name: Download build artifact
+        uses: actions/download-artifact@master
+        with:
+          name: node-sketch-templater-build-artifact
+          path: ./
