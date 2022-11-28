@@ -114,7 +114,7 @@ const build = function build(board, model) {
     `Building model ${model} with "arduino-cli compile --fqbn ${board} ${sketchesPath}/${model}/${model}.ino"`
   );
   child_process.execSync(
-    `arduino-cli compile --fqbn ${board} ${sketchesPath}/${model}/${model}.ino`,
+    `arduino-cli compile --fqbn ${board} -e ${sketchesPath}/${model}/${model}.ino`,
     // `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
     { stdio: [0, 1, 2] }
   );
