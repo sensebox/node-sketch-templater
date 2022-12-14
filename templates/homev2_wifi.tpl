@@ -666,7 +666,7 @@ void loop() {
           display.println(F("not connected"));
         #endif
         break;
-      case 3:
+      case 4:
         // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -689,7 +689,7 @@ void loop() {
 #endif
 
         break;
-      case 4:
+      case 5:
         // WINDSPEED SCD30
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -711,7 +711,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-      case 5:
+      case 6:
           // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
