@@ -28,6 +28,8 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
+#include <sps30.h> // http://librarymanager/All#
+
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -135,6 +137,14 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
+#endif
+#ifdef SPS30_CONNECTED
+  uint32_t auto_clean_days = 4;
+  struct sps30_measurement m;
+  const long intervalsps = 1000;
+  unsigned long time_startsps = 0;
+  unsigned long time_actualsps = 0;
+  uint32_t auto_clean;
 #endif
 
 
@@ -426,6 +436,11 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
+  #ifdef SPS30_CONNECTED
+    sensirion_i2c_init();
+    ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
+    ret = sps30_start_measurement();
+  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -533,6 +548,14 @@ void loop() {
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
+  #endif
+
+  #ifdef SCD30_CONNECTED
+    ret = sps30_read_measurement(&m);
+    addMeasurement(SCD30_PM1_ID, m.mc_1p0);
+    addMeasurement(SCD30_PM25_ID, m.mc_2p5);
+    addMeasurement(SCD30_PM4_ID, m.mc_4p0);
+    addMeasurement(SCD30_PM10_ID, m.mc_10p0);
   #endif
 
   DEBUG(F("Submit values"));
