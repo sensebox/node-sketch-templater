@@ -550,7 +550,7 @@ void loop() {
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
   #endif
 
-  #ifdef SCD30_CONNECTED
+  #ifdef SPS30_CONNECTED
     ret = sps30_read_measurement(&m);
     addMeasurement(SCD30_PM1_ID, m.mc_1p0);
     addMeasurement(SCD30_PM25_ID, m.mc_2p5);
