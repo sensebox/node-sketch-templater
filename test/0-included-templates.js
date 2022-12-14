@@ -149,9 +149,9 @@ describe('Included templates', function () {
     const box = Object.assign({ model: 'homeV2Wifi' }, testBox_SPS30());
     // baseline sketch in text format
     const sketch = mySketchTemplater.generateSketch(box);
-
+    console.log(sketch);
     expect(sketch).to.include(`#define SPS30_CONNECTED`);
-    expect(sketch).to.include(`const char SPS30 SCD30_PM1_ID[] PROGMEM =`);
+    expect(sketch).to.include(`const char SPS30_PM1SENSOR_ID[] PROGMEM =`);
   })
 });
 
