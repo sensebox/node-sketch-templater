@@ -28,6 +28,8 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
+#include <sps30.h>
+
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -135,6 +137,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
+#endif
+#ifdef SPS30_CONNECTED
+  uint32_t auto_clean_days = 4;
+  struct sps30_measurement m;
+  int16_t ret;
+  uint32_t auto_clean;
 #endif
 
 
@@ -426,6 +434,11 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
+  #ifdef SPS30_CONNECTED
+    sensirion_i2c_init();
+    ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
+    ret = sps30_start_measurement();
+  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -535,6 +548,14 @@ void loop() {
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
   #endif
 
+  #ifdef SPS30_CONNECTED
+    ret = sps30_read_measurement(&m);
+    addMeasurement(SPS30_PM1SENSOR_ID, m.mc_1p0);
+    addMeasurement(SPS30_PM25SENSOR_ID, m.mc_2p5);
+    addMeasurement(SPS30_PM4SENSOR_ID, m.mc_4p0);
+    addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
+  #endif
+
   DEBUG(F("Submit values"));
   submitValues();
 
@@ -600,6 +621,52 @@ void loop() {
 #endif
         break;
       case 2:
+        // SPS30_CONNECTED
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("PM1&PM2.5"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("PM1:"));
+
+        #ifdef SPS30_CONNECTED
+          display.println(m.mc_1p0);
+        #else
+          display.println(F("not connected"));
+        #endif
+
+        display.print(F("PM.25:"));
+        #ifdef SPS30_CONNECTED
+          display.println(m.mc_2p5);
+        #else 
+          display.println(F("not connected"));
+        #endif
+
+        break;
+      case 3:
+        // SPS30_CONNECTED
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("PM4&PM10"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("PM4:"));
+        
+        #ifdef SPS30_CONNECTED
+          display.println(m.mc_4p0);
+        #else
+          display.println(F("not connected"));
+        #endif
+          display.print(F("PM10:"));
+        #ifdef SPS30_CONNECTED
+          display.println(m.mc_10p0);
+        #else 
+          display.println(F("not connected"));
+        #endif
+        break;
+      case 4:
         // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -622,7 +689,7 @@ void loop() {
 #endif
 
         break;
-      case 3:
+      case 5:
         // WINDSPEED SCD30
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -644,7 +711,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-      case 4:
+      case 6:
           // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -665,6 +732,7 @@ void loop() {
 #else
         display.print(F("not connected"));
 #endif
+
         break;
     }
     display.display();

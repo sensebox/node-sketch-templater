@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+## v.1.13.0
+- ⚙️ Add SPS30 Sensor
+
 ## v1.12.1
 
 - 🔧 Remove whitespaces in `sensorTypes` included in variable names

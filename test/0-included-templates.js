@@ -4,6 +4,7 @@
 const expect = require('chai').expect,
   testBox = require('./test-data/testBox'),
   testBoxNewSensors = require('./test-data/testBox_newSensors'),
+  testBox_SPS30 = require('./test-data/testBox_SPS30'),
   helpers = require('../src/helpers'),
   SketchTemplater = require('../src');
 
@@ -143,4 +144,14 @@ describe('Included templates', function () {
 
     expect(sketch).to.include(`const char DPS310_LUFTDRSENSOR_ID[] PROGMEM =`);
   });
+
+  it('should return a sketch with SPS30 sensor', function() {
+    const box = Object.assign({ model: 'homeV2Wifi' }, testBox_SPS30());
+    // baseline sketch in text format
+    const sketch = mySketchTemplater.generateSketch(box);
+
+    expect(sketch).to.include(`#define SPS30_CONNECTED`);
+    expect(sketch).to.include(`const char SPS30_PM1SENSOR_ID[] PROGMEM =`);
+  })
 });
+
