@@ -2,8 +2,6 @@
 
 ## Unreleased
 
-## v1.13.0
-
 ## v.1.13.0
 - ⚙️ Add SPS30 Sensor
 
