@@ -28,7 +28,7 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-#include <sps30.h> // http://librarymanager/All#
+#include <sps30.h>
 
 
 // Uncomment the next line to get debugging messages printed on the Serial port
