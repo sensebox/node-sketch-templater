@@ -24,7 +24,7 @@
 #include <Adafruit_BMP280.h>
 #include <Adafruit_BME680.h>
 #include <VEML6070.h>
-#include <SDS011-select-serial.h>
+#include <SdsDustSensor.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
@@ -86,9 +86,7 @@
   uint16_t uv;
 #endif
 #ifdef SDS011_CONNECTED
-  SDS011 SDS(SDS_UART_PORT);
-  float pm10 = 0;
-  float pm25 = 0;
+  SdsDustSensor sds(SDS_UART_PORT);
 #endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
@@ -283,20 +281,12 @@ void do_send(osjob_t* j){
 
     //-----PM-----//
     #ifdef SDS011_CONNECTED
-      uint8_t attempt = 0;
-      while (attempt < 5) {
-        bool error = SDS.read(&pm25, &pm10);
-        if (!error) {
-          DEBUG(F("PM10: "));
-          DEBUG(pm10);
-          message.addUint16(pm10 * 10);
-          DEBUG(F("PM2.5: "));
-          DEBUG(pm25);
-          message.addUint16(pm25 * 10);
-          break;
-        }
-        attempt++;
-      }
+      mResult pm = sds.queryPm();
+      float pm10, pm25;
+      pm10 = pm.pm10;
+      pm25 = pm.pm25;
+      addMeasurement(SDS011_PM10SENSOR_ID, pm10);
+      addMeasurement(SDS011_PM25SENSOR_ID, pm25);
     #endif
 
     //-----Soil Temperature & Moisture-----//
@@ -572,7 +562,8 @@ void setup() {
     Lightsensor_begin();
   #endif
   #ifdef SDS011_CONNECTED
-    SDS_UART_PORT.begin(9600);
+    sds.begin();
+    sds.setQueryReportingMode();
   #endif
   #ifdef BME680_CONNECTED
     BME.begin(0x76);
