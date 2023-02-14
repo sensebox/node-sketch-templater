@@ -24,7 +24,7 @@
 #include <Adafruit_BMP280.h>
 #include <Adafruit_BME680.h>
 #include <VEML6070.h>
-#include <SDS011-select-serial.h>
+#include <SdsDustSensor.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
@@ -116,7 +116,7 @@ unsigned long getTime() {
   VEML6070 VEML;
 #endif
 #ifdef SDS011_CONNECTED
-  SDS011 SDS(SDS_UART_PORT);
+  SdsDustSensor sds(SDS_UART_PORT);
 #endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
@@ -418,7 +418,8 @@ void setup() {
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
   #endif
   #ifdef SDS011_CONNECTED
-    SDS_UART_PORT.begin(9600);
+    sds.begin();
+    sds.setQueryReportingMode();
   #endif
   #ifdef SCD30_CONNECTED
     Wire.begin();
@@ -484,17 +485,12 @@ void loop() {
 
   //-----PM-----//
   #ifdef SDS011_CONNECTED
-    uint8_t attempt = 0;
+    PmResult pm = sds.queryPm();
     float pm10, pm25;
-    while (attempt < 5) {
-      bool error = SDS.read(&pm25, &pm10);
-      if (!error) {
-        addMeasurement(SDS011_PM10SENSOR_ID, pm10);
-        addMeasurement(SDS011_PM25SENSOR_ID, pm25);
-        break;
-      }
-      attempt++;
-    }
+    pm10 = pm.pm10;
+    pm25 = pm.pm25;
+    addMeasurement(SDS011_PM10SENSOR_ID, pm10);
+    addMeasurement(SDS011_PM25SENSOR_ID, pm25);
   #endif
 
   //-----Soil Temperature & Moisture-----//
