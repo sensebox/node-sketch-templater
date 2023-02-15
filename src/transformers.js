@@ -90,5 +90,15 @@ module.exports = {
     }
 
     return output.join('\r\n');
+  }, 
+  toDefineEnableDebug(debug){
+    const output = [];
+    if (debug === 'true') {
+      output.push(`#define ENABLE_DEBUG`);
+    } else {
+      output.push(`//#define ENABLE_DEBUG`);
+    }
+
+    return output.join('\r\n');
   }
 };

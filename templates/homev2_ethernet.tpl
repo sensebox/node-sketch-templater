@@ -31,7 +31,7 @@
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
-// #define ENABLE_DEBUG
+@@ENABLE_DEBUG|toDefineEnableDebug@@
 
 #ifdef ENABLE_DEBUG
 #define DEBUG(str) Serial.println(str)
