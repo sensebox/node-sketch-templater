@@ -86,11 +86,8 @@ describe('Transformers', function () {
     expect(result).to.equal('#define ENABLE_DEBUG');
   } );
 
-  if('toDefineEnableDebug("false") should not add a #define ENABLE_DEBUG instead comment the line out', function () {
+  it('toDefineEnableDebug("false") should not add a #define ENABLE_DEBUG instead comment the line out', function () {
     const result = transformers.toDefineEnableDebug('false');
     expect(result).to.equal('//#define ENABLE_DEBUG');
-  } );
-
+  } )
 });
-
-
