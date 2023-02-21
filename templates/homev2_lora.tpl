@@ -281,12 +281,16 @@ void do_send(osjob_t* j){
 
     //-----PM-----//
     #ifdef SDS011_CONNECTED
-      mResult pm = sds.queryPm();
+      PmResult pm = sds.queryPm();
       float pm10, pm25;
       pm10 = pm.pm10;
       pm25 = pm.pm25;
-      addMeasurement(SDS011_PM10SENSOR_ID, pm10);
-      addMeasurement(SDS011_PM25SENSOR_ID, pm25);
+      DEBUG(F("PM10: "));
+      DEBUG(pm10);
+      message.addUint16(pm10 * 10);
+      DEBUG(F("PM2.5: "));
+      DEBUG(pm25);
+      message.addUint16(pm25 * 10);
     #endif
 
     //-----Soil Temperature & Moisture-----//
