@@ -1,6 +1,7 @@
 'use strict';
 
 const fs = require('fs');
+const eol = require('eol');
 
 const getProperty = function getProperty(obj, ...properties) {
   let seenPropertyKey, value;
@@ -64,9 +65,9 @@ module.exports = {
       if (filename.endsWith('.tpl')) {
         const filePath = `${templateFolderPath}/${filename}`;
         // read file to array of lines, split off first line
-        const [configJsonStr, ...templateLines] = fs
-          .readFileSync(filePath, 'utf-8')
-          .split('\n');
+        const [configJsonStr, ...templateLines] = eol.split(
+          fs.readFileSync(filePath, 'utf-8')
+        );
 
         try {
           const { models } = parseTemplateConfig(configJsonStr);
@@ -78,7 +79,7 @@ module.exports = {
               );
             }
 
-            templates[model] = templateLines.join('\r\n');
+            templates[model] = templateLines.join(eol.lf);
           }
         } catch (err) {
           console.warn(
