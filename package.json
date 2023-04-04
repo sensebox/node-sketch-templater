@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "config": "^3.3.7",
-    "dedent": "^0.7.0"
+    "dedent": "^0.7.0",
+    "eol": "^0.9.1"
   },
   "publishConfig": {
     "access": "public"
