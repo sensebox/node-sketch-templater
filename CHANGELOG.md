@@ -1,6 +1,7 @@
 # node-sketch-templater Changelog
 
 ## Unreleased
+- 🐛 Fix EOL in template files
 
 ## v1.13.1-beta.0
 
