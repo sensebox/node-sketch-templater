@@ -30,6 +30,9 @@
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 
+//Watchdog Library, can be found in the library manager or on https://github.com/adafruit/Adafruit_SleepyDog
+#include <Adafruit_SleepyDog.h>
+
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
 // #define ENABLE_DEBUG
@@ -437,6 +440,10 @@ void setup() {
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
   DEBUG(F("Initializing sensors done!"));
+  DEBUG2(F("Initializing Watchdog at 480000ms..."));
+  // Initialize watchdog
+  Watchdog.enable(480000);
+  DEBUG(F("done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
 }
@@ -716,10 +723,18 @@ void loop() {
         page += 1;
       }
       displayTime += 5000;
+      DEBUG2(F("Resetting watchdog..."));
+      Watchdog.reset();
+      DEBUG(F("done."));
     }
 #endif
     if (elapsed >= postingInterval)
+    {
+      DEBUG2(F("Preparing for Upload: Resetting watchdog..."));
+      Watchdog.reset();
+      DEBUG(F("done."));
       return;
+    }
   }
 }
 
