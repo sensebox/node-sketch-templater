@@ -29,7 +29,7 @@
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 #include <sps30.h>
-
+#include <hydreon.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -144,7 +144,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
   int16_t ret;
   uint32_t auto_clean;
 #endif
-
+#ifdef HYDREONRAIN_CONNECTED
+ rainsensor_serial(RAINSENSOR_PORT);
+#endif
 
 typedef struct measurement {
   const char *sensorId;
@@ -439,6 +441,9 @@ void setup() {
     ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
     ret = sps30_start_measurement();
   #endif
+  #ifdef HYDREONRAIN_CONNECTED
+    rainsensor_serial.begin();
+  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -554,6 +559,13 @@ void loop() {
     addMeasurement(SPS30_PM25SENSOR_ID, m.mc_2p5);
     addMeasurement(SPS30_PM4SENSOR_ID, m.mc_4p0);
     addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
+  #endif
+
+  #ifdef HYDREONRAIN_CONNECTED
+    rainsensor_serial.readAllData();
+    addMeasurement(HYDREONRAIN_TOTALACC_ID, rainsensor_serial.getTotalAccumulation());
+    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rainsensor_serial.getEventAccumulation());
+    addMeasurement(HYDREONRAIN_INTENSITY_ID, rainsensor_serial.getRainfallIntensity());
   #endif
 
   DEBUG(F("Submit values"));

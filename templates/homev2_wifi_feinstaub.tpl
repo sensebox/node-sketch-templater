@@ -29,7 +29,7 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-
+#include <hdydreon.h>
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
 // #define ENABLE_DEBUG
