@@ -31,6 +31,7 @@ RUN arduino-cli lib install --zip-path VEML6070.zip
 RUN arduino-cli lib install --zip-path LTR329.zip
 RUN arduino-cli lib install --zip-path sps30.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial
+RUN arduino-cli lib install --git url https://github.com/sensebox/hydreon-rainsensor-library
 
 # install arduino stuff for senseBox V2
 RUN arduino-cli core install arduino:samd@1.8.13
