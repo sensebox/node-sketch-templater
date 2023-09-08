@@ -44,7 +44,7 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
 ) {
   if (this._templates[box.model]) {
     // transform CO₂ to CO2 just for node sketch templater
-    box.sensors = box.sensors.map(s => {
+    box.sensors = box.sensors.map((s) => {
       if (s.title === 'CO₂') {
         s.title = 'CO2';
       }
@@ -111,27 +111,27 @@ SketchTemplater.prototype._executeTemplate = function _executeTemplate(
 
   // return the template matching the box model with every occurrence of
   // @@subTemplateKey@@ replaced with the properties of the box
-  return this._templates[sourceBox.model].replace(/@@(.+)@@/g, function(
-    _,
-    subTemplateKey
-  ) {
-    // check if there is a transformer defined
-    // eslint-disable-next-line prefer-const
-    let [key, transformer = 'as-is'] = subTemplateKey.split('|');
-    let params = [];
+  return this._templates[sourceBox.model].replace(
+    /@@(.+)@@/g,
+    function (_, subTemplateKey) {
+      // check if there is a transformer defined
+      // eslint-disable-next-line prefer-const
+      let [key, transformer = 'as-is'] = subTemplateKey.split('|');
+      let params = [];
 
-    if (transformer.indexOf('~') >= -1) {
-      [transformer, params] = transformer.split('~');
+      if (transformer.indexOf('~') >= -1) {
+        [transformer, params] = transformer.split('~');
+      }
+
+      if (params) {
+        const parameters = params.split(',');
+
+        return transformers[transformer](box[key], ...parameters);
+      } else if (transformers[transformer]) {
+        return transformers[transformer](box[key]);
+      }
     }
-
-    if (params) {
-      const parameters = params.split(',');
-
-      return transformers[transformer](box[key], ...parameters);
-    } else if (transformers[transformer]) {
-      return transformers[transformer](box[key]);
-    }
-  });
+  );
 };
 
 module.exports = SketchTemplater;

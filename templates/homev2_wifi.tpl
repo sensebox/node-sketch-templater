@@ -639,7 +639,7 @@ void loop() {
         display.print(F("PM.25:"));
         #ifdef SPS30_CONNECTED
           display.println(m.mc_2p5);
-        #else 
+        #else
           display.println(F("not connected"));
         #endif
 
@@ -653,7 +653,7 @@ void loop() {
         display.println();
         display.setTextSize(1);
         display.print(F("PM4:"));
-        
+
         #ifdef SPS30_CONNECTED
           display.println(m.mc_4p0);
         #else
@@ -662,7 +662,7 @@ void loop() {
           display.print(F("PM10:"));
         #ifdef SPS30_CONNECTED
           display.println(m.mc_10p0);
-        #else 
+        #else
           display.println(F("not connected"));
         #endif
         break;
