@@ -80,4 +80,14 @@ describe('Transformers', function () {
     );
     expect(transformers.transformTTNID('iammalformed')).to.include('{ }');
   });
+
+  it('toDefineEnableDebug("true") should add a #define ENABLE_DEBUG', function () {
+    const result = transformers.toDefineEnableDebug('true');
+    expect(result).to.equal('#define ENABLE_DEBUG');
+  } );
+
+  it('toDefineEnableDebug("false") should not add a #define ENABLE_DEBUG instead comment the line out', function () {
+    const result = transformers.toDefineEnableDebug('false');
+    expect(result).to.equal('//#define ENABLE_DEBUG');
+  } )
 });
