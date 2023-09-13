@@ -29,7 +29,7 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-
+#include <hydreon.h>
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
 @@ENABLE_DEBUG|toDefineEnableDebug@@
@@ -142,6 +142,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
+#endif
+#ifdef HYDREONRAIN_CONNECTED
+ rg_15(RAINSENSOR_PORT);
 #endif
 
 
@@ -436,6 +439,9 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
+  #ifdef HYDREONRAIN_CONNECTED
+    rg_15.begin();
+  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
@@ -557,6 +563,13 @@ void loop() {
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
+  #endif
+
+  #ifdef HYDREONRAIN_CONNECTED
+    rg_15.readAllData();
+    addMeasurement(HYDREONRAIN_TOTALACC_ID, rg_15.getTotalAccumulation());
+    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
+    addMeasurement(HYDREONRAIN_INTENSITY_ID, rg_15.getRainfallIntensity());
   #endif
 
   DEBUG(F("Submit values"));
