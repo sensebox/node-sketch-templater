@@ -144,7 +144,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
   Adafruit_DPS310 dps;
 #endif
 #ifdef HYDREONRAIN_CONNECTED
- rainsensor_serial(RAINSENSOR_PORT);
+ rg_15(RAINSENSOR_PORT);
 #endif
 
 
@@ -440,7 +440,7 @@ void setup() {
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
   #ifdef HYDREONRAIN_CONNECTED
-    rainsensor_serial.begin();
+    rg_15.begin();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -566,10 +566,10 @@ void loop() {
   #endif
 
   #ifdef HYDREONRAIN_CONNECTED
-    rainsensor_serial.readAllData();
-    addMeasurement(HYDREONRAIN_TOTALACC_ID, rainsensor_serial.getTotalAccumulation());
-    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rainsensor_serial.getEventAccumulation());
-    addMeasurement(HYDREONRAIN_INTENSITY_ID, rainsensor_serial.getRainfallIntensity());
+    rg_15.readAllData();
+    addMeasurement(HYDREONRAIN_TOTALACC_ID, rg_15.getTotalAccumulation());
+    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
+    addMeasurement(HYDREONRAIN_INTENSITY_ID, rg_15.getRainfallIntensity());
   #endif
 
   DEBUG(F("Submit values"));

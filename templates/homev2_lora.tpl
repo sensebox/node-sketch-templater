@@ -28,6 +28,7 @@
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
+#include <hydreon.h>
 
 
 // Uncomment the next line to get debugging messages printed on the Serial port
@@ -114,6 +115,9 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
+#endif
+#ifdef HYDREONRAIN_CONNECTED
+ rg_15(RAINSENSOR_PORT);
 #endif
 
 // This EUI must be in little-endian format, so least-significant-byte (lsb)
@@ -361,6 +365,18 @@ void do_send(osjob_t* j){
       dps.getEvents(&temp_event, &pressure_event);
       message.addUint16((pressure_event.pressure - 300) * 81.9187);
     #endif
+  #ifdef HYDREONRAIN_CONNECTED
+    rg_15.readAllData();
+    addMeasurement(HYDREONRAIN_TOTALACC_ID, rg_15.getTotalAccumulation());
+    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
+    addMeasurement(HYDREONRAIN_INTENSITY_ID, rg_15.getRainfallIntensity());
+    int totalAcc = floor (rg_15.getTotalAccumulation() * 10)
+    int eventAcc = floor (rg_15.getEventAccumulation() * 10)
+    int rainIntensity = floor (rg_15.getRainfallIntensity() * 10)
+    message.addUint16(totalAcc);
+    message.addUint16(eventAcc);
+    message.addUint16(rainIntensity);
+    #endif
 
     // Prepare upstream data transmission at the next possible time.
     LMIC_setTxData2(1, message.getBytes(), message.getLength(), 0);
@@ -607,6 +623,9 @@ void setup() {
     dps.begin_I2C(0x76);
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
+  #endif
+  #ifdef HYDREONRAIN_CONNECTED
+    rg_15.begin();
   #endif
 
   DEBUG(F("Sensor initializing done!"));
