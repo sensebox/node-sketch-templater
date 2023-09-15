@@ -31,11 +31,15 @@ RUN arduino-cli lib install --zip-path VEML6070.zip
 RUN arduino-cli lib install --zip-path LTR329.zip
 RUN arduino-cli lib install --zip-path sps30.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial
+RUN arduino-cli lib install --git-url https://github.com/OPEnSLab-OSU/SSLClient
+
 
 # install arduino stuff for senseBox V2
 RUN arduino-cli core install arduino:samd@1.8.13
 RUN curl -o /root/.arduino15/package_sensebox_index.json https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json
 RUN arduino-cli --additional-urls https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json core install sensebox:samd
+
+COPY /certs/certificate.h /app/certificate.h
 
 WORKDIR /app
 
