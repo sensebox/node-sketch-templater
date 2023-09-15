@@ -94,7 +94,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 @@SENSOR_IDS|toProgmem@@
 
 WiFiClient wifiClient;
-BearSSLClient client(wifiClient);
+SSLClient client(wiFiClient, TAs, TAs_NUM, 6, 1,SSLClient::SSL_INFO);
 
 unsigned long getTime() {
   return WiFi.getTime();
@@ -388,8 +388,6 @@ void setup() {
     DEBUG(F("done."));
   }
 
-  // check the server time for the validation of the certificate
-  ArduinoBearSSL.onGetTime(getTime);
 
   #ifdef ENABLE_DEBUG
     // init I2C/wire library
