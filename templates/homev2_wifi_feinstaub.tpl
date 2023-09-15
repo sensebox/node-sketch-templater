@@ -27,11 +27,11 @@
 #include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
-#include <ArduinoBearSSL.h>
+#include <SSLCLient.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 
-//Watchdog Library, can be found in the library manager or on https://github.com/adafruit/Adafruit_SleepyDog
-#include <Adafruit_SleepyDog.h>
+#include "certificates.h" //SSL-TrustAnchors for opensensemap.org
+
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -146,7 +146,6 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-
 
 typedef struct measurement {
   const char *sensorId;
@@ -440,10 +439,6 @@ void setup() {
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
   DEBUG(F("Initializing sensors done!"));
-  DEBUG2(F("Initializing Watchdog at 480000ms..."));
-  // Initialize watchdog
-  Watchdog.enable(480000);
-  DEBUG(F("done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
 }
@@ -723,18 +718,10 @@ void loop() {
         page += 1;
       }
       displayTime += 5000;
-      DEBUG2(F("Resetting watchdog..."));
-      Watchdog.reset();
-      DEBUG(F("done."));
     }
 #endif
     if (elapsed >= postingInterval)
-    {
-      DEBUG2(F("Preparing for Upload: Resetting watchdog..."));
-      Watchdog.reset();
-      DEBUG(F("done."));
       return;
-    }
   }
 }
 
