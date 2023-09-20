@@ -110,6 +110,7 @@ const build = function build(board, model) {
     `${sketchesPath}/${model}/${model}.ino`,
     sketchTemplater.generateSketch(boxStub(model))
   );
+  fs.copyFileSync(`${__dirname}/certificates.h`, `${sketchesPath}/${model}/certificates.h`);
   console.log(
     `Building model ${model} with "arduino-cli compile --fqbn ${board} ${sketchesPath}/${model}/${model}.ino"`
   );

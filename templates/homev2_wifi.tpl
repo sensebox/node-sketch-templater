@@ -26,9 +26,11 @@
 #include <VEML6070.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
-#include <ArduinoBearSSL.h>
+#include <SSLClient.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 #include <sps30.h>
+
+#include "certificates.h" //SSL-TrustAnchors for opensensemap.org
 
 
 // Uncomment the next line to get debugging messages printed on the Serial port
@@ -89,7 +91,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 @@SENSOR_IDS|toProgmem@@
 
 WiFiClient wifiClient;
-BearSSLClient client(wifiClient);
+SSLClient client(wifiClient, TAs, TAs_NUM, 6, 1,SSLClient::SSL_INFO);
 
 unsigned long getTime() {
   return WiFi.getTime();
@@ -387,9 +389,7 @@ void setup() {
     DEBUG(F("done."));
   }
 
-  // check the server time for the validation of the certificate
-  ArduinoBearSSL.onGetTime(getTime);
-
+  
   #ifdef ENABLE_DEBUG
     // init I2C/wire library
     Wire.begin();
@@ -750,8 +750,10 @@ void loop() {
     }
 #endif
     if (elapsed >= postingInterval)
+    {
       return;
   }
+}
 }
 
 int read_reg(byte address, uint8_t reg)

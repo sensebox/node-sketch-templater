@@ -31,6 +31,10 @@ RUN arduino-cli lib install --zip-path VEML6070.zip
 RUN arduino-cli lib install --zip-path LTR329.zip
 RUN arduino-cli lib install --zip-path sps30.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial
+#library is available from library manager, installing from there
+RUN arduino-cli lib install SSLClient 
+
+
 
 # install arduino stuff for senseBox V2
 RUN arduino-cli core install arduino:samd@1.8.13
@@ -39,6 +43,7 @@ RUN arduino-cli --additional-urls https://raw.githubusercontent.com/sensebox/sen
 
 WORKDIR /app
 
+COPY certs/certificates.h /app/arduino-test/certificates.h
 COPY package.json /app
 COPY package-lock.json /app
 
