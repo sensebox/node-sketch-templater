@@ -2,3 +2,4 @@ node_modules
 .vscode
 arduino-test/sketches
 arduino-test/build
+node-sketch-templater.code-workspace

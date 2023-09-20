@@ -27,7 +27,7 @@
 #include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
-#include <SSLCLient.h>
+#include <SSLClient.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 
 #include "certificates.h" //SSL-TrustAnchors for opensensemap.org
