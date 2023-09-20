@@ -91,7 +91,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 @@SENSOR_IDS|toProgmem@@
 
 WiFiClient wifiClient;
-SSLClient client(wiFiClient, TAs, TAs_NUM, 6, 1,SSLClient::SSL_INFO);
+SSLClient client(wifiClient, TAs, TAs_NUM, 6, 1,SSLClient::SSL_INFO);
 
 unsigned long getTime() {
   return WiFi.getTime();
@@ -440,10 +440,6 @@ void setup() {
     ret = sps30_start_measurement();
   #endif
   DEBUG(F("Initializing sensors done!"));
-  DEBUG2(F("Initializing Watchdog at 480000ms..."));
-  // Initialize watchdog
-  Watchdog.enable(480000);
-  DEBUG(F("done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
 }
@@ -751,16 +747,10 @@ void loop() {
         page += 1;
       }
       displayTime += 5000;
-      DEBUG2(F("Resetting watchdog..."));
-      Watchdog.reset();
-      DEBUG(F("done."));
     }
 #endif
     if (elapsed >= postingInterval)
     {
-      DEBUG2(F("Preparing for Upload: Resetting watchdog..."));
-      Watchdog.reset();
-      DEBUG(F("done."));
       return;
   }
 }

@@ -94,7 +94,7 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 @@SENSOR_IDS|toProgmem@@
 
 WiFiClient wifiClient;
-SSLClient client(wiFiClient, TAs, TAs_NUM, 6, 1,SSLClient::SSL_INFO);
+SSLClient client(wifiClient, TAs, TAs_NUM, 6, 1,SSLClient::SSL_INFO);
 
 unsigned long getTime() {
   return WiFi.getTime();
