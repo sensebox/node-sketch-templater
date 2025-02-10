@@ -1,98 +1,99 @@
-'use strict';
+"use strict";
 
-const fs = require('fs');
-const child_process = require('child_process');
+const fs = require("fs");
+const child_process = require("child_process");
 
-const SketchTemplater = require('../src');
+const SketchTemplater = require("../src");
 
-const sketchTemplater = new SketchTemplater('test.ingress.domain');
+const sketchTemplater = new SketchTemplater("test.ingress.domain");
 
 const boxStub = function (model) {
   return {
-    _id: '59479ed5a4ad5900112d8dec',
-    name: 'Teststation',
+    _id: "59479ed5a4ad5900112d8dec",
+    name: "Teststation",
     model: model,
     sensors: [
       {
-        title: 'Temperatur',
-        _id: '59479ed5a4ad5900112d8ded',
-        sensorType: 'HDC1080'
+        title: "Temperatur",
+        _id: "59479ed5a4ad5900112d8ded",
+        sensorType: "HDC1080",
       },
       {
-        title: 'rel. Luftfeuchte',
-        _id: '59479ed5a4ad5900112d8dee',
-        sensorType: 'HDC1080'
+        title: "rel. Luftfeuchte",
+        _id: "59479ed5a4ad5900112d8dee",
+        sensorType: "HDC1080",
       },
       {
-        title: 'Luftdruck',
-        _id: '59479ed5a4ad5900112d8def',
-        sensorType: 'BMP280'
+        title: "Luftdruck",
+        _id: "59479ed5a4ad5900112d8def",
+        sensorType: "BMP280",
       },
       {
-        title: 'Beleuchtungsstärke',
-        _id: '59479ed5a4ad5900112d8df0',
-        sensorType: 'TSL45315'
+        title: "Beleuchtungsstärke",
+        _id: "59479ed5a4ad5900112d8df0",
+        sensorType: "TSL45315",
       },
       {
-        title: 'UV-Intensität',
-        _id: '59479ed5a4ad5900112d8df1',
-        sensorType: 'VEML6070'
+        title: "UV-Intensität",
+        _id: "59479ed5a4ad5900112d8df1",
+        sensorType: "VEML6070",
       },
-      { title: 'PM10', _id: '59479ed5a4ad5900112d8df2', sensorType: 'SDS 011' },
+      { title: "PM10", _id: "59479ed5a4ad5900112d8df2", sensorType: "SDS 011" },
       {
-        title: 'PM2.5',
-        _id: '59479ed5a4ad5900112d8df3',
-        sensorType: 'SDS 011'
-      },
-      {
-        title: 'Bodenfeuchte',
-        _id: '59479ed5a4ad5900112d8df4',
-        sensorType: 'SMT50'
+        title: "PM2.5",
+        _id: "59479ed5a4ad5900112d8df3",
+        sensorType: "SDS 011",
       },
       {
-        title: 'Bodentemperatur',
-        _id: '59479ed5a4ad5900112d8df5',
-        sensorType: 'SMT50'
+        title: "Bodenfeuchte",
+        _id: "59479ed5a4ad5900112d8df4",
+        sensorType: "SMT50",
       },
       {
-        title: 'Lufttemperatur',
-        _id: '59479ed5a4ad5900112d8df6',
-        sensorType: 'BME680'
+        title: "Bodentemperatur",
+        _id: "59479ed5a4ad5900112d8df5",
+        sensorType: "SMT50",
       },
       {
-        title: 'Luftfeuchtigkeit',
-        _id: '59479ed5a4ad5900112d8df7',
-        sensorType: 'BME680'
+        title: "Lufttemperatur",
+        _id: "59479ed5a4ad5900112d8df6",
+        sensorType: "BME680",
       },
       {
-        title: 'atm. Luftdruck',
-        _id: '59479ed5a4ad5900112d8df8',
-        sensorType: 'BME680'
+        title: "Luftfeuchtigkeit",
+        _id: "59479ed5a4ad5900112d8df7",
+        sensorType: "BME680",
       },
-      { title: 'VOC', _id: '59479ed5a4ad5900112d8df9', sensorType: 'BME680' },
       {
-        title: 'Lautstärke',
-        _id: '59479ed5a4ad5900112d8dd0',
-        sensorType: 'SoundLevelMeter'
-      }
+        title: "atm. Luftdruck",
+        _id: "59479ed5a4ad5900112d8df8",
+        sensorType: "BME680",
+      },
+      { title: "VOC", _id: "59479ed5a4ad5900112d8df9", sensorType: "BME680" },
+      {
+        title: "Lautstärke",
+        _id: "59479ed5a4ad5900112d8dd0",
+        sensorType: "SoundLevelMeter",
+      },
     ],
-    serialPort: 'Serial1',
-    ssid: 'MY-HOME-NETWORK',
-    password: 'MY-SUPER-PASSWORD',
-    display_enabled: 'true'
+    serialPortSDS: "Serial1",
+    serialPortRG15: "Serial2",
+    ssid: "MY-HOME-NETWORK",
+    password: "MY-SUPER-PASSWORD",
+    display_enabled: "true",
   };
 };
 
 const buildMatrix = {
-  'arduino:avr:uno': [],
-  'sensebox:samd:sb': []
+  "arduino:avr:uno": [],
+  "sensebox:samd:sb": [],
 };
 
 for (const model of Object.keys(sketchTemplater._templates)) {
-  if (model.includes('V2')) {
-    buildMatrix['sensebox:samd:sb'].push(model);
+  if (model.includes("V2")) {
+    buildMatrix["sensebox:samd:sb"].push(model);
   } else {
-    buildMatrix['arduino:avr:uno'].push(model);
+    buildMatrix["arduino:avr:uno"].push(model);
   }
 }
 
@@ -118,7 +119,7 @@ const build = function build(board, model) {
     // `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
     { stdio: [0, 1, 2] }
   );
-  console.log('###########################################################');
+  console.log("###########################################################");
 };
 
 const sketchesPath = `${__dirname}/sketches`;
@@ -129,4 +130,4 @@ for (const board of Object.keys(buildMatrix)) {
     build(board, model);
   }
 }
-console.log('done');
+console.log("done");

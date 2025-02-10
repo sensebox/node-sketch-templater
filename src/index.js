@@ -1,30 +1,30 @@
-'use strict';
+"use strict";
 
-const transformers = require('./transformers'),
-  { readTemplates } = require('./helpers');
+const transformers = require("./transformers"),
+  { readTemplates } = require("./helpers");
 
-process.env.SUPPRESS_NO_CONFIG_WARNING = 'y';
-const config = require('config');
+process.env.SUPPRESS_NO_CONFIG_WARNING = "y";
+const config = require("config");
 
 const templateFolderPath = `${__dirname}/../templates`;
 
 const defaultConfig = {
-  ingress_domain: ''
+  ingress_domain: "",
 };
 
 const SketchTemplater = function SketchTemplater(cfg) {
   // check type of ingressDomainConfig parameter
-  if (typeof cfg === 'string') {
+  if (typeof cfg === "string") {
     cfg = { ingress_domain: cfg };
   }
   // Mixin configs that have been passed in, and make those my defaults
   config.util.extendDeep(defaultConfig, cfg);
-  config.util.setModuleDefaults('sketch-templater', defaultConfig);
+  config.util.setModuleDefaults("sketch-templater", defaultConfig);
 
-  const ingress_domain = config.get('sketch-templater.ingress_domain');
+  const ingress_domain = config.get("sketch-templater.ingress_domain");
 
-  if (ingress_domain === '' || typeof ingress_domain !== 'string') {
-    console.warn('Invalid or missing ingressDomain');
+  if (ingress_domain === "" || typeof ingress_domain !== "string") {
+    console.warn("Invalid or missing ingressDomain");
   }
 
   // pre load templates from templates folder
@@ -45,15 +45,15 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   if (this._templates[box.model]) {
     // transform CO₂ to CO2 just for node sketch templater
     box.sensors = box.sensors.map((s) => {
-      if (s.title === 'CO₂') {
-        s.title = 'CO2';
+      if (s.title === "CO₂") {
+        s.title = "CO2";
       }
 
       return s;
     });
 
-    if (encoding && encoding === 'base64') {
-      return Buffer.from(this._executeTemplate(box)).toString('base64');
+    if (encoding && encoding === "base64") {
+      return Buffer.from(this._executeTemplate(box)).toString("base64");
     }
 
     return this._executeTemplate(box);
@@ -66,7 +66,8 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
   _id,
   name,
   sensors,
-  serialPort,
+  serialPortSDS,
+  serialPortRG15,
   soilDigitalPort,
   soundMeterPort,
   windSpeedPort,
@@ -76,7 +77,7 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
   appEUI,
   appKey,
   access_token,
-  display_enabled
+  display_enabled,
 }) {
   return Object.assign(
     {},
@@ -84,9 +85,10 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       SENSEBOX_ID: _id,
       SENSEBOX_NAME: name,
       SENSOR_IDS: sensors,
-      INGRESS_DOMAIN: config.get('sketch-templater.ingress_domain'),
+      INGRESS_DOMAIN: config.get("sketch-templater.ingress_domain"),
       NUM_SENSORS: sensors.length,
-      SERIAL_PORT: serialPort,
+      SERIAL_PORT_SDS: serialPortSDS,
+      SERIAL_PORT_RG15: serialPortRG15,
       SOIL_DIGITAL_PORT: soilDigitalPort,
       SOUND_METER_PORT: soundMeterPort,
       WIND_DIGITAL_PORT: windSpeedPort,
@@ -97,7 +99,7 @@ SketchTemplater.prototype._cloneBox = function _cloneBox({
       APP_EUI: appEUI,
       APP_KEY: appKey,
       ACCESS_TOKEN: access_token,
-      DISPLAY_ENABLED: display_enabled
+      DISPLAY_ENABLED: display_enabled,
     }
   );
 };
@@ -116,15 +118,15 @@ SketchTemplater.prototype._executeTemplate = function _executeTemplate(
     function (_, subTemplateKey) {
       // check if there is a transformer defined
       // eslint-disable-next-line prefer-const
-      let [key, transformer = 'as-is'] = subTemplateKey.split('|');
+      let [key, transformer = "as-is"] = subTemplateKey.split("|");
       let params = [];
 
-      if (transformer.indexOf('~') >= -1) {
-        [transformer, params] = transformer.split('~');
+      if (transformer.indexOf("~") >= -1) {
+        [transformer, params] = transformer.split("~");
       }
 
       if (params) {
-        const parameters = params.split(',');
+        const parameters = params.split(",");
 
         return transformers[transformer](box[key], ...parameters);
       } else if (transformers[transformer]) {

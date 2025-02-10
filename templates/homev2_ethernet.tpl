@@ -28,7 +28,7 @@
 #include <EthernetUdp.h>
 #include <NTPClient.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-#include <hydreon.h>
+#include <RG15.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -134,8 +134,8 @@ IPAddress mySubnet(255, 255, 255, 0);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-#ifdef HYDREONRAIN_CONNECTED
- rg_15(RAINSENSOR_PORT);
+#ifdef RG15_CONNECTED
+ RG15 rg15(RG15_UART_PORT);
 #endif
 
 int dataLength;
@@ -377,8 +377,8 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  #ifdef HYDREONRAIN_CONNECTED
-    rg_15.begin();
+  #ifdef RG15_CONNECTED
+    rg15.begin();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -479,12 +479,13 @@ void loop() {
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
   #endif
-  //-----HYDREON-RG15-RAIN-----//
-  #ifdef HYDREONRAIN_CONNECTED
-    rg_15.readAllData();
-    addMeasurement(HYDREONRAIN_TOTALACC_ID, rg_15.getTotalAccumulation());
-    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
-    addMeasurement(HYDREONRAIN_INTENSITY_ID, rg_15.getRainfallIntensity());
+
+  //-----RG15-----//
+  #ifdef RG15_CONNECTED
+    rg_15.poll();
+    addMeasurement(RG15_RAINSENSOR_TOTALACC_ID, rg15.getTotalAccumulation());
+    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg15.getEventAccumulation());
+    addMeasurement(RG15_RAINSENSOR_INTENSITY_ID, rg15.getRainfallIntensity());
   #endif
   DEBUG(F("submit values"));
   submitValues();

@@ -28,7 +28,8 @@
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-#include <hydreon.h>
+#include <RG15-Arduino.h>
+#include <SolarChargerSB041.h>
 
 
 // Uncomment the next line to get debugging messages printed on the Serial port
@@ -57,9 +58,12 @@
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
 
-// Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
+// Number of serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
 #ifdef SDS011_CONNECTED
-#define SDS_UART_PORT (@@SERIAL_PORT@@)
+#define SDS_UART_PORT (@@SERIAL_PORT_SDS@@)
+#endif
+#ifdef RG15_CONNECTED
+#define RG15_UART_PORT (@@SERIAL_PORT_RG15@@)
 #endif
 
 //Load sensors / instances
@@ -116,8 +120,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-#ifdef HYDREONRAIN_CONNECTED
- rg_15(RAINSENSOR_PORT);
+#ifdef RG15_CONNECTED
+ RG15 rg15(RG15_UART_PORT);
+#endif
+#ifdef SB041_CONNECTED
+ SolarChargerSB041 charger;
 #endif
 
 // This EUI must be in little-endian format, so least-significant-byte (lsb)
@@ -365,17 +372,35 @@ void do_send(osjob_t* j){
       dps.getEvents(&temp_event, &pressure_event);
       message.addUint16((pressure_event.pressure - 300) * 81.9187);
     #endif
-  #ifdef HYDREONRAIN_CONNECTED
-    rg_15.readAllData();
-    addMeasurement(HYDREONRAIN_TOTALACC_ID, rg_15.getTotalAccumulation());
-    addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
-    addMeasurement(HYDREONRAIN_INTENSITY_ID, rg_15.getRainfallIntensity());
-    int totalAcc = floor (rg_15.getTotalAccumulation() * 10)
-    int eventAcc = floor (rg_15.getEventAccumulation() * 10)
-    int rainIntensity = floor (rg_15.getRainfallIntensity() * 10)
-    message.addUint16(totalAcc);
-    message.addUint16(eventAcc);
-    message.addUint16(rainIntensity);
+
+    //-----RG15-----//
+    #ifdef RG15_CONNECTED
+      rg_15.readAllData();
+      addMeasurement(RG15_TOTALACC_ID, rg_15.getTotalAccumulation());
+      addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
+      addMeasurement(RG15_INTENSITY_ID, rg_15.getRainfallIntensity());
+      int totalAcc = floor (rg_15.getTotalAccumulation() * 100)
+      int eventAcc = floor (rg_15.getEventAccumulation() * 100)
+      int rainIntensity = floor (rg_15.getRainfallIntensity() * 100)
+      message.addUint16(totalAcc);
+      message.addUint16(eventAcc);
+      message.addUint16(rainIntensity);
+    #endif
+
+    //-----SB041-----//
+    #ifdef SB041_CONNECTED
+      charger.update()
+
+      addMeasurement(RG15_TOTALACC_ID, rg_15.getTotalAccumulation());
+      addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
+      addMeasurement(RG15_INTENSITY_ID, rg_15.getRainfallIntensity());
+      int totalAcc = floor (rg_15.getTotalAccumulation() * 100)
+      int eventAcc = floor (rg_15.getEventAccumulation() * 100)
+      int rainIntensity = floor (rg_15.getRainfallIntensity() * 100)
+      ## TODO
+      message.addUint16(totalAcc);
+      message.addUint16(eventAcc);
+      message.addUint16(rainIntensity);
     #endif
 
     // Prepare upstream data transmission at the next possible time.
@@ -624,7 +649,7 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  #ifdef HYDREONRAIN_CONNECTED
+  #ifdef RG15_CONNECTED
     rg_15.begin();
   #endif
 
