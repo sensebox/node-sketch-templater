@@ -92,6 +92,8 @@ Additionally, the following transformers are implemented:
 | `toDefine` | Transform an array of sensors to multiple `#define` statements. |
 | `toProgmem` | Transform an array of sensors to multiple `const char xxSENSOR_ID[] PROGMEM = "<id>";` statements. |
 | `digitalPortToPortNumber` | Transform a digital port (`A`, `B` or `C`) to a port number. You can add a offset parameter. |
+| `toDefineDisplay` | "true" to implement the display to the home sketch.|
+| `toDefineEnableDebug` | "true" to enable additional debug messages in the serial monitor| 
 
 ## Adding Transformers
 
