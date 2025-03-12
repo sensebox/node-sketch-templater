@@ -28,7 +28,7 @@
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-#include <RG15-Arduino.h>
+#include <RG15.h>
 #include <SolarChargerSB041.h>
 
 
@@ -58,7 +58,7 @@
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
 
-// Number of serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
+// Index of serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
 #ifdef SDS011_CONNECTED
 #define SDS_UART_PORT (@@SERIAL_PORT_SDS@@)
 #endif
@@ -373,34 +373,19 @@ void do_send(osjob_t* j){
       message.addUint16((pressure_event.pressure - 300) * 81.9187);
     #endif
 
-    //-----RG15-----//
+    //-----RG15-----// 
     #ifdef RG15_CONNECTED
-      rg_15.readAllData();
-      addMeasurement(RG15_TOTALACC_ID, rg_15.getTotalAccumulation());
-      addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
-      addMeasurement(RG15_INTENSITY_ID, rg_15.getRainfallIntensity());
-      int totalAcc = floor (rg_15.getTotalAccumulation() * 100)
-      int eventAcc = floor (rg_15.getEventAccumulation() * 100)
-      int rainIntensity = floor (rg_15.getRainfallIntensity() * 100)
-      message.addUint16(totalAcc);
-      message.addUint16(eventAcc);
-      message.addUint16(rainIntensity);
+      rg15.poll();
+      message.addUint16(floor(rg15.getTotalAccumulation() * 100));
+      message.addUint16(floor(rg15.getRainfallIntensity() * 100));
     #endif
 
     //-----SB041-----//
     #ifdef SB041_CONNECTED
       charger.update()
-
-      addMeasurement(RG15_TOTALACC_ID, rg_15.getTotalAccumulation());
-      addMeasurement(HDYDREONRAIN_EVENTACC_ID, rg_15.getEventAccumulation());
-      addMeasurement(RG15_INTENSITY_ID, rg_15.getRainfallIntensity());
-      int totalAcc = floor (rg_15.getTotalAccumulation() * 100)
-      int eventAcc = floor (rg_15.getEventAccumulation() * 100)
-      int rainIntensity = floor (rg_15.getRainfallIntensity() * 100)
-      ## TODO
-      message.addUint16(totalAcc);
-      message.addUint16(eventAcc);
-      message.addUint16(rainIntensity);
+      message.addUint16(charger.getSolarPanelVoltage);
+      message.addUint16(charger.getBatteryVoltage);
+      message.addUint16(charger.getBatteryLevel());
     #endif
 
     // Prepare upstream data transmission at the next possible time.
@@ -650,7 +635,7 @@ void setup() {
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
   #ifdef RG15_CONNECTED
-    rg_15.begin();
+    rg15.begin();
   #endif
 
   DEBUG(F("Sensor initializing done!"));

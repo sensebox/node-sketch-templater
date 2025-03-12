@@ -114,12 +114,24 @@ const build = function build(board, model) {
   console.log(
     `Building model ${model} with "arduino-cli compile --fqbn ${board} ${sketchesPath}/${model}/${model}.ino"`
   );
-  child_process.execSync(
-    `arduino-cli compile --fqbn ${board} -e ${sketchesPath}/${model}/${model}.ino`,
-    // `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
-    { stdio: [0, 1, 2] }
-  );
-  console.log("###########################################################");
+  try {
+    child_process.execSync(
+      `arduino-cli compile --fqbn ${board} -e ${sketchesPath}/${model}/${model}.ino`,
+      // `arduino --verbose-build --verify --board ${board} ${sketchesPath}/${model}/${model}.ino`,
+      { stdio: "inherit" }
+    );
+    console.log("Compilation success!");
+    console.log("###########################################################");
+  } catch (error) {
+    console.log("Compilation failed!");
+    if (error.stdout) {
+      console.error("Standard Output (stdout):", error.stdout.toString());
+    }
+    if (error.stderr) {
+      console.error("Standard Error (stderr):", error.stderr.toString());
+    }
+    console.log("###########################################################");
+  }
 };
 
 const sketchesPath = `${__dirname}/sketches`;

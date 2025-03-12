@@ -29,7 +29,8 @@
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
 #include <sps30.h>
-#include <hydreon.h>
+#include <RG15.h>
+#include <SolarChargerSB041.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
