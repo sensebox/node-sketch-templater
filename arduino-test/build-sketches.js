@@ -72,12 +72,37 @@ const boxStub = function (model) {
       { title: "VOC", _id: "59479ed5a4ad5900112d8df9", sensorType: "BME680" },
       {
         title: "Lautstärke",
-        _id: "59479ed5a4ad5900112d8dd0",
+        _id: "59479ed5a4ad5900112d8dfa",
         sensorType: "SoundLevelMeter",
       },
+      {
+        title: "Gesamtniederschlag",
+        _id: "59479ed5a4ad5900112d8dfb",
+        sensorType: "RG15",
+      },
+      {
+        title: "Niederschlagsintensität",
+        _id: "59479ed5a4ad5900112d8dfb",
+        sensorType: "RG15",
+      },
+      {
+        title: "Solarspannung",
+        _id: "59479ed5a4ad5900112d8dfc",
+        sensorType: "SB041",
+      },
+      {
+        title: "Batteriespannung",
+        _id: "59479ed5a4ad5900112d8dfc",
+        sensorType: "SB041",
+      },
+      {
+        title: "Ladelevel", //TODO eigentlich "Batterielevel", aber geht nicht, da erste 6 Buchstaben identisch zu "Batteriespannung"
+        _id: "59479ed5a4ad5900112d8dfc",
+        sensorType: "SB041",
+      },
     ],
-    serialPortSDS: "Serial1",
-    serialPortRG15: "Serial2",
+    sdsSerialPort: "Serial1",
+    rg15SerialPort: "Serial2",
     ssid: "MY-HOME-NETWORK",
     password: "MY-SUPER-PASSWORD",
     display_enabled: "true",

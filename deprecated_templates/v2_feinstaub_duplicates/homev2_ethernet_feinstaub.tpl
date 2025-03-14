@@ -1,12 +1,12 @@
-{ "model" : "homeV2Ethernet", "board": "senseBox:samd:sb" }
+{ "model":"homeV2EthernetFeinstaub", "board": "senseBox:samd:sb"}
 /*
-  senseBox:home - Citizen Sensing Platform
+  senseBox:home - Citizen Sensingplatform
   Version: ethernetv2_1.6.0
   Date: 2022-03-04
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
-  Note: Sketch for senseBox:home Ethernet MCU Edition
-  Model: homeV2Ethernet
+  Note: Sketch for senseBox:home Ethernet MCU Edition with dust particle upgrade
+  Model: homeEthernetV2Feinstaub
   Email: support@sensebox.de
   Code is in the public domain.
   https://github.com/sensebox/node-sketch-templater
@@ -18,9 +18,9 @@
 #include <SPI.h>
 
 #include <Adafruit_Sensor.h>
-#include <Adafruit_HDC1000.h>
 #include <Adafruit_BMP280.h>
 #include <Adafruit_BME680.h>
+#include <Adafruit_HDC1000.h>
 #include <VEML6070.h>
 #include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
@@ -29,8 +29,7 @@
 #include <EthernetUdp.h>
 #include <NTPClient.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-#include <RG15.h>
-#include <SolarChargerSB041.h>
+
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -61,6 +60,9 @@
 /* ------------------------------Configuration------------------------------ */
 /* ------------------------------------------------------------------------- */
 
+// Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
+#define SDS_UART_PORT (@@SERIAL_PORT@@)
+
 // Interval of measuring and submitting values in seconds
 const unsigned int postingInterval = 60e3;
 
@@ -78,19 +80,10 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
-// The serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
-#ifdef SDS011_CONNECTED
-#define SDS_SERIAL_PORT (@@SDS_SERIAL_PORT@@)
-#endif
-#ifdef RG15_CONNECTED
-#define RG15_SERIAL_PORT (@@RG15_SERIAL_PORT@@)
-#endif
-
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
 
 byte mac[] = { 0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
-
 EthernetClient eclient;
 BearSSLClient client(eclient);
 EthernetUDP Udp;
@@ -126,9 +119,7 @@ IPAddress mySubnet(255, 255, 255, 0);
   VEML6070 VEML;
 #endif
 #ifdef SDS011_CONNECTED
-  SDS011 SDS(SDS_SERIAL_PORT);
-  float pm10 = 0;
-  float pm25 = 0;
+  SDS011 SDS(SDS_UART_PORT);
 #endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
@@ -148,12 +139,6 @@ IPAddress mySubnet(255, 255, 255, 0);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
-#endif
-#ifdef RG15_CONNECTED
- RG15 rg15(RG15_SERIAL_PORT);
-#endif
-#ifdef SB041_CONNECTED
- SolarChargerSB041 charger;
 #endif
 
 int dataLength;
@@ -287,7 +272,7 @@ void checkI2CSensors() {
       switch (sensorAddr[i])
       {
         case 0x29:
-          DEBUG("Lux sensor found.");
+          DEBUG("TSL45315 found.");
           break;
         case 0x38: // &0x39
           DEBUG("VEML6070 found.");
@@ -387,7 +372,7 @@ void setup() {
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
   #endif
   #ifdef SDS011_CONNECTED
-    SDS_SERIAL_PORT.begin(9600);
+    SDS_UART_PORT.begin(9600);
   #endif
   #ifdef SCD30_CONNECTED
     Wire.begin();
@@ -398,23 +383,16 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  #ifdef RG15_CONNECTED
-    rg15.begin();
-  #endif
-  #ifdef SB041_CONNECTED
-    charger.begin();
-  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
 
   timeClient.begin();
   ArduinoBearSSL.onGetTime(getTime);
-
 }
 
 void loop() {
-  DEBUG(F("Starting new measurement..."));
+  Serial.println(F("Loop"));
   // capture loop start timestamp
   unsigned long start = millis();
   dataLength = NUM_SENSORS - 1; // excluding linebreak after last measurement
@@ -447,14 +425,11 @@ void loop() {
   //-----PM-----//
   #ifdef SDS011_CONNECTED
     uint8_t attempt = 0;
+    float pm10, pm25;
     while (attempt < 5) {
       bool error = SDS.read(&pm25, &pm10);
       if (!error) {
-        DEBUG(F("PM10: "));
-        DEBUG(pm10);
         addMeasurement(SDS011_PM10SENSOR_ID, pm10);
-        DEBUG(F("PM2.5: "));
-        DEBUG(pm25);
         addMeasurement(SDS011_PM25SENSOR_ID, pm25);
         break;
       }
@@ -520,21 +495,6 @@ void loop() {
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
-  #endif
-
-  //-----RG15-----//
-  #ifdef RG15_CONNECTED
-    rg15.poll();
-    addMeasurement(RG15_GESAMTSENSOR_ID, rg15.getTotalAccumulation());
-    addMeasurement(RG15_NIEDERSENSOR_ID, rg15.getRainfallIntensity());
-  #endif
-
-  //-----SB041-----//
-  #ifdef SB041_CONNECTED
-    charger.update();
-    addMeasurement(SB041_SOLARSSENSOR_ID, charger.getSolarPanelVoltage());
-    addMeasurement(SB041_BATTERSENSOR_ID, charger.getBatteryVoltage());
-    addMeasurement(SB041_LADELESENSOR_ID, charger.getBatteryLevel());
   #endif
 
   DEBUG(F("submit values"));

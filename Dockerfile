@@ -29,7 +29,6 @@ RUN arduino-cli lib install --zip-path HDC100X.zip
 RUN arduino-cli lib install --zip-path Makerblog_TSL45315.zip
 RUN arduino-cli lib install --zip-path VEML6070.zip
 RUN arduino-cli lib install --zip-path LTR329.zip
-RUN arduino-cli lib install --zip-path sps30.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial
 
 # install arduino stuff for senseBox V2
@@ -38,6 +37,7 @@ RUN curl -o /root/.arduino15/package_sensebox_index.json https://raw.githubuserc
 RUN arduino-cli --additional-urls https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json core install sensebox:samd
 
 
+# RUN arduino-cli lib install --zip-path sps30.zip // SPS30 is not an official part of sensebox home yet
 RUN arduino-cli lib install RG15-Arduino
 RUN arduino-cli lib install SolarChargerSB041
 

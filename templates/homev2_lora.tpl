@@ -54,17 +54,17 @@
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
+// The serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
+#ifdef SDS011_CONNECTED
+#define SDS_SERIAL_PORT (@@SDS_SERIAL_PORT@@)
+#endif
+#ifdef RG15_CONNECTED
+#define RG15_SERIAL_PORT (@@RG15_SERIAL_PORT@@)
+#endif
+
 // Display enabled
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
-
-// Index of serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
-#ifdef SDS011_CONNECTED
-#define SDS_UART_PORT (@@SERIAL_PORT_SDS@@)
-#endif
-#ifdef RG15_CONNECTED
-#define RG15_UART_PORT (@@SERIAL_PORT_RG15@@)
-#endif
 
 //Load sensors / instances
 #ifdef HDC1080_CONNECTED
@@ -91,7 +91,7 @@
   uint16_t uv;
 #endif
 #ifdef SDS011_CONNECTED
-  SDS011 SDS(SDS_UART_PORT);
+  SDS011 SDS(SDS_SERIAL_PORT);
   float pm10 = 0;
   float pm25 = 0;
 #endif
@@ -121,7 +121,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
   Adafruit_DPS310 dps;
 #endif
 #ifdef RG15_CONNECTED
- RG15 rg15(RG15_UART_PORT);
+ RG15 rg15(RG15_SERIAL_PORT);
 #endif
 #ifdef SB041_CONNECTED
  SolarChargerSB041 charger;
@@ -376,16 +376,17 @@ void do_send(osjob_t* j){
     //-----RG15-----// 
     #ifdef RG15_CONNECTED
       rg15.poll();
-      message.addUint16(floor(rg15.getTotalAccumulation() * 100));
-      message.addUint16(floor(rg15.getRainfallIntensity() * 100));
+      message.addUint16(round((rg15.getTotalAccumulation() + 1) * 100));
+      message.addUint16(round((rg15.getRainfallIntensity() + 1) * 100));
     #endif
 
     //-----SB041-----//
     #ifdef SB041_CONNECTED
-      charger.update()
-      message.addUint16(charger.getSolarPanelVoltage);
-      message.addUint16(charger.getBatteryVoltage);
-      message.addUint16(charger.getBatteryLevel());
+      charger.update();
+      // shift by one for error values (-1)
+      message.addUint16(round((charger.getSolarPanelVoltage() + 1) * 100));
+      message.addUint16(round((charger.getBatteryVoltage() + 1) * 100));
+      message.addUint8(charger.getBatteryLevel() + 1);
     #endif
 
     // Prepare upstream data transmission at the next possible time.
@@ -556,14 +557,8 @@ void update_display(osjob_t* t) {
       break;
   }
   display.display();
-
-
-  if (displayPage == 4) {
-    displayPage = 0;
-  }
-  else {
-    displayPage++;
-  }
+  displayPage = (displayPage + 1) % 4; // cycle through 4 pages
+    
 
   os_setTimedCallback(&displayjob, os_getTime() + sec2osticks(DISPLAY_INTERVAL), update_display);
 }
@@ -597,15 +592,15 @@ void setup() {
   #ifdef TSL45315_CONNECTED
     Lightsensor_begin();
   #endif
-  #ifdef SDS011_CONNECTED
-    SDS_UART_PORT.begin(9600);
-  #endif
   #ifdef BME680_CONNECTED
     BME.begin(0x76);
     BME.setTemperatureOversampling(BME680_OS_8X);
     BME.setHumidityOversampling(BME680_OS_2X);
     BME.setPressureOversampling(BME680_OS_4X);
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
+  #endif
+  #ifdef SDS011_CONNECTED
+    SDS_SERIAL_PORT.begin(9600);
   #endif
   #ifdef SCD30_CONNECTED
     Wire.begin();
@@ -636,6 +631,9 @@ void setup() {
   #endif
   #ifdef RG15_CONNECTED
     rg15.begin();
+  #endif
+  #ifdef SB041_CONNECTED
+    charger.begin();
   #endif
 
   DEBUG(F("Sensor initializing done!"));

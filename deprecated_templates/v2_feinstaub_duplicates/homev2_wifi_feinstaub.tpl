@@ -1,21 +1,21 @@
-{ "model" : "homeV2Wifi", "board": "senseBox:samd:sb" }
+{ "model" : "homeV2WifiFeinstaub", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
   Version: wifiv2_1.6.0
   Date: 2022-03-04
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
-  Note: Sketch for senseBox:home WiFi MCU Edition
-  Model: homeV2Wifi
+  Note: Sketch for senseBox:home WiFi MCU Edition with dust particle upgrade
+  Model: homeV2WifiFeinstaub
   Email: support@sensebox.de
   Code is in the public domain.
   https://github.com/sensebox/node-sketch-templater
 */
 
-#include <WiFi101.h>
-#include <Wire.h>
-#include <SPI.h>
 #include <senseBoxIO.h>
+#include <WiFi101.h>
+#include <SPI.h>
+#include <Wire.h>
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -29,9 +29,6 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-// #include <sps30.h> // SPS30 is not an official part of sensebox home yet
-#include <RG15.h>
-#include <SolarChargerSB041.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -66,6 +63,9 @@
 const char *ssid = "@@SSID@@"; // your network SSID (name)
 const char *pass = "@@PASSWORD@@"; // your network password
 
+// Number of serial port the SDS011 is connected to. Either Serial1 or Serial2
+#define SDS_UART_PORT (@@SERIAL_PORT@@)
+
 // Interval of measuring and submitting values in seconds
 const unsigned int postingInterval = 60e3;
 
@@ -83,19 +83,11 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
-// The serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
-#ifdef SDS011_CONNECTED
-#define SDS_SERIAL_PORT (@@SDS_SERIAL_PORT@@)
-#endif
-#ifdef RG15_CONNECTED
-#define RG15_SERIAL_PORT (@@RG15_SERIAL_PORT@@)
-#endif
-
 // Display enabled
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
 
-// Sensor SENSOR_IDs
+// sensor IDs
 @@SENSOR_IDS|toProgmem@@
 
 WiFiClient wifiClient;
@@ -124,9 +116,7 @@ unsigned long getTime() {
   VEML6070 VEML;
 #endif
 #ifdef SDS011_CONNECTED
-  SDS011 SDS(SDS_SERIAL_PORT);
-  float pm10 = 0;
-  float pm25 = 0;
+  SDS011 SDS(SDS_UART_PORT);
 #endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
@@ -153,18 +143,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-// #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-//  uint32_t auto_clean_days = 4;
-//  struct sps30_measurement m;
-//  int16_t ret;
-//  uint32_t auto_clean;
-// #endif
-#ifdef RG15_CONNECTED
- RG15 rg15(RG15_SERIAL_PORT);
-#endif
-#ifdef SB041_CONNECTED
- SolarChargerSB041 charger;
-#endif
+
 
 typedef struct measurement {
   const char *sensorId;
@@ -256,13 +235,13 @@ void submitValues() {
         // if the server's disconnected, stop the client:
         if (!client.connected()) {
           DEBUG();
-          DEBUG(F("disconnecting from server."));
+          DEBUG("disconnecting from server.");
           client.stop();
           break;
         }
       }
 
-      DEBUG(F("done!"));
+      DEBUG("done!");
 
       // reset number of measurements
       num_measurements = 0;
@@ -286,7 +265,7 @@ void checkI2CSensors() {
   byte error;
   int nDevices = 0;
   byte sensorAddr[] = {41, 56, 57, 64, 97, 118};
-  DEBUG(F("\nScanning..."));
+  DEBUG("\nScanning...");
   for (int i = 0; i < sizeof(sensorAddr); i++) {
     Wire.beginTransmission(sensorAddr[i]);
     error = Wire.endTransmission();
@@ -295,13 +274,13 @@ void checkI2CSensors() {
       switch (sensorAddr[i])
       {
         case 0x29:
-          DEBUG(F("TSL45315 found."));
+          DEBUG("TSL45315 found.");
           break;
         case 0x38: // &0x39
-          DEBUG(F("VEML6070 found."));
+          DEBUG("VEML6070 found.");
           break;
         case 0x40:
-          DEBUG(F("HDC1080 found."));
+          DEBUG("HDC1080 found.");
           break;
         case 0x76:
         #ifdef BMP280_CONNECTED
@@ -319,19 +298,20 @@ void checkI2CSensors() {
     }
     else if (error == 4)
     {
-      DEBUG2(F("Unknown error at address 0x"));
+      DEBUG2("Unknown error at address 0x");
       if (sensorAddr[i] < 16)
-        DEBUG2(F("0"));
+        DEBUG2("0");
       DEBUG_ARGS(sensorAddr[i], HEX);
     }
   }
   if (nDevices == 0) {
-    DEBUG(F("No I2C devices found.\nCheck cable connections and press Reset."));
+    DEBUG("No I2C devices found.\nCheck cable connections and press Reset.");
     while(true);
   } else {
     DEBUG2(nDevices);
-    DEBUG(F(" sensors found.\n"));
+    DEBUG(" sensors found.\n");
   }
+  //return nDevices;
 }
 
 void setup() {
@@ -341,16 +321,14 @@ void setup() {
   #endif
   delay(5000);
 
-  DEBUG2(F("xbee1 spi enable..."));
+  DEBUG2("xbee1 spi enable...");
   senseBoxIO.SPIselectXB1(); // select XBEE1 spi
-  DEBUG(F("done"));
-  senseBoxIO.powerXB1(false);
-  delay(200);
-  DEBUG2(F("xbee1 power on..."));
+  DEBUG("done");
+  senseBoxIO.powerXB1(false);delay(200);
+  DEBUG2("xbee1 power on...");
   senseBoxIO.powerXB1(true); // power ON XBEE1
-  DEBUG(F("done"));
-  senseBoxIO.powerI2C(false);
-  delay(200);
+  DEBUG("done");
+  senseBoxIO.powerI2C(false);delay(200);
   senseBoxIO.powerI2C(true);
   delay(200);
   senseBoxIO.powerUART(true);
@@ -383,16 +361,17 @@ void setup() {
   display.display();
 #endif
 
-  // Check WiFi Bee status
+  // Check WiFi Shield status
   if (WiFi.status() == WL_NO_SHIELD) {
     DEBUG(F("WiFi shield not present"));
     // don't continue:
-    while (true);
+    while (true)
+      ;
   }
   uint8_t status = WL_IDLE_STATUS;
   // attempt to connect to Wifi network:
   while (status != WL_CONNECTED) {
-#ifdef DISPLAY128x64_CONNECTED
+    #ifdef DISPLAY128x64_CONNECTED
     display.print(".");
     display.display();
 #endif
@@ -439,7 +418,7 @@ void setup() {
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
   #endif
   #ifdef SDS011_CONNECTED
-    SDS_SERIAL_PORT.begin(9600);
+    SDS_UART_PORT.begin(9600);
   #endif
   #ifdef SCD30_CONNECTED
     Wire.begin();
@@ -457,22 +436,10 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  // #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-  //  sensirion_i2c_init();
-  //  ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
-  //  ret = sps30_start_measurement();
-  // #endif
-  #ifdef RG15_CONNECTED
-    rg15.begin();
-  #endif
-  #ifdef SB041_CONNECTED
-    charger.begin();
-  #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
   delay(3000);
 }
-
 
 void loop() {
   DEBUG(F("Starting new measurement..."));
@@ -492,131 +459,104 @@ void loop() {
 
   //-----Temperature-----//
   //-----Humidity-----//
-#ifdef HDC1080_CONNECTED
-  addMeasurement(HDC1080_TEMPERSENSOR_ID, HDC.readTemperature());
-  delay(200);
-  addMeasurement(HDC1080_RELLUFSENSOR_ID, HDC.readHumidity());
-#endif
+  #ifdef HDC1080_CONNECTED
+    addMeasurement(HDC1080_TEMPERSENSOR_ID, HDC.readTemperature());
+    delay(200);
+    addMeasurement(HDC1080_RELLUFSENSOR_ID, HDC.readHumidity());
+  #endif
 
   //-----Pressure-----//
-#ifdef BMP280_CONNECTED
-  float pressure;
-  pressure = BMP.readPressure() / 100;
-  addMeasurement(BMP280_LUFTDRSENSOR_ID, pressure);
-#endif
+  #ifdef BMP280_CONNECTED
+    float pressure;
+    pressure = BMP.readPressure()/100;
+    addMeasurement(BMP280_LUFTDRSENSOR_ID, pressure);
+  #endif
 
   //-----Lux-----//
-#ifdef TSL45315_CONNECTED
-  addMeasurement(TSL45315_BELEUCSENSOR_ID, Lightsensor_getIlluminance());
-#endif
+  #ifdef TSL45315_CONNECTED
+    addMeasurement(TSL45315_BELEUCSENSOR_ID, Lightsensor_getIlluminance());
+  #endif
 
   //-----UV intensity-----//
-#ifdef VEML6070_CONNECTED
-  addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
-#endif
+  #ifdef VEML6070_CONNECTED
+    addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
+  #endif
 
-//-----PM-----//
-#ifdef SDS011_CONNECTED
-  uint8_t attempt = 0;
-  while (attempt < 5) {
-    bool error = SDS.read(&pm25, &pm10);
-    if (!error) {
-      DEBUG(F("PM10: "));
-      DEBUG(pm10);
-      addMeasurement(SDS011_PM10SENSOR_ID, pm10);
-      DEBUG(F("PM2.5: "));
-      DEBUG(pm25);
-      addMeasurement(SDS011_PM25SENSOR_ID, pm25);
-      break;
+  //-----PM-----//
+  #ifdef SDS011_CONNECTED
+    uint8_t attempt = 0;
+    float pm10, pm25;
+    while (attempt < 5) {
+      bool error = SDS.read(&pm25, &pm10);
+      if (!error) {
+        addMeasurement(SDS011_PM10SENSOR_ID, pm10);
+        addMeasurement(SDS011_PM25SENSOR_ID, pm25);
+        break;
+      }
+      attempt++;
     }
-    attempt++;
-  }
-#endif
+  #endif
 
   //-----Soil Temperature & Moisture-----//
-#ifdef SMT50_CONNECTED
-  float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
-  float soilTemperature = (voltage - 0.5) * 100;
-  addMeasurement(SMT50_BODENTSENSOR_ID, soilTemperature);
-  voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
-  float soilMoisture = (voltage * 50) / 3;
-  addMeasurement(SMT50_BODENFSENSOR_ID, soilMoisture);
-#endif
+  #ifdef SMT50_CONNECTED
+    float voltage = analogRead(SOILTEMPPIN) * (3.3 / 1024.0);
+    float soilTemperature = (voltage - 0.5) * 100;
+    addMeasurement(SMT50_BODENTSENSOR_ID, soilTemperature);
+    voltage = analogRead(SOILMOISPIN) * (3.3 / 1024.0);
+    float soilMoisture = (voltage * 50) / 3;
+    addMeasurement(SMT50_BODENFSENSOR_ID, soilMoisture);
+  #endif
 
   //-----dB(A) Sound Level-----//
-#ifdef SOUNDLEVELMETER_CONNECTED
-  float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
-  float decibel = v * 50;
-  addMeasurement(SOUNDLEVELMETER_LAUTSTSENSOR_ID, decibel);
-#endif
+  #ifdef SOUNDLEVELMETER_CONNECTED
+    float v = analogRead(SOUNDMETERPIN) * (3.3 / 1024.0);
+    float decibel = v * 50;
+    addMeasurement(SOUNDLEVELMETER_LAUTSTSENSOR_ID, decibel);
+  #endif
 
   //-----BME680-----//
-#ifdef BME680_CONNECTED
-  BME.setGasHeater(0, 0);
-  float gasResistance;
-  if ( BME.performReading()) {
-    addMeasurement(BME680_LUFTTESENSOR_ID, BME.temperature - 1);
-    addMeasurement(BME680_LUFTFESENSOR_ID, BME.humidity);
-    addMeasurement(BME680_ATMLUFSENSOR_ID, BME.pressure / 100);
-  }
-  BME.setGasHeater(320, 150); // 320*C for 150 ms
-  if ( BME.performReading()) {
-      gasResistance = BME.gas_resistance / 1000.0;
+  #ifdef BME680_CONNECTED
+    float gasResistance;
+    BME.setGasHeater(0, 0);
+    if( BME.performReading()) {
+       addMeasurement(BME680_LUFTTESENSOR_ID, BME.temperature-1);
+       addMeasurement(BME680_LUFTFESENSOR_ID, BME.humidity);
+       addMeasurement(BME680_ATMLUFSENSOR_ID, BME.pressure/100);
+    }
+    BME.setGasHeater(320, 150); // 320*C for 150 ms
+    if( BME.performReading()) {
+       gasResistance = BME.gas_resistance / 1000.0;
        addMeasurement(BME680_VOCSENSOR_ID, gasResistance);
-  }
-#endif
+    }
+  #endif
 
   //-----Wind speed-----//
-#ifdef WINDSPEED_CONNECTED
-  float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
-  float windspeed = 0.0;
-  if (voltageWind >= 0.018) {
-    float poly1 = pow(voltageWind, 3);
-    poly1 = 17.0359801998299 * poly1;
-    float poly2 = pow(voltageWind, 2);
-    poly2 = 47.9908168343362 * poly2;
-    float poly3 = 122.899677524413 * voltageWind;
-    float poly4 = 0.657504127272728;
-    windspeed = poly1 - poly2 + poly3 - poly4;
-    windspeed = windspeed * 0.2777777777777778; //conversion in m/s
-  }
-  addMeasurement(WINDSPEED_WINDGESENSOR_ID, windspeed);
-#endif
+  #ifdef WINDSPEED_CONNECTED
+    float voltageWind = analogRead(WINDSPEEDPIN) * (3.3 / 1024.0);
+    float windspeed = 0.0;
+    if (voltageWind >= 0.018){
+      float poly1 = pow(voltageWind, 3);
+      poly1 = 17.0359801998299 * poly1;
+      float poly2 = pow(voltageWind, 2);
+      poly2 = 47.9908168343362 * poly2;
+      float poly3 = 122.899677524413 * voltageWind;
+      float poly4 = 0.657504127272728;
+      windspeed = poly1 - poly2 + poly3 - poly4;
+      windspeed = windspeed * 0.2777777777777778; //conversion in m/s
+    }
+    addMeasurement(WINDSPEED_WINDGESENSOR_ID, windspeed);
+  #endif
 
   //-----CO2-----//
-#ifdef SCD30_CONNECTED
-  addMeasurement(SCD30_CO2SENSOR_ID, SCD.getCO2());
-#endif
+  #ifdef SCD30_CONNECTED
+    addMeasurement(SCD30_CO2SENSOR_ID, SCD.getCO2());
+  #endif
 
   //-----DPS310 Pressure-----//
   #ifdef DPS310_CONNECTED
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
-  #endif
-
-  //-----SPS30-----//
-  // #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-  //  ret = sps30_read_measurement(&m);
-  //  addMeasurement(SPS30_PM1SENSOR_ID, m.mc_1p0);
-  //  addMeasurement(SPS30_PM25SENSOR_ID, m.mc_2p5);
-  //  addMeasurement(SPS30_PM4SENSOR_ID, m.mc_4p0);
-  //  addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
-  // #endif
-
-  //-----RG15-----//
-  #ifdef RG15_CONNECTED
-    rg15.poll();
-    addMeasurement(RG15_GESAMTSENSOR_ID, rg15.getTotalAccumulation());
-    addMeasurement(RG15_NIEDERSENSOR_ID, rg15.getRainfallIntensity());
-  #endif
-
-  //-----SB041-----//
-  #ifdef SB041_CONNECTED
-    charger.update();
-    addMeasurement(SB041_SOLARSSENSOR_ID, charger.getSolarPanelVoltage());
-    addMeasurement(SB041_BATTERSENSOR_ID, charger.getBatteryVoltage());
-    addMeasurement(SB041_LADELESENSOR_ID, charger.getBatteryLevel());
   #endif
 
   DEBUG(F("Submit values"));
@@ -626,7 +566,8 @@ void loop() {
   for (;;) {
     unsigned long now = millis();
     unsigned long elapsed = now - start;
-#ifdef DISPLAY128x64_CONNECTED
+
+    #ifdef DISPLAY128x64_CONNECTED
     display.clearDisplay();
     display.setCursor(0, 0);
     display.setTextSize(1);
@@ -634,7 +575,7 @@ void loop() {
     switch (page)
     {
       case 0:
-        // HDC & BMP
+      // HDC & BMP
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
         display.println(F("HDC&BMP"));
@@ -665,7 +606,7 @@ void loop() {
         // TSL/VEML
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
-        display.println(F("TSL&VEML"));
+        display.println(F("LIGHTSENSOR"));
         display.setTextColor(WHITE, BLACK);
         display.println();
         display.setTextSize(1);
@@ -687,7 +628,6 @@ void loop() {
         // SDS
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
-#ifdef SDS011_CONNECTED
         display.println(F("PM10&PM25"));
         display.setTextColor(WHITE, BLACK);
         display.println();
@@ -696,23 +636,9 @@ void loop() {
         display.println(pm10);
         display.print(F("PM25:"));
         display.println(pm25);
-#else
-#ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-        display.println(F("PM1&PM2.5"));
-        display.setTextColor(WHITE, BLACK);
-        display.println();
-        display.setTextSize(1);
-        display.print(F("PM1:"));
-        display.println(m.mc_1p0);
-        display.print(F("PM.25:"));
-        display.println(m.mc_2p5);
-#else
-        display.println(F("partical sensor not connected"));
-#endif
-#endif
         break;
       case 3:
-        // SMT, SOUND LEVEL , BME
+        // Soil
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
         display.println(F("Soil"));
@@ -732,6 +658,7 @@ void loop() {
 #else
         display.println(F("not connected"));
 #endif
+
         break;
       case 4:
         // WINDSPEED SCD30
@@ -756,7 +683,7 @@ void loop() {
 #endif
         break;
       case 5:
-          // SMT, SOUND LEVEL , BME
+    //SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
         display.println(F("Sound&BME"));
@@ -776,13 +703,19 @@ void loop() {
 #else
         display.print(F("not connected"));
 #endif
-
         break;
     }
     display.display();
     if (elapsed >= displayTime)
     {
-      page = (page + 1) % 5; // cycle through 5 pages
+      if (page == 5)
+      {
+        page = 0;
+      }
+      else
+      {
+        page += 1;
+      }
       displayTime += 5000;
     }
 #endif
@@ -817,28 +750,28 @@ void write_reg(byte address, uint8_t reg, uint8_t val)
 #ifdef TSL45315_CONNECTED
 void Lightsensor_begin()
 {
-  Wire.begin();
-  unsigned int u = 0;
-  DEBUG(F("Checking lightsensortype"));
-  u = read_reg(0x29, 0x80 | 0x0A); //id register
-  if ((u & 0xF0) == 0xA0)            // TSL45315
-  {
-    DEBUG(F("TSL45315"));
-    write_reg(0x29, 0x80 | 0x00, 0x03); //control: power on
-    write_reg(0x29, 0x80 | 0x01, 0x02); //config: M=4 T=100ms
-    delay(120);
-    lightsensortype = 0; //TSL45315
-  }
-  else
-  {
-    DEBUG(F("LTR329"));
-    LTR.begin();
+	Wire.begin();
+	unsigned int u = 0;
+	DEBUG(F("Checking lightsensortype"));
+	u = read_reg(0x29, 0x80 | 0x0A); //id register
+	if ((u & 0xF0) == 0xA0)						 // TSL45315
+	{
+		DEBUG(F("TSL45315"));
+		write_reg(0x29, 0x80 | 0x00, 0x03); //control: power on
+		write_reg(0x29, 0x80 | 0x01, 0x02); //config: M=4 T=100ms
+		delay(120);
+		lightsensortype = 0; //TSL45315
+	}
+	else
+	{
+		DEBUG(F("LTR329"));
+		LTR.begin();
     LTR.setControl(gain, false, false);
     LTR.setMeasurementRate(integrationTime, measurementRate);
-    LTR.setPowerUp(); //power on with default settings
-    delay(10); //Wait 10 ms (max) - wakeup time from standby
-    lightsensortype = 1;                     //
-  }
+		LTR.setPowerUp(); //power on with default settings
+		delay(10); //Wait 10 ms (max) - wakeup time from standby
+		lightsensortype = 1;										 //
+	}
 }
 
 unsigned int Lightsensor_getIlluminance()
