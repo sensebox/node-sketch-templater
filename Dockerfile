@@ -38,6 +38,8 @@ RUN arduino-cli --additional-urls https://raw.githubusercontent.com/sensebox/sen
 
 
 # RUN arduino-cli lib install --zip-path sps30.zip // SPS30 is not an official part of sensebox home yet
+
+# TODO: the following lines can be removed, as soon as they were added into the sensebox samd package
 RUN arduino-cli lib install RG15-Arduino
 RUN arduino-cli lib install SolarChargerSB041
 
