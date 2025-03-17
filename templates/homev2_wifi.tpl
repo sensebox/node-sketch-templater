@@ -153,12 +153,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-// #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-//  uint32_t auto_clean_days = 4;
-//  struct sps30_measurement m;
-//  int16_t ret;
-//  uint32_t auto_clean;
-// #endif
+
 #ifdef RG15_CONNECTED
  RG15 rg15(RG15_SERIAL_PORT);
 #endif
@@ -457,11 +452,6 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  // #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-  //  sensirion_i2c_init();
-  //  ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
-  //  ret = sps30_start_measurement();
-  // #endif
   #ifdef RG15_CONNECTED
     rg15.begin();
   #endif
@@ -594,15 +584,6 @@ void loop() {
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
   #endif
-
-  //-----SPS30-----//
-  // #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-  //  ret = sps30_read_measurement(&m);
-  //  addMeasurement(SPS30_PM1SENSOR_ID, m.mc_1p0);
-  //  addMeasurement(SPS30_PM25SENSOR_ID, m.mc_2p5);
-  //  addMeasurement(SPS30_PM4SENSOR_ID, m.mc_4p0);
-  //  addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
-  // #endif
 
   //-----RG15-----//
   #ifdef RG15_CONNECTED
