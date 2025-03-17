@@ -38,11 +38,15 @@ const boxStub = function (model) {
         _id: "59479ed5a4ad5900112d8df1",
         sensorType: "VEML6070",
       },
-      { title: "PM10", _id: "59479ed5a4ad5900112d8df2", sensorType: "SDS 011" },
       {
-        title: "PM2.5",
+        title: "PM10",
+        _id: "59479ed5a4ad5900112d8df2",
+        sensorType: "SDS011",
+      },
+      {
+        title: "PM2p5", // notation with "p" necessary, as "." gets removed in measuremts IDs
         _id: "59479ed5a4ad5900112d8df3",
-        sensorType: "SDS 011",
+        sensorType: "SDS011",
       },
       {
         title: "Bodenfeuchte",
@@ -76,28 +80,48 @@ const boxStub = function (model) {
         sensorType: "SoundLevelMeter",
       },
       {
-        title: "Gesamtniederschlag",
+        title: "PM1p0",
         _id: "59479ed5a4ad5900112d8dfb",
+        sensorType: "SPS30",
+      },
+      {
+        title: "PM2p5",
+        _id: "59479ed5a4ad5900112d8dfc",
+        sensorType: "SPS30",
+      },
+      {
+        title: "PM4p0",
+        _id: "59479ed5a4ad5900112d8dfd",
+        sensorType: "SPS30",
+      },
+      {
+        title: "PM10",
+        _id: "59479ed5a4ad5900112d8dfe",
+        sensorType: "SPS30",
+      },
+      {
+        title: "Gesamtniederschlag",
+        _id: "59479ed5a4ad5900112d8dff",
         sensorType: "RG15",
       },
       {
         title: "Niederschlagsintensität",
-        _id: "59479ed5a4ad5900112d8dfb",
+        _id: "59479ed5a4ad5900112d8e00",
         sensorType: "RG15",
       },
       {
         title: "Solarspannung",
-        _id: "59479ed5a4ad5900112d8dfc",
+        _id: "59479ed5a4ad5900112d8e01",
         sensorType: "SB041",
       },
       {
         title: "Batteriespannung",
-        _id: "59479ed5a4ad5900112d8dfc",
+        _id: "59479ed5a4ad5900112d8e02",
         sensorType: "SB041",
       },
       {
         title: "Ladelevel", //TODO eigentlich "Batterielevel", aber geht nicht, da erste 6 Buchstaben identisch zu "Batteriespannung"
-        _id: "59479ed5a4ad5900112d8dfc",
+        _id: "59479ed5a4ad5900112d8de03",
         sensorType: "SB041",
       },
     ],

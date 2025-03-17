@@ -29,7 +29,7 @@
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-// #include <sps30.h> // SPS30 is not an official part of sensebox home yet
+#include <sps30.h>
 #include <RG15.h>
 #include <SolarChargerSB041.h>
 
@@ -126,7 +126,7 @@ unsigned long getTime() {
 #ifdef SDS011_CONNECTED
   SDS011 SDS(SDS_SERIAL_PORT);
   float pm10 = 0;
-  float pm25 = 0;
+  float pm2p5 = 0;
 #endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
@@ -153,12 +153,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-// #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-//  uint32_t auto_clean_days = 4;
-//  struct sps30_measurement m;
-//  int16_t ret;
-//  uint32_t auto_clean;
-// #endif
+#ifdef SPS30_CONNECTED
+  uint32_t auto_clean_days = 4;
+  struct sps30_measurement m;
+  int16_t ret;
+#endif
 #ifdef RG15_CONNECTED
  RG15 rg15(RG15_SERIAL_PORT);
 #endif
@@ -457,11 +456,11 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  // #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-  //  sensirion_i2c_init();
-  //  ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
-  //  ret = sps30_start_measurement();
-  // #endif
+  #ifdef SPS30_CONNECTED
+    sensirion_i2c_init();
+    ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
+    ret = sps30_start_measurement();
+  #endif
   #ifdef RG15_CONNECTED
     rg15.begin();
   #endif
@@ -519,14 +518,14 @@ void loop() {
 #ifdef SDS011_CONNECTED
   uint8_t attempt = 0;
   while (attempt < 5) {
-    bool error = SDS.read(&pm25, &pm10);
+    bool error = SDS.read(&pm2p5, &pm10);
     if (!error) {
       DEBUG(F("PM10: "));
       DEBUG(pm10);
       addMeasurement(SDS011_PM10SENSOR_ID, pm10);
-      DEBUG(F("PM2.5: "));
-      DEBUG(pm25);
-      addMeasurement(SDS011_PM25SENSOR_ID, pm25);
+      DEBUG(F("PM2_5: "));
+      DEBUG(pm2p5);
+      addMeasurement(SDS011_PM2p5SENSOR_ID, pm2p5);
       break;
     }
     attempt++;
@@ -596,13 +595,13 @@ void loop() {
   #endif
 
   //-----SPS30-----//
-  // #ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-  //  ret = sps30_read_measurement(&m);
-  //  addMeasurement(SPS30_PM1SENSOR_ID, m.mc_1p0);
-  //  addMeasurement(SPS30_PM25SENSOR_ID, m.mc_2p5);
-  //  addMeasurement(SPS30_PM4SENSOR_ID, m.mc_4p0);
-  //  addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
-  // #endif
+  #ifdef SPS30_CONNECTED
+    ret = sps30_read_measurement(&m);
+    addMeasurement(SPS30_PM1p0SENSOR_ID, m.mc_1p0);
+    addMeasurement(SPS30_PM2p5SENSOR_ID, m.mc_2p5);
+    addMeasurement(SPS30_PM4p0SENSOR_ID, m.mc_4p0);
+    addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
+  #endif
 
   //-----RG15-----//
   #ifdef RG15_CONNECTED
@@ -661,6 +660,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
+
       case 1:
         // TSL/VEML
         display.setTextSize(2);
@@ -683,35 +683,43 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
+
       case 2:
         // SDS
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
 #ifdef SDS011_CONNECTED
-        display.println(F("PM10&PM25"));
+        display.println(F("PM10&PM2.5"));
         display.setTextColor(WHITE, BLACK);
         display.println();
         display.setTextSize(1);
         display.print(F("PM10:"));
         display.println(pm10);
-        display.print(F("PM25:"));
-        display.println(pm25);
+        display.print(F("PM2.5:"));
+        display.println(pm2p5);
 #else
-#ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
-        display.println(F("PM1&PM2.5"));
-        display.setTextColor(WHITE, BLACK);
-        display.println();
-        display.setTextSize(1);
-        display.print(F("PM1:"));
-        display.println(m.mc_1p0);
-        display.print(F("PM.25:"));
-        display.println(m.mc_2p5);
-#else
-        display.println(F("partical sensor not connected"));
-#endif
+        display.println(F("SDS partical sensor not connected"));
 #endif
         break;
       case 3:
+        // SPS30
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+#ifdef SPS30_CONNECTED
+        display.println(F("PM1.0&PM2.5"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("PM1.0:"));
+        display.println(m.mc_1p0);
+        display.print(F("PM2.5:"));
+        display.println(m.mc_2p5);
+#else
+        display.println(F("SPS30 partical sensor not connected"));
+#endif
+        break;
+
+      case 4:
         // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -733,7 +741,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-      case 4:
+      case 5:
         // WINDSPEED SCD30
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -755,7 +763,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-      case 5:
+      case 6:
           // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -782,7 +790,7 @@ void loop() {
     display.display();
     if (elapsed >= displayTime)
     {
-      page = (page + 1) % 5; // cycle through 5 pages
+      page = (page + 1) % 6; // cycle through 6 pages
       displayTime += 5000;
     }
 #endif

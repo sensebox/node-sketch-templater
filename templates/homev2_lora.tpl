@@ -28,6 +28,7 @@
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
+#include <sps30.h>
 #include <RG15.h>
 #include <SolarChargerSB041.h>
 
@@ -119,6 +120,12 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
+#endif
+#ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
+  uint32_t auto_clean_days = 4;
+  struct sps30_measurement m;
+  int16_t ret;
+  uint32_t auto_clean;
 #endif
 #ifdef RG15_CONNECTED
  RG15 rg15(RG15_SERIAL_PORT);
