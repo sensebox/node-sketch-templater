@@ -24,12 +24,14 @@
 #include <Adafruit_BMP280.h>
 #include <Adafruit_BME680.h>
 #include <VEML6070.h>
+#include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
-#include <sps30.h>
-
+// #include <sps30.h> // SPS30 is not an official part of sensebox home yet
+#include <RG15.h>
+#include <SolarChargerSB041.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -81,6 +83,14 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
+// The serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
+#ifdef SDS011_CONNECTED
+#define SDS_SERIAL_PORT (@@SDS_SERIAL_PORT@@)
+#endif
+#ifdef RG15_CONNECTED
+#define RG15_SERIAL_PORT (@@RG15_SERIAL_PORT@@)
+#endif
+
 // Display enabled
 // Uncomment the next line to get values of measurements printed on display
 @@DISPLAY_ENABLED|toDefineDisplay@@
@@ -113,6 +123,11 @@ unsigned long getTime() {
 #ifdef VEML6070_CONNECTED
   VEML6070 VEML;
 #endif
+#ifdef SDS011_CONNECTED
+  SDS011 SDS(SDS_SERIAL_PORT);
+  float pm10 = 0;
+  float pm25 = 0;
+#endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
   #define SOILMOISPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber~1@@
@@ -138,13 +153,13 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
 #endif
-#ifdef SPS30_CONNECTED
-  uint32_t auto_clean_days = 4;
-  struct sps30_measurement m;
-  int16_t ret;
-  uint32_t auto_clean;
-#endif
 
+#ifdef RG15_CONNECTED
+ RG15 rg15(RG15_SERIAL_PORT);
+#endif
+#ifdef SB041_CONNECTED
+ SolarChargerSB041 charger;
+#endif
 
 typedef struct measurement {
   const char *sensorId;
@@ -418,6 +433,9 @@ void setup() {
     BME.setPressureOversampling(BME680_OS_4X);
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
   #endif
+  #ifdef SDS011_CONNECTED
+    SDS_SERIAL_PORT.begin(9600);
+  #endif
   #ifdef SCD30_CONNECTED
     Wire.begin();
     SCD.begin();
@@ -434,10 +452,11 @@ void setup() {
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
-  #ifdef SPS30_CONNECTED
-    sensirion_i2c_init();
-    ret = sps30_set_fan_auto_cleaning_interval_days(auto_clean_days);
-    ret = sps30_start_measurement();
+  #ifdef RG15_CONNECTED
+    rg15.begin();
+  #endif
+  #ifdef SB041_CONNECTED
+    charger.begin();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -484,6 +503,24 @@ void loop() {
   //-----UV intensity-----//
 #ifdef VEML6070_CONNECTED
   addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
+#endif
+
+//-----PM-----//
+#ifdef SDS011_CONNECTED
+  uint8_t attempt = 0;
+  while (attempt < 5) {
+    bool error = SDS.read(&pm25, &pm10);
+    if (!error) {
+      DEBUG(F("PM10: "));
+      DEBUG(pm10);
+      addMeasurement(SDS011_PM10SENSOR_ID, pm10);
+      DEBUG(F("PM2.5: "));
+      DEBUG(pm25);
+      addMeasurement(SDS011_PM25SENSOR_ID, pm25);
+      break;
+    }
+    attempt++;
+  }
 #endif
 
   //-----Soil Temperature & Moisture-----//
@@ -548,12 +585,19 @@ void loop() {
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
   #endif
 
-  #ifdef SPS30_CONNECTED
-    ret = sps30_read_measurement(&m);
-    addMeasurement(SPS30_PM1SENSOR_ID, m.mc_1p0);
-    addMeasurement(SPS30_PM25SENSOR_ID, m.mc_2p5);
-    addMeasurement(SPS30_PM4SENSOR_ID, m.mc_4p0);
-    addMeasurement(SPS30_PM10SENSOR_ID, m.mc_10p0);
+  //-----RG15-----//
+  #ifdef RG15_CONNECTED
+    rg15.poll();
+    addMeasurement(RG15_GESAMTSENSOR_ID, rg15.getTotalAccumulation());
+    addMeasurement(RG15_NIEDERSENSOR_ID, rg15.getRainfallIntensity());
+  #endif
+
+  //-----SB041-----//
+  #ifdef SB041_CONNECTED
+    charger.update();
+    addMeasurement(SB041_SOLARSSENSOR_ID, charger.getSolarPanelVoltage());
+    addMeasurement(SB041_BATTERSENSOR_ID, charger.getBatteryVoltage());
+    addMeasurement(SB041_LADELESENSOR_ID, charger.getBatteryLevel());
   #endif
 
   DEBUG(F("Submit values"));
@@ -621,52 +665,34 @@ void loop() {
 #endif
         break;
       case 2:
-        // SPS30_CONNECTED
+        // SDS
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
+#ifdef SDS011_CONNECTED
+        display.println(F("PM10&PM25"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("PM10:"));
+        display.println(pm10);
+        display.print(F("PM25:"));
+        display.println(pm25);
+#else
+#ifdef SPS30_CONNECTED // SPS30 is not an official part of sensebox home yet
         display.println(F("PM1&PM2.5"));
         display.setTextColor(WHITE, BLACK);
         display.println();
         display.setTextSize(1);
         display.print(F("PM1:"));
-
-        #ifdef SPS30_CONNECTED
-          display.println(m.mc_1p0);
-        #else
-          display.println(F("not connected"));
-        #endif
-
+        display.println(m.mc_1p0);
         display.print(F("PM.25:"));
-        #ifdef SPS30_CONNECTED
-          display.println(m.mc_2p5);
-        #else
-          display.println(F("not connected"));
-        #endif
-
+        display.println(m.mc_2p5);
+#else
+        display.println(F("partical sensor not connected"));
+#endif
+#endif
         break;
       case 3:
-        // SPS30_CONNECTED
-        display.setTextSize(2);
-        display.setTextColor(BLACK, WHITE);
-        display.println(F("PM4&PM10"));
-        display.setTextColor(WHITE, BLACK);
-        display.println();
-        display.setTextSize(1);
-        display.print(F("PM4:"));
-
-        #ifdef SPS30_CONNECTED
-          display.println(m.mc_4p0);
-        #else
-          display.println(F("not connected"));
-        #endif
-          display.print(F("PM10:"));
-        #ifdef SPS30_CONNECTED
-          display.println(m.mc_10p0);
-        #else
-          display.println(F("not connected"));
-        #endif
-        break;
-      case 4:
         // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -687,9 +713,8 @@ void loop() {
 #else
         display.println(F("not connected"));
 #endif
-
         break;
-      case 5:
+      case 4:
         // WINDSPEED SCD30
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -711,7 +736,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-      case 6:
+      case 5:
           // SMT, SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -738,14 +763,7 @@ void loop() {
     display.display();
     if (elapsed >= displayTime)
     {
-      if (page == 4)
-      {
-        page = 0;
-      }
-      else
-      {
-        page += 1;
-      }
+      page = (page + 1) % 5; // cycle through 5 pages
       displayTime += 5000;
     }
 #endif

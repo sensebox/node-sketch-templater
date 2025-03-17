@@ -5,7 +5,7 @@ RUN curl -fsSL https://raw.githubusercontent.com/arduino/arduino-cli/master/inst
 
 RUN arduino-cli config init
 
-# aloow unsafe sources (zip, git)
+# allow unsafe sources (zip, git)
 RUN arduino-cli config set library.enable_unsafe_install true
 
 # update arduino-cli
@@ -29,13 +29,19 @@ RUN arduino-cli lib install --zip-path HDC100X.zip
 RUN arduino-cli lib install --zip-path Makerblog_TSL45315.zip
 RUN arduino-cli lib install --zip-path VEML6070.zip
 RUN arduino-cli lib install --zip-path LTR329.zip
-RUN arduino-cli lib install --zip-path sps30.zip
 RUN arduino-cli lib install --git-url https://github.com/sensebox/SDS011-select-serial
 
 # install arduino stuff for senseBox V2
 RUN arduino-cli core install arduino:samd@1.8.13
 RUN curl -o /root/.arduino15/package_sensebox_index.json https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json
 RUN arduino-cli --additional-urls https://raw.githubusercontent.com/sensebox/senseBoxMCU-core/master/package_sensebox_index.json core install sensebox:samd
+
+
+# RUN arduino-cli lib install --zip-path sps30.zip // SPS30 is not an official part of sensebox home yet
+
+# TODO: the following lines can be removed, as soon as they were added into the sensebox samd package
+RUN arduino-cli lib install RG15-Arduino
+RUN arduino-cli lib install SolarChargerSB041
 
 WORKDIR /app
 

@@ -22,12 +22,15 @@
 #include <Adafruit_BMP280.h>
 #include <Adafruit_BME680.h>
 #include <VEML6070.h>
+#include <SDS011-select-serial.h>
 #include <SparkFun_SCD30_Arduino_Library.h>
 #include <LTR329.h>
 #include <ArduinoBearSSL.h>
 #include <EthernetUdp.h>
 #include <NTPClient.h>
 #include <Adafruit_DPS310.h> // http://librarymanager/All#Adafruit_DPS310
+#include <RG15.h>
+#include <SolarChargerSB041.h>
 
 // Uncomment the next line to get debugging messages printed on the Serial port
 // Do not leave this enabled for long time use
@@ -75,6 +78,14 @@ static const uint8_t NUM_SENSORS = @@NUM_SENSORS@@;
 // Connected sensors
 @@SENSORS|toDefineWithSuffixPrefixAndKey~,_CONNECTED,sensorType@@
 
+// The serial port the SDS011 or RG15 is connected to. Either Serial1 or Serial2.
+#ifdef SDS011_CONNECTED
+#define SDS_SERIAL_PORT (@@SDS_SERIAL_PORT@@)
+#endif
+#ifdef RG15_CONNECTED
+#define RG15_SERIAL_PORT (@@RG15_SERIAL_PORT@@)
+#endif
+
 // sensor IDs
 @@SENSOR_IDS|toProgmem@@
 
@@ -114,6 +125,11 @@ IPAddress mySubnet(255, 255, 255, 0);
 #ifdef VEML6070_CONNECTED
   VEML6070 VEML;
 #endif
+#ifdef SDS011_CONNECTED
+  SDS011 SDS(SDS_SERIAL_PORT);
+  float pm10 = 0;
+  float pm25 = 0;
+#endif
 #ifdef SMT50_CONNECTED
   #define SOILTEMPPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber@@
   #define SOILMOISPIN @@SOIL_DIGITAL_PORT|digitalPortToPortNumber~1@@
@@ -132,6 +148,12 @@ IPAddress mySubnet(255, 255, 255, 0);
 #endif
 #ifdef DPS310_CONNECTED
   Adafruit_DPS310 dps;
+#endif
+#ifdef RG15_CONNECTED
+ RG15 rg15(RG15_SERIAL_PORT);
+#endif
+#ifdef SB041_CONNECTED
+ SolarChargerSB041 charger;
 #endif
 
 int dataLength;
@@ -364,6 +386,9 @@ void setup() {
     BME.setPressureOversampling(BME680_OS_4X);
     BME.setIIRFilterSize(BME680_FILTER_SIZE_3);
   #endif
+  #ifdef SDS011_CONNECTED
+    SDS_SERIAL_PORT.begin(9600);
+  #endif
   #ifdef SCD30_CONNECTED
     Wire.begin();
     SCD.begin();
@@ -372,6 +397,12 @@ void setup() {
     dps.begin_I2C(0x76);
     dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
     dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
+  #endif
+  #ifdef RG15_CONNECTED
+    rg15.begin();
+  #endif
+  #ifdef SB041_CONNECTED
+    charger.begin();
   #endif
   DEBUG(F("Initializing sensors done!"));
   DEBUG(F("Starting loop in 3 seconds."));
@@ -411,6 +442,24 @@ void loop() {
   //-----UV intensity-----//
   #ifdef VEML6070_CONNECTED
     addMeasurement(VEML6070_UVINTESENSOR_ID, VEML.getUV());
+  #endif
+
+  //-----PM-----//
+  #ifdef SDS011_CONNECTED
+    uint8_t attempt = 0;
+    while (attempt < 5) {
+      bool error = SDS.read(&pm25, &pm10);
+      if (!error) {
+        DEBUG(F("PM10: "));
+        DEBUG(pm10);
+        addMeasurement(SDS011_PM10SENSOR_ID, pm10);
+        DEBUG(F("PM2.5: "));
+        DEBUG(pm25);
+        addMeasurement(SDS011_PM25SENSOR_ID, pm25);
+        break;
+      }
+      attempt++;
+    }
   #endif
 
   //-----Soil Temperature & Moisture-----//
@@ -471,6 +520,21 @@ void loop() {
     sensors_event_t temp_event, pressure_event;
     dps.getEvents(&temp_event, &pressure_event);
     addMeasurement(DPS310_LUFTDRSENSOR_ID, pressure_event.pressure);
+  #endif
+
+  //-----RG15-----//
+  #ifdef RG15_CONNECTED
+    rg15.poll();
+    addMeasurement(RG15_GESAMTSENSOR_ID, rg15.getTotalAccumulation());
+    addMeasurement(RG15_NIEDERSENSOR_ID, rg15.getRainfallIntensity());
+  #endif
+
+  //-----SB041-----//
+  #ifdef SB041_CONNECTED
+    charger.update();
+    addMeasurement(SB041_SOLARSSENSOR_ID, charger.getSolarPanelVoltage());
+    addMeasurement(SB041_BATTERSENSOR_ID, charger.getBatteryVoltage());
+    addMeasurement(SB041_LADELESENSOR_ID, charger.getBatteryLevel());
   #endif
 
   DEBUG(F("submit values"));

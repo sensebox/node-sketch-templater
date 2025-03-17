@@ -574,7 +574,7 @@ void loop() {
     display.setTextColor(WHITE, BLACK);
     switch (page)
     {
-    case 0:
+      case 0:
       // HDC & BMP
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -602,7 +602,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-    case 1:
+      case 1:
         // TSL/VEML
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -623,20 +623,21 @@ void loop() {
 #else
         display.println(F("not connected"));
 #endif
-    case 2:
-      // SDS
-      display.setTextSize(2);
-      display.setTextColor(BLACK, WHITE);
-      display.println(F("PM10&PM25"));
-      display.setTextColor(WHITE, BLACK);
-      display.println();
-      display.setTextSize(1);
-      display.print(F("PM10:"));
-      display.println(pm10);
-      display.print(F("PM25:"));
-      display.println(pm25);
-      break;
-    case 3:
+        break;
+      case 2:
+        // SDS
+        display.setTextSize(2);
+        display.setTextColor(BLACK, WHITE);
+        display.println(F("PM10&PM25"));
+        display.setTextColor(WHITE, BLACK);
+        display.println();
+        display.setTextSize(1);
+        display.print(F("PM10:"));
+        display.println(pm10);
+        display.print(F("PM25:"));
+        display.println(pm25);
+        break;
+      case 3:
         // Soil
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -659,7 +660,7 @@ void loop() {
 #endif
 
         break;
-    case 4:
+      case 4:
         // WINDSPEED SCD30
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
@@ -681,7 +682,7 @@ void loop() {
         display.println(F("not connected"));
 #endif
         break;
-    case 5:
+      case 5:
     //SOUND LEVEL , BME
         display.setTextSize(2);
         display.setTextColor(BLACK, WHITE);
