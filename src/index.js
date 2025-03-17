@@ -42,20 +42,23 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   box,
   { encoding } = {}
 ) {
+  // Wenn das Modell "homev2wifiFeinstuab" ist, wird es als "homeV2" behandelt.
+  if (box.model === "homev2WifiFeinstaub" || box.model === "homev2EthernetFeinstaub") {
+    box.model = "homeV2";
+  }
+
   if (this._templates[box.model]) {
-    // transform CO₂ to CO2 just for node sketch templater
+    // transformiere "CO₂" zu "CO2" nur für node sketch templater
     box.sensors = box.sensors.map((s) => {
       if (s.title === "CO₂") {
-        s.title = "CO2";
+        s.title = 'CO2';
       }
-
       return s;
     });
 
     if (encoding && encoding === "base64") {
       return Buffer.from(this._executeTemplate(box)).toString("base64");
     }
-
     return this._executeTemplate(box);
   }
 
