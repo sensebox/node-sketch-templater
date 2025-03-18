@@ -42,12 +42,14 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   box,
   { encoding } = {}
 ) {
+
+  const boxModel = box.model;
   // Wenn das Modell "homev2wifiFeinstuab" ist, wird es als "homeV2" behandelt.
-  if (box.model === "homev2WifiFeinstaub" || box.model === "homev2EthernetFeinstaub") {
-    box.model = "homeV2";
+  if (boxModel === "homev2WifiFeinstaub" || boxModel === "homev2EthernetFeinstaub") {
+    boxModel = "homeV2";
   }
 
-  if (this._templates[box.model]) {
+  if (this._templates[boxModel]) {
     // transformiere "CO₂" zu "CO2" nur für node sketch templater
     box.sensors = box.sensors.map((s) => {
       if (s.title === "CO₂") {
