@@ -42,29 +42,41 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   box,
   { encoding } = {}
 ) {
-
   let boxModel = box.model;
-  // Wenn das Modell "homev2wifiFeinstuab" ist, wird es als "homeV2" behandelt.
-  if (boxModel === "homeV2WifiFeinstaub" || boxModel === "homeV2EthernetFeinstaub") {
-    boxModel = "homeV2";
+  const normalizedModel = boxModel.toLowerCase();
+
+  // We merged the feinstaub extension templates into one template
+  // So we need to normalize the model name to the base model and treat every feinstaub model as normal homev2 model
+  switch (normalizedModel) {
+    case "homev2wififeinstaub":
+      boxModel = "homeV2Wifi";
+      box.model = "homeV2Wifi"; 
+      break;
+    case "homev2ethernetfeinstaub":
+      boxModel = "homeV2Ethernet";
+      box.model = "homeV2Ethernet"; 
+      break;
+    default:
+      boxModel = "homeV2Wifi";
+      break;
   }
 
   if (this._templates[boxModel]) {
-    // transformiere "CO₂" zu "CO2" nur für node sketch templater
+    // Transformiere "CO₂" zu "CO2" nur für node sketch templater.
     box.sensors = box.sensors.map((s) => {
       if (s.title === "CO₂") {
-        s.title = 'CO2';
+        s.title = "CO2";
       }
       return s;
     });
 
-    if (encoding && encoding === "base64") {
+    if (encoding === "base64") {
       return Buffer.from(this._executeTemplate(box)).toString("base64");
     }
     return this._executeTemplate(box);
   }
 
-  return `Error: No sketch template availiable for model ${box.model}`;
+  return `Error: No sketch template available for modelsssss ${boxModel}`;
 };
 
 SketchTemplater.prototype._cloneBox = function _cloneBox({
