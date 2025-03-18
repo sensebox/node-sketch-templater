@@ -43,9 +43,9 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
   { encoding } = {}
 ) {
 
-  const boxModel = box.model;
+  let boxModel = box.model;
   // Wenn das Modell "homev2wifiFeinstuab" ist, wird es als "homeV2" behandelt.
-  if (boxModel === "homev2WifiFeinstaub" || boxModel === "homev2EthernetFeinstaub") {
+  if (boxModel === "homeV2WifiFeinstaub" || boxModel === "homeV2EthernetFeinstaub") {
     boxModel = "homeV2";
   }
 
