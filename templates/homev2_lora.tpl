@@ -15,6 +15,7 @@
 #include <lmic.h>
 #include <hal/hal.h>
 #include <SPI.h>
+#include <LowPower.h>
 #include <senseBoxIO.h>
 
 #include <Adafruit_GFX.h>
@@ -155,7 +156,12 @@ static osjob_t sendjob;
 
 // Schedule TX every this many seconds (might become longer due to duty
 // cycle limitations).
-const unsigned TX_INTERVAL = 60;
+#ifdef SB041_CONNECTED
+  const unsigned TX_INTERVAL = 600; // all 10 minutes
+  const unsigned TX_INTERVAL_LONG = 3600; // every hour
+  const unsigned DUTY_CYCLE_ESTIMATE = 60;
+#else
+  const unsigned TX_INTERVAL = 60;
 #ifdef DISPLAY128x64_CONNECTED
   const unsigned DISPLAY_INTERVAL = 5; // update display each 5 seconds
   int unsigned displayPage = 0;
@@ -213,8 +219,25 @@ void onEvent (ev_t ev) {
         DEBUG(LMIC.dataLen);
         DEBUG(F(" bytes of payload"));
       }
-      // Schedule next transmission
-      os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
+      #ifdef SolarChargerSB041 // sleep mode
+        // Choose Sleep Time
+        charger.update();
+        if (harger.getBatteryLevel() > 2) {
+          LowPower.sleep((TX_INTERVAL - DUTY_CYCLE_ESTIMATE) * 1000);
+        } else {
+          LowPower.sleep((TX_INTERVAL_LONG - DUTY_CYCLE_ESTIMATE) * 1000);
+        }
+        
+        // adjust hal
+        hal_sleep_lowpower(DUTY_CYCLE_INTERVAL);        //adjusts lmic_ticks to in effect bypass dutycycle
+        hal_sleep_lowpower(25);                         //add a small bit extra to avoid wrap round issues
+
+        // Schedule next transmission
+        os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(DUTY_CYCLE_ESTIMATE), do_send);
+      #else
+        // Schedule next transmission
+        os_setTimedCallback(&sendjob, os_getTime()+sec2osticks(TX_INTERVAL), do_send);
+      #endif
       break;
     case EV_LOST_TSYNC:
       DEBUG(F("EV_LOST_TSYNC"));

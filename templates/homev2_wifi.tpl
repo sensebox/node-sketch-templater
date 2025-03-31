@@ -16,6 +16,7 @@
 #include <Wire.h>
 #include <SPI.h>
 #include <senseBoxIO.h>
+#include <LowPower.h>
 
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
