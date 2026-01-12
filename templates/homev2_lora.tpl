@@ -1,8 +1,8 @@
 { "model" : "homeV2Lora", "board": "senseBox:samd:sb" }
 /*
   senseBox:home - Citizen Sensingplatform
-  Version: lorav2_1.6.0
-  Date: 2022-03-04
+  Version: lorav2_1.6.1
+  Date: 2026-01-12
   Homepage: https://www.sensebox.de https://www.opensensemap.org
   Author: Reedu GmbH & Co. KG
   Note: Sketch for senseBox:home LoRa MCU Edition
@@ -72,9 +72,12 @@
   float temperature = 0;
   float humidity = 0;
 #endif
-#ifdef BMP280_CONNECTED
+#ifdef DPS310_CONNECTED
+  Adafruit_DPS310 DPS;  
   Adafruit_BMP280 BMP;
-  double pressure;
+  int pressureSensorType;
+#endif
+#ifdef BMP280_CONNECTED
 #endif
 #ifdef TSL45315_CONNECTED
   uint32_t lux;
@@ -116,9 +119,6 @@
 #define SCREEN_HEIGHT 64
 #define OLED_RESET 4
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
-#endif
-#ifdef DPS310_CONNECTED
-  Adafruit_DPS310 dps;
 #endif
 #ifdef RG15_CONNECTED
  RG15 rg15(RG15_SERIAL_PORT);
@@ -261,15 +261,29 @@ void do_send(osjob_t* j){
       delay(2000);
     #endif
 
-    //-----Pressure-----//
-    #ifdef BMP280_CONNECTED
-      float altitude;
-      pressure = BMP.readPressure()/100;
-      altitude = BMP.readAltitude(1013.25); //1013.25 = sea level pressure
-      DEBUG(F("Pressure: "));
-      DEBUG(pressure);
-      message.addUint16((pressure - 300) * 81.9187);
-      delay(2000);
+    //-----Air Pressure-----//
+    #ifdef DPS310_CONNECTED
+      if (pressureSensorType == 1){
+        float altitude;
+        float pressure;
+        pressure = BMP.readPressure()/100;
+        altitude = BMP.readAltitude(1013.25); //1013.25 = sea level pressure
+        DEBUG(F("Pressure: "));
+        DEBUG(pressure);
+        message.addUint16((pressure - 300) * 81.9187);
+        delay(2000);
+      }
+      else if (pressureSensorType == 2){
+        sensors_event_t temp_event, pressure_event;
+        DPS.getEvents(&temp_event, &pressure_event);
+        DEBUG(F("Pressure: "));
+        DEBUG(pressure_event.pressure);
+        message.addUint16((pressure_event.pressure - 300) * 81.9187);  
+      }
+      else {
+        message.addUint16(0);
+        DEBUG(F("Pressure sensor error! Check connection or replace sensor and cable."));
+      }
     #endif
 
     //-----Lux-----//
@@ -366,13 +380,6 @@ void do_send(osjob_t* j){
       message.addUint16(SCD.getCO2());
     #endif
 
-    //-----DPS310 Pressure-----//
-    #ifdef DPS310_CONNECTED
-      sensors_event_t temp_event, pressure_event;
-      dps.getEvents(&temp_event, &pressure_event);
-      message.addUint16((pressure_event.pressure - 300) * 81.9187);
-    #endif
-
     //-----RG15-----// 
     #ifdef RG15_CONNECTED
       rg15.poll();
@@ -427,9 +434,16 @@ void update_display(osjob_t* t) {
         display.println(F("not connected"));
 #endif
         display.println();
-        display.print(F("Press.:"));
-#ifdef BMP280_CONNECTED
-        display.println(BMP.readPressure() / 100);
+        display.print(F("Press:"));
+#ifdef DPS310_CONNECTED
+        if (pressureSensorType == 1) {
+          display.println(BMP.readPressure() / 100);
+        }
+        else if (pressureSensorType == 2) {
+          sensors_event_t temp_event, pressure_event;
+          DPS.getEvents(&temp_event, &pressure_event);
+          display.println(pressure_event.pressure);
+        }
 #else
         display.println(F("not connected"));
 #endif
@@ -586,11 +600,22 @@ void setup() {
   #ifdef HDC1080_CONNECTED
     HDC.begin();
   #endif
-  #ifdef BMP280_CONNECTED
+  #ifdef DPS310_CONNECTED
+  if (pressureSensorType == 1){
     BMP.begin(0x76);
+  }
+  else if (pressureSensorType == 2){
+    DPS.begin_I2C(0x76);
+    DPS.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
+    DPS.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
+  }
+  #endif
+  #ifdef BMP280_CONNECTED
+
   #endif
   #ifdef TSL45315_CONNECTED
     Lightsensor_begin();
+    pressureSensorType = detectPressureSensor();
   #endif
   #ifdef BME680_CONNECTED
     BME.begin(0x76);
@@ -623,11 +648,6 @@ void setup() {
     display.println("Version LoRaWAN");
     display.setTextSize(2);
     display.display();
-  #endif
-  #ifdef DPS310_CONNECTED
-    dps.begin_I2C(0x76);
-    dps.configurePressure(DPS310_64HZ, DPS310_64SAMPLES);
-    dps.configureTemperature(DPS310_64HZ, DPS310_64SAMPLES);
   #endif
   #ifdef RG15_CONNECTED
     rg15.begin();
@@ -680,6 +700,31 @@ void write_reg(byte address, uint8_t reg, uint8_t val)
   Wire.endTransmission();
 }
 
+#ifdef DPS310_CONNECTED
+int detectPressureSensor() {
+  const uint8_t I2C_ADDR = 0x76;
+
+  // BMP280 Chip-ID: Register 0xD0 → Wert 0x58
+  int bmpId = read_reg(I2C_ADDR, 0xD0);
+  if (bmpId == 0x58) {
+    return 1;
+  }
+
+  // DPS310 Product-ID: Register 0x0D → Wert 0x10
+  int dpsId = read_reg(I2C_ADDR, 0x0D);
+  if (dpsId == 0x10) {
+    return 2;
+  }
+
+  if (bmpId == 0 && dpsId == 0) {
+    return 0;
+  }
+
+  return -1;
+}
+#endif
+
+
 #ifdef TSL45315_CONNECTED
 void Lightsensor_begin()
 {
@@ -730,7 +775,7 @@ unsigned int Lightsensor_getIlluminance()
       else {
         DEBUG(F("LTR getData error "));
         byte error = LTR.getError();
-        Serial.println(error);
+        DEBUG(error);
       }
     }
   }
