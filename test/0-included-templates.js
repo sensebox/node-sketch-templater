@@ -91,7 +91,7 @@ describe('Included templates', function () {
 
   it('should return error string for unknown model', function () {
     expect(mySketchTemplater.generateSketch({ model: 'nosketch' })).to.include(
-      'Error: No sketch template availiable for model'
+      'Error: No sketch template available for model'
     );
   });
 
