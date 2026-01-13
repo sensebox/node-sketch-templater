@@ -56,9 +56,6 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
       boxModel = "homeV2Ethernet";
       box.model = "homeV2Ethernet"; 
       break;
-    default:
-      boxModel = "homeV2Wifi";
-      break;
   }
 
   if (this._templates[boxModel]) {
@@ -76,7 +73,7 @@ SketchTemplater.prototype.generateSketch = function generateSketch(
     return this._executeTemplate(box);
   }
 
-  return `Error: No sketch template available for modelsssss ${boxModel}`;
+  return `Error: No sketch template available for model ${boxModel}`;
 };
 
 SketchTemplater.prototype._cloneBox = function _cloneBox({
